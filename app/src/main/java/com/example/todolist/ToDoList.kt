@@ -68,7 +68,7 @@ fun ToDoList(navController: NavHostController, viewModel: ToDoListViewModel) {
     )
 
     Column(modifier = Modifier.padding(16.dp)) {
-        Spacer(modifier = Modifier.height(60.dp))
+        Spacer(modifier = Modifier.height(200.dp))
         // Add new item (CreateToDoListItem.kt)
         Button(
             onClick = { navController.navigate(Routes.CreateToDoListItem.value) },
@@ -142,7 +142,7 @@ fun ToDoList(navController: NavHostController, viewModel: ToDoListViewModel) {
     // Column of to do list items
     val toDoListItems = viewModel.toDoListItems
     Column () {
-        Spacer(modifier = Modifier.height(170.dp))
+        Spacer(modifier = Modifier.height(310.dp))
         LazyColumn {
             itemsIndexed(toDoListItems.value) { index, toDoListItem ->
                 ListToDoListItem(toDoListItem = toDoListItem, onDelete = {
