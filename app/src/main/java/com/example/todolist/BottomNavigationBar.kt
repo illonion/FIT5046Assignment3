@@ -90,3 +90,5 @@ fun BottomNavigationBar(toDoListViewModel: ToDoListViewModel, friendViewModel: F
         }
     }
 }
+
+//test push hehe
