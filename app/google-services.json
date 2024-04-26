@@ -1,0 +1,68 @@
+{
+  "project_info": {
+    "project_number": "343103519997",
+    "firebase_url": "https://fit5046-assignment-3-5083c-default-rtdb.asia-southeast1.firebasedatabase.app",
+    "project_id": "fit5046-assignment-3-5083c",
+    "storage_bucket": "fit5046-assignment-3-5083c.appspot.com"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:343103519997:android:cd81e00b4bf5d4b70ed294",
+        "android_client_info": {
+          "package_name": "com.example.firebasetest1"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyDsAXa90pwlP5cu9x9KRgDN4mXZU_BqWC8"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    },
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:343103519997:android:65330b0de5010f260ed294",
+        "android_client_info": {
+          "package_name": "com.example.todolist"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyDsAXa90pwlP5cu9x9KRgDN4mXZU_BqWC8"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    },
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:343103519997:android:dd2ccfd312fe55660ed294",
+        "android_client_info": {
+          "package_name": "com.monash.fit5046a2"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyDsAXa90pwlP5cu9x9KRgDN4mXZU_BqWC8"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
