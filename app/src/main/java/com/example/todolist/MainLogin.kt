@@ -7,6 +7,7 @@ import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
+import androidx.compose.material3.Button
 import androidx.compose.material3.Divider
 import androidx.compose.material3.ElevatedButton
 import androidx.compose.material3.ExperimentalMaterial3Api
@@ -70,7 +71,7 @@ fun MainLogin(navController: NavHostController) {
         // Buttons
         Row(modifier = Modifier.padding(0.dp)) {
             // Login Button
-            ElevatedButton(
+            Button(
                 onClick = { navController.navigate(Routes.Home.value) },
                 modifier = Modifier
                     .padding(bottom = 16.dp)
@@ -86,7 +87,7 @@ fun MainLogin(navController: NavHostController) {
             )
 
             // Google Login Button
-            ElevatedButton(
+            Button(
                 onClick = {
                     Toast.makeText(
                         context,
@@ -109,7 +110,7 @@ fun MainLogin(navController: NavHostController) {
             color = Color.Red)
 
         // Signup button
-        ElevatedButton(
+        Button(
             onClick = {
                 navController.navigate(Routes.MainSignup.value)
             },

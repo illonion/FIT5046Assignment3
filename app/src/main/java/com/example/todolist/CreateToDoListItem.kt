@@ -67,7 +67,7 @@ fun CreateToDoListItem(navController: NavHostController) {
 
     // Top Bar
     TopAppBar(
-        title = { Text(text = "Add To Do List Item") },
+        title = { Text(text = "Add Task") },
         colors = TopAppBarDefaults.topAppBarColors(
             containerColor =
             MaterialTheme.colorScheme.primaryContainer,
@@ -220,7 +220,7 @@ fun CreateToDoListItem(navController: NavHostController) {
                 .fillMaxWidth()
                 .padding(bottom = 8.dp),
         ) {
-            Text("Add item")
+            Text("Add Task")
         }
     }
 }
