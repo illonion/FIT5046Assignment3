@@ -1,5 +1,6 @@
 package com.example.todolist
 
+import android.annotation.SuppressLint
 import android.os.Build
 import android.widget.Toast
 import androidx.annotation.RequiresApi
@@ -18,10 +19,18 @@ import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.layout.wrapContentHeight
 import androidx.compose.foundation.lazy.LazyColumn
+import androidx.compose.material.IconButton
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.rounded.Menu
 import androidx.compose.material3.Card
 import androidx.compose.material3.ElevatedButton
+import androidx.compose.material3.ExperimentalMaterial3Api
+import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
+import androidx.compose.material3.TopAppBar
+import androidx.compose.material3.TopAppBarDefaults
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
@@ -30,25 +39,38 @@ import androidx.navigation.NavHostController
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.style.TextAlign
+import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.sp
 
-// Hiome screen
+// Home screen
+@OptIn(ExperimentalMaterial3Api::class)
+@SuppressLint("UnusedMaterial3ScaffoldPaddingParameter")
 @RequiresApi(Build.VERSION_CODES.O)
 @Composable
 fun Home(navController: NavHostController) {
-    Box(
-        modifier = Modifier.fillMaxSize(),
-        contentAlignment = Alignment.TopCenter
-    )
-    {
-        Column(horizontalAlignment = Alignment.CenterHorizontally)
-        {
-
+    Scaffold(
+        topBar = {
+            TopAppBar(
+                title = { Text("Home") },
+                colors = TopAppBarDefaults.topAppBarColors(
+                    containerColor = MaterialTheme.colorScheme.primaryContainer,
+                    titleContentColor = MaterialTheme.colorScheme.primary
+                )
+            )
+        }
+    ) { innerPadding ->
+        Column(
+            modifier = Modifier
+                .padding(innerPadding)
+                .fillMaxSize(),
+            verticalArrangement = Arrangement.Center,
+            horizontalAlignment = Alignment.CenterHorizontally
+        ) {
             // Welcome to do list text
             Spacer(modifier = Modifier.size(30.dp))
             Text(
-                "Welcome to To Do List!", style =
-                MaterialTheme.typography.headlineMedium
+                "Welcome to To Do List!",
+                style = MaterialTheme.typography.headlineMedium
             )
 
             Spacer(modifier = Modifier.size(30.dp))
@@ -118,7 +140,8 @@ fun Home(navController: NavHostController) {
             Text(
                 text = "Today's to-do list",
                 style = MaterialTheme.typography.headlineMedium,
-                modifier = Modifier.padding(bottom = 7.dp))
+                modifier = Modifier.padding(bottom = 7.dp)
+            )
 
             val sampleList: List<String> = listOf("Groceries", "FIT5046 Assignment 1", "Groceries Again", "Running", "Club", "FIT5225 Assignment 1")
             ItemList(sampleList)
@@ -136,26 +159,28 @@ fun Item(name: String) {
     }
 }
 
+
 // Item List
 @Composable
 fun ItemList(list: List<String>) {
     LazyColumn {
         list.forEachIndexed { index, listItem ->
             item {
-                Card(modifier = Modifier
-                    .fillMaxWidth()
-                    .wrapContentHeight()
-                    .padding(
-                        top = 10.dp,
-                        bottom = 10.dp,
-                        start = 20.dp,
-                        end = 20.dp
-                    )) {
+                Card(
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .wrapContentHeight()
+                        .padding(
+                            top = 10.dp,
+                            bottom = 10.dp,
+                            start = 20.dp,
+                            end = 20.dp
+                        )
+                ) {
                     Item(listItem)
                 }
             }
         }
     }
 }
-
 
