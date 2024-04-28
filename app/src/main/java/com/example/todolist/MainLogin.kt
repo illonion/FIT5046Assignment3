@@ -26,14 +26,18 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.unit.dp
 import androidx.navigation.NavHostController
+import com.google.firebase.quickstart.auth.kotlin.AuthenticationActivity
+
+import android.util.Log
 
 // Main login page
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun MainLogin(navController: NavHostController) {
-    var username by remember { mutableStateOf("") }
+    var email by remember { mutableStateOf("") }
     var password by remember { mutableStateOf("") }
     val context = LocalContext.current
+    AuthenticationActivity().signOut()
 
     // Top bar
     TopAppBar(
@@ -49,9 +53,9 @@ fun MainLogin(navController: NavHostController) {
         Spacer(modifier = Modifier.height(65.dp))
         // Username
         OutlinedTextField(
-            value = username,
-            onValueChange = { username = it },
-            label = { Text("Username") },
+            value = email,
+            onValueChange = { email = it },
+            label = { Text("Email") },
             modifier = Modifier
                 .fillMaxWidth()
                 .padding(bottom = 8.dp)
@@ -71,7 +75,16 @@ fun MainLogin(navController: NavHostController) {
         Row(modifier = Modifier.padding(0.dp)) {
             // Login Button
             ElevatedButton(
-                onClick = { navController.navigate(Routes.Home.value) },
+                onClick = {
+                    AuthenticationActivity().signIn(email, password) { isSuccess ->
+//                        Comment the above line and uncomment the below line
+//                        when you don't want to type(just press login button)
+//                    AuthenticationActivity().signIn("test13@test.com", "123456") { isSuccess ->
+                        if (isSuccess) {
+                            navController.navigate(Routes.Home.value)
+                        }
+                    }
+                },
                 modifier = Modifier
                     .padding(bottom = 16.dp)
                     .fillMaxWidth(0.3f)

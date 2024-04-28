@@ -1,44 +1,33 @@
-package com.example.ass1login
+package com.example.todolist
 
-import androidx.compose.foundation.layout.Column
-import androidx.compose.foundation.layout.Row
-import androidx.compose.foundation.layout.Spacer
-import androidx.compose.foundation.layout.fillMaxWidth
-import androidx.compose.foundation.layout.height
-import androidx.compose.foundation.layout.padding
-import androidx.compose.material3.ElevatedButton
-import androidx.compose.material3.ExperimentalMaterial3Api
-import androidx.compose.material3.MaterialTheme
-import androidx.compose.material3.OutlinedTextField
-import androidx.compose.material3.Text
-import androidx.compose.material3.TopAppBar
-import androidx.compose.material3.TopAppBarDefaults
-import androidx.compose.runtime.Composable
-import androidx.compose.runtime.getValue
-import androidx.compose.runtime.mutableStateOf
-import androidx.compose.runtime.remember
-import androidx.compose.runtime.setValue
+import androidx.compose.foundation.layout.*
+import androidx.compose.material3.*
+import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.unit.dp
 import androidx.navigation.NavHostController
+import com.google.firebase.auth.FirebaseAuth
+import com.google.firebase.database.FirebaseDatabase
 import com.example.todolist.Routes
+import com.google.firebase.quickstart.auth.kotlin.AuthenticationActivity
 
-// Main Signup Page
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun MainSignup(navController: NavHostController){
+fun MainSignup(navController: NavHostController) {
 
-    var newUsername by remember { mutableStateOf("") }
     var newPassword by remember { mutableStateOf("") }
     var firstName by remember { mutableStateOf("") }
     var lastName by remember { mutableStateOf("") }
     var emailAddress by remember { mutableStateOf("") }
+    var message by remember { mutableStateOf("") }
+    var loading by remember { mutableStateOf(false) }
 
     val context = LocalContext.current
+    val auth = FirebaseAuth.getInstance()
 
-    // top Bar
+    // Top Bar
     TopAppBar(
         title = { Text(text = "Create Account") },
         colors = TopAppBarDefaults.topAppBarColors(
@@ -47,10 +36,10 @@ fun MainSignup(navController: NavHostController){
         )
     )
     Column(
-        modifier = Modifier.padding(16.dp)){
+        modifier = Modifier.padding(16.dp)) {
         Spacer(modifier = Modifier.height(65.dp))
+
         Row(modifier = Modifier.padding(0.dp)) {
-            // First Name
             OutlinedTextField(
                 value = firstName,
                 onValueChange = { firstName = it },
@@ -60,18 +49,16 @@ fun MainSignup(navController: NavHostController){
                     .padding(end = 8.dp)
             )
 
-            // Last Name
             OutlinedTextField(
                 value = lastName,
                 onValueChange = { lastName = it },
                 label = { Text("Last Name") },
                 modifier = Modifier
-                    .fillMaxWidth(1f)
+                    .fillMaxWidth()
                     .padding(bottom = 8.dp)
             )
         }
 
-        // Email
         OutlinedTextField(
             value = emailAddress,
             onValueChange = { emailAddress = it },
@@ -81,17 +68,6 @@ fun MainSignup(navController: NavHostController){
                 .padding(bottom = 8.dp)
         )
 
-        // Username
-        OutlinedTextField(
-            value = newUsername,
-            onValueChange = { newUsername = it },
-            label = { Text("New Username")},
-            modifier = Modifier
-                .fillMaxWidth()
-                .padding(bottom = 8.dp)
-        )
-
-        // Password
         OutlinedTextField(
             value = newPassword,
             onValueChange = { newPassword = it },
@@ -101,16 +77,30 @@ fun MainSignup(navController: NavHostController){
                 .padding(bottom = 8.dp)
         )
 
-        // Create new account button
+        if (message.isNotEmpty()) {
+            Text(text = message, color = MaterialTheme.colorScheme.error, style = MaterialTheme.typography.bodyLarge)
+        }
+
         ElevatedButton(
             onClick = {
-                navController.navigate(Routes.Home.value)
+                loading = true
+                AuthenticationActivity().createAccount(emailAddress, newPassword, firstName, lastName) { isSuccess ->
+                        loading = false
+                        if (isSuccess) {
+                            navController.navigate(Routes.Home.value)
+                        }
+                    }
             },
             modifier = Modifier
                 .padding(bottom = 16.dp)
-                .align(Alignment.CenterHorizontally)
+                .align(Alignment.CenterHorizontally),
+            enabled = !loading
         ) {
-            Text("Create New Account")
+            if (loading) {
+                CircularProgressIndicator(modifier = Modifier.size(24.dp))
+            } else {
+                Text("Create New Account")
+            }
         }
     }
 }
