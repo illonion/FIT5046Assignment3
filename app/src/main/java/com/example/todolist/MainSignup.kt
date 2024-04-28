@@ -6,9 +6,11 @@ import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.size
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.ArrowBack
 import androidx.compose.material3.Button
+import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
@@ -104,11 +106,11 @@ fun MainSignup(navController: NavHostController) {
                 .fillMaxWidth()
                 .padding(bottom = 8.dp)
         )
+        if (message.isNotEmpty()) {
+            Text(text = message, color = MaterialTheme.colorScheme.error, style = MaterialTheme.typography.bodyLarge)
+        }
 
         Button(
-            if (message.isNotEmpty()) {
-                Text(text = message, color = MaterialTheme.colorScheme.error, style = MaterialTheme.typography.bodyLarge)
-            }
             onClick = {
                 loading = true
                 AuthenticationActivity().createAccount(emailAddress, newPassword, firstName, lastName) { isSuccess ->

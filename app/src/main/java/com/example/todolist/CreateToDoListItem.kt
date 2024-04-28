@@ -38,11 +38,14 @@ import androidx.compose.ui.focus.focusProperties
 import androidx.compose.ui.unit.dp
 import androidx.navigation.NavHostController
 import com.example.todolist.Routes
+import com.example.todolist.ToDoListItem
+import com.google.firebase.database.FirebaseDatabase
 import java.text.SimpleDateFormat
 import java.time.Instant
 import java.util.Calendar
 import java.util.Date
 import java.util.Locale
+import java.util.UUID
 
 @RequiresApi(Build.VERSION_CODES.O)
 @OptIn(ExperimentalMaterial3Api::class)
@@ -226,7 +229,9 @@ fun CreateToDoListItem(navController: NavHostController) {
         Spacer(modifier = Modifier.height(16.dp))
         // Add item button
         Button(
-            onClick = { navController.navigate(Routes.ToDoList.value) },
+            onClick = {
+                navController.navigate(Routes.ToDoList.value)
+            },
             modifier = Modifier
                 .fillMaxWidth()
                 .padding(bottom = 8.dp),

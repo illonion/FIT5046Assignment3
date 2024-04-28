@@ -27,5 +27,4 @@ class DatabaseActivity {
                 }
         } ?: run {isSuccess(false)}
     }
-
 }
