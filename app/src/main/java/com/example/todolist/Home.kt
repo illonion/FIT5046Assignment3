@@ -19,6 +19,7 @@ import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.layout.wrapContentHeight
 import androidx.compose.foundation.lazy.LazyColumn
+import androidx.compose.material3.Button
 import androidx.compose.material.IconButton
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.rounded.Menu
@@ -128,17 +129,17 @@ fun Home(navController: NavHostController) {
             Spacer(modifier = Modifier.size(30.dp))
 
             // Show full to-do list button
-            ElevatedButton(
+            Button(
                 onClick = { navController.navigate(Routes.ToDoList.value) }
             ) {
-                Text(text = "Show full to-do list")
+                Text(text = "Show full task list")
             }
 
             Spacer(modifier = Modifier.size(30.dp))
 
             // Show today's to do list
             Text(
-                text = "Today's to-do list",
+                text = "Today's task list",
                 style = MaterialTheme.typography.headlineMedium,
                 modifier = Modifier.padding(bottom = 7.dp)
             )

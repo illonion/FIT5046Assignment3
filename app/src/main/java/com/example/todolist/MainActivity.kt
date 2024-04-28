@@ -5,8 +5,8 @@ import android.os.Build
 import android.os.Bundle
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
-import androidx.annotation.RequiresApi
 import androidx.activity.viewModels
+import androidx.annotation.RequiresApi
 import java.text.SimpleDateFormat
 
 class MainActivity : ComponentActivity() {

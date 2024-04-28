@@ -59,7 +59,7 @@ fun ToDoList(navController: NavHostController, viewModel: ToDoListViewModel) {
 
     // Top bar
     TopAppBar(
-        title = { Text(text = "To Do List") },
+        title = { Text(text = "Task List") },
         colors = TopAppBarDefaults.topAppBarColors(
             containerColor =
             MaterialTheme.colorScheme.primaryContainer,
@@ -76,7 +76,7 @@ fun ToDoList(navController: NavHostController, viewModel: ToDoListViewModel) {
                 .fillMaxWidth()
                 .padding(bottom = 8.dp),
         ) {
-            Text("Add new item")
+            Text("Add new task")
         }
         Spacer(modifier = Modifier.height(4.dp))
         // Filter by completeness
