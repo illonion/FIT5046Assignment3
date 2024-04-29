@@ -38,7 +38,7 @@ fun MainLogin(navController: NavHostController) {
     var email by remember { mutableStateOf("") }
     var password by remember { mutableStateOf("") }
     val context = LocalContext.current
-    AuthenticationActivity().signOut()
+    // AuthenticationActivity().signOut()
 
     // Top bar
     TopAppBar(
