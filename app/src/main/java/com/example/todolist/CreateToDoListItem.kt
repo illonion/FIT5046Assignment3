@@ -1,3 +1,4 @@
+import android.annotation.SuppressLint
 import android.os.Build
 import androidx.annotation.RequiresApi
 import androidx.compose.foundation.clickable
@@ -28,6 +29,7 @@ import androidx.compose.material3.TopAppBar
 import androidx.compose.material3.TopAppBarDefaults
 import androidx.compose.material3.rememberDatePickerState
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
@@ -39,7 +41,12 @@ import androidx.compose.ui.unit.dp
 import androidx.navigation.NavHostController
 import com.example.todolist.Routes
 import com.example.todolist.ToDoListItem
+import com.google.firebase.Firebase
+import com.google.firebase.auth.auth
+import com.google.firebase.database.DataSnapshot
+import com.google.firebase.database.DatabaseError
 import com.google.firebase.database.FirebaseDatabase
+import com.google.firebase.database.ValueEventListener
 import java.text.SimpleDateFormat
 import java.time.Instant
 import java.util.Calendar
@@ -47,17 +54,30 @@ import java.util.Date
 import java.util.Locale
 import java.util.UUID
 
+data class Friend(val name: String, val uid: String)
+
+@SuppressLint("SimpleDateFormat")
 @RequiresApi(Build.VERSION_CODES.O)
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun CreateToDoListItem(navController: NavHostController) {
+    // Firebase
+    val currentUser = Firebase.auth.currentUser
+    val currentUserUid = currentUser?.uid
+    val database = FirebaseDatabase.getInstance("https://fit5046-assignment-3-5083c-default-rtdb.asia-southeast1.firebasedatabase.app/")
+    val mDatabase = database.reference
+    val friendsRef = mDatabase.child("friends")
+    val usersRef = mDatabase.child("users")
 
+    // Task
     var toDoItem by remember { mutableStateOf("") }
 
+    // Tag
     var tagsIsExpanded by remember { mutableStateOf(false) }
     val tags = listOf("No Tag", "Indoors", "Outdoors", "School", "Work", "Sports")
     var selectedTag by remember { mutableStateOf(tags[0]) }
 
+    // Calendar
     val calendar = Calendar.getInstance()
     val datePickerState = rememberDatePickerState(
         initialSelectedDateMillis = Instant.now().toEpochMilli()
@@ -66,9 +86,63 @@ fun CreateToDoListItem(navController: NavHostController) {
     var selectedDate by remember { mutableStateOf(calendar.timeInMillis) }
     val formatter = SimpleDateFormat("dd/MM/yyyy", Locale.ROOT)
 
+    // Friends
+    var friends by remember { mutableStateOf(mutableListOf(Friend("No One", ""))) }
+    var friendsUids = mutableListOf<String>("")
     var friendIsExpanded by remember { mutableStateOf(false) }
-    val friends = listOf("No one", "Alec", "Jimmy", "Milly", "Lawrence")
     var selectedFriend by remember { mutableStateOf(friends[0]) }
+
+    fun fetchFriends() {
+        friendsRef.addListenerForSingleValueEvent(object : ValueEventListener {
+            override fun onDataChange(dataSnapshot: DataSnapshot) {
+                for (friendsSnapshot in dataSnapshot.children) {
+                    // Add friend uis
+                    val friendId1 = friendsSnapshot.child("friendId1").value.toString()
+                    val friendId2 = friendsSnapshot.child("friendId2").value.toString()
+                    if (friendId1 == currentUserUid) {
+                        friendsUids.add(friendId2)
+                    } else if (friendId2 == currentUserUid) {
+                        friendsUids.add(friendId1)
+                    }
+                }
+
+                var numberOfElementsPassed = 0
+                usersRef.addListenerForSingleValueEvent(object : ValueEventListener {
+                    override fun onDataChange(usersSnapshot: DataSnapshot) {
+                        for (friendUid in friendsUids) {
+                            // Skip first friendUid
+                            numberOfElementsPassed++
+                            if (numberOfElementsPassed == 1) continue
+
+                            val userSnapshot = usersSnapshot.child(friendUid)
+                            if (userSnapshot.exists()) {
+                                val friendName =
+                                    userSnapshot.child("firstName").value.toString() + " " + userSnapshot.child(
+                                        "lastName"
+                                    ).value.toString()
+                                val friendUid = userSnapshot.key.toString()
+                                if (friendName.trim().isNotBlank()) {
+                                    friends.add(Friend(friendName, friendUid))
+                                }
+                            }
+                        }
+                    }
+
+                    override fun onCancelled(error: DatabaseError) {
+                        TODO("Not yet implemented")
+                    }
+                })
+            }
+
+            override fun onCancelled(error: DatabaseError) {
+                TODO("Not yet implemented")
+            }
+        })
+    }
+
+    LaunchedEffect(Unit) {
+        fetchFriends()
+    }
 
     // Top Bar
     TopAppBar(
@@ -94,7 +168,7 @@ fun CreateToDoListItem(navController: NavHostController) {
         OutlinedTextField(
             value = toDoItem,
             onValueChange = {toDoItem = it},
-            label = { Text("To Do Item") },
+            label = { Text("Task Name") },
             modifier = Modifier
                 .fillMaxWidth()
                 .padding(bottom = 8.dp)
@@ -136,7 +210,6 @@ fun CreateToDoListItem(navController: NavHostController) {
             }
         }
 
-        //
         Spacer(modifier = Modifier.height(16.dp))
         // Date Picker
         if (showDatePicker) {
@@ -203,26 +276,26 @@ fun CreateToDoListItem(navController: NavHostController) {
                     .focusProperties { canFocus = false }
                     .padding(bottom = 8.dp),
                 readOnly = true,
-                value = selectedFriend,
+                value = selectedFriend.name,
                 onValueChange = {},
                 label = { Text("Friend") },
                 trailingIcon = {
-                    ExposedDropdownMenuDefaults.TrailingIcon(expanded = tagsIsExpanded)
+                    ExposedDropdownMenuDefaults.TrailingIcon(expanded = friendIsExpanded) // Use friendIsExpanded here
                 }
             )
             ExposedDropdownMenu(
                 expanded = friendIsExpanded,
                 onDismissRequest = { friendIsExpanded = false }
             ) {
-                friends.forEach {
-                        selectedOption -> DropdownMenuItem(
-                    text = { Text(selectedOption) },
-                    onClick = {
-                        selectedFriend = selectedOption
-                        friendIsExpanded = false
-                    },
-                    contentPadding = ExposedDropdownMenuDefaults.ItemContentPadding
-                )
+                friends.forEach { friend ->
+                    DropdownMenuItem(
+                        text = { Text(friend.name) },
+                        onClick = {
+                            selectedFriend = friend
+                            friendIsExpanded = false
+                        },
+                        contentPadding = ExposedDropdownMenuDefaults.ItemContentPadding
+                    )
                 }
             }
         }
@@ -231,6 +304,14 @@ fun CreateToDoListItem(navController: NavHostController) {
         Button(
             onClick = {
                 navController.navigate(Routes.ToDoList.value)
+                val item = currentUserUid?.let { ToDoListItem(it, toDoItem, selectedTag, Date(selectedDate), selectedFriend.uid, false) }
+                val itemId = "task_" + UUID.randomUUID().toString()
+
+                mDatabase.child("tasks").child(itemId).setValue(item)
+                    .addOnSuccessListener {
+                        navController.navigate(Routes.ToDoList.value)
+                    }
+                    .addOnFailureListener { e -> } // Probably make a toast or something
             },
             modifier = Modifier
                 .fillMaxWidth()

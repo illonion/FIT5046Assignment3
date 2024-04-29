@@ -164,7 +164,7 @@ fun ListToDoListItem(toDoListItem: ToDoListItem, onDelete: () -> Unit) {
         verticalAlignment = Alignment.CenterVertically
     ) {
         Column {
-            Text(text = "Item: ${toDoListItem.item}")
+            Text(text = "Item: ${toDoListItem.name}")
             Text(text = "Tag: ${toDoListItem.tag}")
             Text(text = "Due Date: ${SimpleDateFormat("dd/MM/yyyy").format(toDoListItem.dueDate)}")
             Text(text = "Friend: ${toDoListItem.friend}")

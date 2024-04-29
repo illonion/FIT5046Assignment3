@@ -99,10 +99,10 @@ fun FriendsList(friendViewModel: FriendViewModel, navController: NavHostControll
                             var allFriendListIds = mutableListOf<String>()
                             friendsRef.addListenerForSingleValueEvent(object : ValueEventListener {
                                 override fun onDataChange(dataSnapshot: DataSnapshot) {
-                                    for (userSnapshot in dataSnapshot.children) {
-                                        val friend1Id = userSnapshot.child("friendId1").value
-                                        val friend2Id = userSnapshot.child("friendId2").value
-                                        allFriendListIds.add(userSnapshot.key ?: "")
+                                    for (friendsSnapshot in dataSnapshot.children) {
+                                        val friend1Id = friendsSnapshot.child("friendId1").value
+                                        val friend2Id = friendsSnapshot.child("friendId2").value
+                                        allFriendListIds.add(friendsSnapshot.key ?: "")
 
                                         if ((friend1Id == currentUserUid && friend2Id == friendUid) ||
                                             (friend2Id == currentUserUid && friend1Id == friendUid)) {
