@@ -1,6 +1,5 @@
 package com.example.todolist
 
-import android.util.Log
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
@@ -105,14 +104,6 @@ fun FriendsList(friendViewModel: FriendViewModel, navController: NavHostControll
                                         val friend2Id = userSnapshot.child("friendId2").value
                                         allFriendListIds.add(userSnapshot.key ?: "")
 
-                                        if (currentUserUid != null) {
-                                            Log.i("ID", currentUserUid)
-                                            Log.i("ID", friend1Id.toString())
-                                        }
-                                        if (friendUid != null) {
-                                            Log.i("ID", friendUid!!)
-                                            Log.i("ID", friend2Id.toString())
-                                        }
                                         if ((friend1Id == currentUserUid && friend2Id == friendUid) ||
                                             (friend2Id == currentUserUid && friend1Id == friendUid)) {
                                             friendAlreadyExists = true
