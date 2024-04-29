@@ -90,9 +90,9 @@ fun FriendsList(friendViewModel: FriendViewModel, navController: NavHostControll
 
                             // If email does not exist
                             // TODO("Not yet implemented")
-                            if (!emailExists) {
-                                return
-                            }
+
+                            // If friendUid is the same as the current User
+                            // TODO("Not yet implemented")
 
                             // Step 3: Check if they are already in the friends list with each other
                             var friendAlreadyExists = false
