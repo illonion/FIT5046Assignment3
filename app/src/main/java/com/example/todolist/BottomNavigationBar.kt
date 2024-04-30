@@ -24,11 +24,11 @@ import com.example.todolist.MainLogin
 import com.example.todolist.NavBarItem
 import com.example.todolist.ToDoList
 import com.example.todolist.Routes
-import com.example.todolist.ToDoListViewModel
+import com.example.todolist.ToDoListItemViewModel
 
 @RequiresApi(Build.VERSION_CODES.O)
 @Composable
-fun BottomNavigationBar(toDoListViewModel: ToDoListViewModel, friendViewModel: FriendViewModel) {
+fun BottomNavigationBar(toDoListViewModel: ToDoListItemViewModel, friendViewModel: FriendViewModel) {
     val navController = rememberNavController()
     Scaffold(
         bottomBar = {
@@ -69,7 +69,7 @@ fun BottomNavigationBar(toDoListViewModel: ToDoListViewModel, friendViewModel: F
                 Analytics(navController)
             }
             composable(Routes.CreateToDoListItem.value) {
-                CreateToDoListItem(navController)
+                CreateToDoListItem(navController, toDoListViewModel)
             }
             composable(Routes.Home.value) {
                 Home(navController)

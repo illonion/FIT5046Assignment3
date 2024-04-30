@@ -41,6 +41,7 @@ import androidx.compose.ui.unit.dp
 import androidx.navigation.NavHostController
 import com.example.todolist.Routes
 import com.example.todolist.ToDoListItem
+import com.example.todolist.ToDoListItemViewModel
 import com.google.firebase.Firebase
 import com.google.firebase.auth.auth
 import com.google.firebase.database.DataSnapshot
@@ -49,6 +50,9 @@ import com.google.firebase.database.FirebaseDatabase
 import com.google.firebase.database.ValueEventListener
 import java.text.SimpleDateFormat
 import java.time.Instant
+import java.time.LocalDateTime
+import java.time.ZoneId
+import java.time.format.DateTimeFormatter
 import java.util.Calendar
 import java.util.Date
 import java.util.Locale
@@ -60,7 +64,7 @@ data class Friend(val name: String, val uid: String)
 @RequiresApi(Build.VERSION_CODES.O)
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun CreateToDoListItem(navController: NavHostController) {
+fun CreateToDoListItem(navController: NavHostController, toDoListItemViewModel: ToDoListItemViewModel) {
     // Firebase
     val currentUser = Firebase.auth.currentUser
     val currentUserUid = currentUser?.uid
@@ -140,6 +144,7 @@ fun CreateToDoListItem(navController: NavHostController) {
         })
     }
 
+    // Learned LaunchedEffect from https://medium.com/@sujathamudadla1213/what-is-launchedeffect-coroutine-api-android-jetpack-compose-76d568b79e63
     LaunchedEffect(Unit) {
         fetchFriends()
     }
@@ -304,14 +309,19 @@ fun CreateToDoListItem(navController: NavHostController) {
         Button(
             onClick = {
                 navController.navigate(Routes.ToDoList.value)
-                val item = currentUserUid?.let { ToDoListItem(it, toDoItem, selectedTag, Date(selectedDate), selectedFriend.uid, false) }
                 val itemId = "task_" + UUID.randomUUID().toString()
+
+                // Get date in readable format
+                val instant = Instant.ofEpochMilli(selectedDate)
+                val date = LocalDateTime.ofInstant(instant, ZoneId.systemDefault())
+                val format = DateTimeFormatter.ofPattern("dd/MM/yyyy")
+                val item = currentUserUid?.let { ToDoListItem(itemId, it, toDoItem, selectedTag, date.format(format), selectedFriend.uid, false) }
 
                 mDatabase.child("tasks").child(itemId).setValue(item)
                     .addOnSuccessListener {
                         navController.navigate(Routes.ToDoList.value)
                     }
-                    .addOnFailureListener { e -> } // Probably make a toast or something
+                    .addOnFailureListener { e -> }
             },
             modifier = Modifier
                 .fillMaxWidth()

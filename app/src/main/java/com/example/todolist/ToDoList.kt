@@ -4,7 +4,6 @@ import android.os.Build
 import androidx.annotation.RequiresApi
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
-import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -35,7 +34,9 @@ import androidx.compose.material3.Text
 import androidx.compose.material3.TopAppBar
 import androidx.compose.material3.TopAppBarDefaults
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.livedata.observeAsState
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
@@ -47,15 +48,18 @@ import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.navigation.NavHostController
-import java.text.SimpleDateFormat
 
 @RequiresApi(Build.VERSION_CODES.O)
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun ToDoList(navController: NavHostController, viewModel: ToDoListViewModel) {
+fun ToDoList(navController: NavHostController, viewModel: ToDoListItemViewModel) {
     var completeIsExpanded by remember { mutableStateOf(false) }
     val complete = listOf("Not Completed", "Completed", "All")
     var selectedComplete by remember { mutableStateOf(complete[0]) }
+
+    LaunchedEffect(Unit) {
+        viewModel.syncDataFromFirebase()
+    }
 
     // Top bar
     TopAppBar(
@@ -138,16 +142,15 @@ fun ToDoList(navController: NavHostController, viewModel: ToDoListViewModel) {
                 }
             }
         }
-    }
-    // Column of to do list items
-    val toDoListItems = viewModel.toDoListItems
-    Column () {
-        Spacer(modifier = Modifier.height(310.dp))
-        LazyColumn {
-            itemsIndexed(toDoListItems.value) { index, toDoListItem ->
-                ListToDoListItem(toDoListItem = toDoListItem, onDelete = {
-                    viewModel.deleteToDoListItem(index) })
-                Divider(color = Color.Gray, thickness = 5.dp)
+
+        // Column of to do list items
+        val toDoListItems by viewModel.allToDoListItems.observeAsState(emptyList())
+        Column () {
+            LazyColumn {
+                itemsIndexed(toDoListItems) { index, item ->
+                    ListToDoListItem(item)
+                    Divider(color = Color.Gray, thickness = 5.dp)
+                }
             }
         }
     }
@@ -155,18 +158,17 @@ fun ToDoList(navController: NavHostController, viewModel: ToDoListViewModel) {
 
 // List of to do list items
 @Composable
-fun ListToDoListItem(toDoListItem: ToDoListItem, onDelete: () -> Unit) {
+fun ListToDoListItem(toDoListItem: ToDoListItem) {
     Row(
         modifier = Modifier
             .fillMaxWidth()
-            .padding(8.dp)
-            .clickable { onDelete() },
+            .padding(8.dp),
         verticalAlignment = Alignment.CenterVertically
     ) {
         Column {
             Text(text = "Item: ${toDoListItem.name}")
             Text(text = "Tag: ${toDoListItem.tag}")
-            Text(text = "Due Date: ${SimpleDateFormat("dd/MM/yyyy").format(toDoListItem.dueDate)}")
+            Text(text = "Due Date: ${toDoListItem.dueDate}")
             Text(text = "Friend: ${toDoListItem.friend}")
         }
         Row(
