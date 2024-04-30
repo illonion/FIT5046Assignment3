@@ -48,17 +48,47 @@ import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.navigation.NavHostController
+import com.google.firebase.database.DataSnapshot
+import com.google.firebase.database.DatabaseError
+import com.google.firebase.database.FirebaseDatabase
+import com.google.firebase.database.ValueEventListener
 
 @RequiresApi(Build.VERSION_CODES.O)
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun ToDoList(navController: NavHostController, viewModel: ToDoListItemViewModel) {
+    val database = FirebaseDatabase.getInstance("https://fit5046-assignment-3-5083c-default-rtdb.asia-southeast1.firebasedatabase.app/")
+    val mDatabase = database.reference
+    val usersRef = mDatabase.child("users")
+
     var completeIsExpanded by remember { mutableStateOf(false) }
     val complete = listOf("Not Completed", "Completed", "All")
     var selectedComplete by remember { mutableStateOf(complete[0]) }
 
+    var userList by remember { mutableStateOf<List<User>>(emptyList()) }
     LaunchedEffect(Unit) {
+        val updatedUserList = mutableListOf<User>()
         viewModel.syncDataFromFirebase()
+        usersRef.addListenerForSingleValueEvent(object : ValueEventListener {
+            // Getting the data
+            override fun onDataChange(dataSnapshot: DataSnapshot) {
+                // This method is called once with the initial value and again
+                // whenever data at this location is updated.
+
+                for (userSnapshot in dataSnapshot.children) {
+                    val userId = userSnapshot.key.toString()
+                    val userFirstName = userSnapshot.child("firstName").value.toString()
+                    val userLastName = userSnapshot.child("lastName").value.toString()
+                    val userEmail = userSnapshot.child("email").value.toString()
+                    updatedUserList.add(User(userId, userFirstName, userLastName, userEmail))
+                }
+                userList = updatedUserList
+            }
+
+            override fun onCancelled(error: DatabaseError) {
+                TODO("Not yet implemented")
+            }
+        })
     }
 
     // Top bar
@@ -148,7 +178,7 @@ fun ToDoList(navController: NavHostController, viewModel: ToDoListItemViewModel)
         Column () {
             LazyColumn {
                 itemsIndexed(toDoListItems) { index, item ->
-                    ListToDoListItem(item)
+                    ListToDoListItem(item, userList)
                     Divider(color = Color.Gray, thickness = 5.dp)
                 }
             }
@@ -158,7 +188,7 @@ fun ToDoList(navController: NavHostController, viewModel: ToDoListItemViewModel)
 
 // List of to do list items
 @Composable
-fun ListToDoListItem(toDoListItem: ToDoListItem) {
+fun ListToDoListItem(toDoListItem: ToDoListItem, userList: List<User>) {
     Row(
         modifier = Modifier
             .fillMaxWidth()
@@ -169,7 +199,12 @@ fun ListToDoListItem(toDoListItem: ToDoListItem) {
             Text(text = "Item: ${toDoListItem.name}")
             Text(text = "Tag: ${toDoListItem.tag}")
             Text(text = "Due Date: ${toDoListItem.dueDate}")
-            Text(text = "Friend: ${toDoListItem.friend}")
+            for (user in userList) {
+                if (user.userId == toDoListItem.friend) {
+                    Text(text = "Friend: ${user.firstName} ${user.lastName}")
+                    break
+                }
+            }
         }
         Row(
             modifier = Modifier.fillMaxWidth(),

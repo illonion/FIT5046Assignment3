@@ -9,13 +9,12 @@ import androidx.activity.viewModels
 import androidx.annotation.RequiresApi
 
 class MainActivity : ComponentActivity() {
-    private val friendViewModel: FriendViewModel by viewModels()
     private val toDoListViewModel: ToDoListItemViewModel by viewModels()
     @RequiresApi(Build.VERSION_CODES.O)
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContent {
-            BottomNavigationBar(toDoListViewModel, friendViewModel)
+            BottomNavigationBar(toDoListViewModel)
         }
     }
 }

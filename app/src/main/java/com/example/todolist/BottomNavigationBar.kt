@@ -17,7 +17,6 @@ import androidx.navigation.compose.currentBackStackEntryAsState
 import androidx.navigation.compose.rememberNavController
 import com.example.todolist.MainSignup
 import com.example.todolist.Analytics
-import com.example.todolist.FriendViewModel
 import com.example.todolist.FriendsList
 import com.example.todolist.Home
 import com.example.todolist.MainLogin
@@ -28,7 +27,7 @@ import com.example.todolist.ToDoListItemViewModel
 
 @RequiresApi(Build.VERSION_CODES.O)
 @Composable
-fun BottomNavigationBar(toDoListViewModel: ToDoListItemViewModel, friendViewModel: FriendViewModel) {
+fun BottomNavigationBar(toDoListViewModel: ToDoListItemViewModel) {
     val navController = rememberNavController()
     Scaffold(
         bottomBar = {
@@ -81,7 +80,7 @@ fun BottomNavigationBar(toDoListViewModel: ToDoListItemViewModel, friendViewMode
                 MainSignup(navController)
             }
             composable(Routes.FriendsList.value) {
-                FriendsList(friendViewModel, navController)
+                FriendsList(navController)
             }
             composable(Routes.ToDoList.value) {
                 ToDoList(navController, toDoListViewModel)

@@ -45,9 +45,7 @@ import java.util.UUID
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun FriendsList(friendViewModel: FriendViewModel, navController: NavHostController) {
-    val friends = friendViewModel.friends
-
+fun FriendsList(navController: NavHostController) {
     val currentUser = Firebase.auth.currentUser
     val currentUserUid = currentUser?.uid
     val database = FirebaseDatabase.getInstance("https://fit5046-assignment-3-5083c-default-rtdb.asia-southeast1.firebasedatabase.app/")
@@ -66,8 +64,6 @@ fun FriendsList(friendViewModel: FriendViewModel, navController: NavHostControll
             // Add friend
             TopSectionAddFriend(
                 onAdd = { email ->
-                    friendViewModel.addFriend(Users(email))
-
                     // Step 1: Check if they put anything
                     // TODO("Not yet implemented")
 
@@ -148,18 +144,18 @@ fun FriendsList(friendViewModel: FriendViewModel, navController: NavHostControll
                 }
             )
         }
-        // For each list of friends
-        itemsIndexed(friends.value) { index, username ->
-            ListFriends(friend = username, onDelete = {
-                friendViewModel.deleteFriend(index) })
-            Divider(color = Color.Gray, thickness = 5.dp)
-        }
+//        // For each list of friends
+//        itemsIndexed(friends.value) { index, username ->
+//            ListFriends(friend = username, onDelete = {
+//                friendViewModel.deleteFriend(index) })
+//            Divider(color = Color.Gray, thickness = 5.dp)
+//        }
     }
 }
 
 // List of friends
 @Composable
-fun ListFriends(friend: Users, onDelete: () -> Unit) {
+fun ListFriends(friend: User, onDelete: () -> Unit) {
     Row(
         modifier = Modifier
             .fillMaxWidth()
@@ -168,7 +164,7 @@ fun ListFriends(friend: Users, onDelete: () -> Unit) {
         verticalAlignment = Alignment.CenterVertically
     ) {
         Column {
-            Text(text = "username: ${friend.username}")
+            Text(text = "Name: ${friend.firstName} ${friend.lastName}")
         }
         Column(
             modifier = Modifier
