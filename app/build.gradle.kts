@@ -78,4 +78,6 @@ dependencies {
     ksp("androidx.room:room-compiler:2.6.1")
     implementation ("androidx.lifecycle:lifecycle-livedata-ktx:2.6.1")
     implementation("androidx.compose.runtime:runtime-livedata:1.6.1")
+    implementation("androidx.compose.material:material-icons-extended:1.2.0")
+
 }

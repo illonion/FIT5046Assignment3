@@ -1,6 +1,8 @@
 package com.example.todolist
 
+import android.annotation.SuppressLint
 import android.os.Build
+import android.util.Log
 import androidx.annotation.RequiresApi
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
@@ -14,25 +16,15 @@ import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
-import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
-import androidx.compose.foundation.layout.wrapContentHeight
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.itemsIndexed
-import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
-import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.filled.Check
-import androidx.compose.material.icons.filled.Delete
-import androidx.compose.material.icons.filled.Edit
 import androidx.compose.material3.Button
-import androidx.compose.material3.Card
-import androidx.compose.material3.Divider
 import androidx.compose.material3.DropdownMenuItem
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.ExposedDropdownMenuBox
 import androidx.compose.material3.ExposedDropdownMenuDefaults
-import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.material3.TopAppBar
@@ -48,25 +40,23 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.focus.focusProperties
 import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.navigation.NavHostController
-import com.example.todolist.ui.theme.Purple40
-import com.example.todolist.ui.theme.Purple80
-import com.google.firebase.database.DataSnapshot
-import com.google.firebase.database.DatabaseError
+import com.google.firebase.auth.ktx.auth
 import com.google.firebase.database.FirebaseDatabase
-import com.google.firebase.database.ValueEventListener
+import com.google.firebase.ktx.Firebase
+import java.time.LocalDate
+import java.time.format.DateTimeFormatter
 
+@SuppressLint("SimpleDateFormat")
 @RequiresApi(Build.VERSION_CODES.O)
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun ToDoList(navController: NavHostController, viewModel: ToDoListItemViewModel) {
     val database = FirebaseDatabase.getInstance("https://fit5046-assignment-3-5083c-default-rtdb.asia-southeast1.firebasedatabase.app/")
     val mDatabase = database.reference
-    val usersRef = mDatabase.child("users")
 
     var completeIsExpanded by remember { mutableStateOf(false) }
     val complete = listOf("Not Completed", "Completed", "All")
@@ -108,8 +98,44 @@ fun ToDoList(navController: NavHostController, viewModel: ToDoListItemViewModel)
         )
     )
 
+    // Column from https://medium.com/@meytataliti/android-simple-calendar-with-jetpack-compose-662e4d1794b
+    val dataSource = CalendarDataSource()
+    // we use `mutableStateOf` and `remember` inside composable function to schedules recomposition
+    var calendarUiModel by remember { mutableStateOf(dataSource.getData(lastSelectedDate = dataSource.today)) }
+
     Column(modifier = Modifier.padding(16.dp)) {
-        Spacer(modifier = Modifier.height(200.dp))
+        Spacer(modifier = Modifier.height(60.dp))
+        Header(
+            data = calendarUiModel,
+            onPrevClickListener = { startDate ->
+                // refresh the CalendarUiModel with new data
+                // by get data with new Start Date (which is the startDate-1 from the visibleDates)
+                val finalStartDate = startDate.minusDays(1)
+                calendarUiModel = dataSource.getData(startDate = finalStartDate, lastSelectedDate = calendarUiModel.selectedDate.date)
+            },
+            onNextClickListener = { endDate ->
+                // refresh the CalendarUiModel with new data
+                // by get data with new Start Date (which is the endDate+2 from the visibleDates)
+                val finalStartDate = endDate.plusDays(2)
+                calendarUiModel = dataSource.getData(startDate = finalStartDate, lastSelectedDate = calendarUiModel.selectedDate.date)
+            }
+        )
+        Content(data = calendarUiModel, onDateClickListener = { date ->
+            // refresh the CalendarUiModel with new data
+            // by changing only the `selectedDate` with the date selected by User
+            calendarUiModel = calendarUiModel.copy(
+                selectedDate = date,
+                visibleDates = calendarUiModel.visibleDates.map {
+                    it.copy(
+                        isSelected = it.date.isEqual(date.date)
+                    )
+                }
+            )
+        })
+    }
+
+    Column(modifier = Modifier.padding(16.dp)) {
+        Spacer(modifier = Modifier.height(190.dp))
         // Add new item (CreateToDoListItem.kt)
         Button(
             onClick = { navController.navigate(Routes.CreateToDoListItem.value) },
@@ -180,17 +206,40 @@ fun ToDoList(navController: NavHostController, viewModel: ToDoListItemViewModel)
             }
         }
 
-        // Column of to do list items
+
+        // Initialise to do list items
         var toDoListItems by remember { mutableStateOf(emptyList<ToDoListItem>()) }
+        // Get current User ID
+        val currentUserUid = Firebase.auth.currentUser?.uid
+        // Get and filter to do list items
         viewModel.allToDoListItems.observeAsState(emptyList()).apply {
-            toDoListItems = this.value.sortedBy { it.createdAt }
+            toDoListItems = this.value
+                .filter { it.userId == currentUserUid || it.friend == currentUserUid } // Remove items where the user is not the user OR a friend
+                .filter {
+                    LocalDate.parse(it.dueDate, DateTimeFormatter.ofPattern("dd/MM/yyyy")) == calendarUiModel.selectedDate.date
+                } // Filter by the due date that is currently selected
+                .filter {
+                    when (selectedComplete) {
+                        "Not Completed" -> !it.completed
+                        "Completed" -> it.completed
+                        else -> true // "All" selected, include all items
+                    }
+                } // Filter by completed or not completed
+                .sortedBy { it.createdAt } // Sort items by creation date
         }
-        Column (
-            modifier = Modifier.padding(top = 8.dp)
-        ) {
-            LazyColumn {
-                itemsIndexed(toDoListItems) { index, item ->
-                    ListToDoListItem(item, true)
+
+        // Check if the current list is empty
+        if (toDoListItems.isEmpty()) {
+            Text(text = "There are currently no items on this day's task list!")
+        } else {
+            // Column of to do list items
+            Column (
+                modifier = Modifier.padding(top = 8.dp)
+            ) {
+                LazyColumn {
+                    itemsIndexed(toDoListItems) { index, item ->
+                        ListToDoListItem(item, true)
+                    }
                 }
             }
         }
