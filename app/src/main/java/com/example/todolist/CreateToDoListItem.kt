@@ -315,7 +315,7 @@ fun CreateToDoListItem(navController: NavHostController, toDoListItemViewModel: 
                 val instant = Instant.ofEpochMilli(selectedDate)
                 val date = LocalDateTime.ofInstant(instant, ZoneId.systemDefault())
                 val format = DateTimeFormatter.ofPattern("dd/MM/yyyy")
-                val item = currentUserUid?.let { ToDoListItem(itemId, it, toDoItem, selectedTag, date.format(format), selectedFriend.uid, false) }
+                val item = currentUserUid?.let { ToDoListItem(itemId, it, toDoItem, selectedTag, date.format(format), selectedFriend.uid, false, System.currentTimeMillis()) }
 
                 mDatabase.child("tasks").child(itemId).setValue(item)
                     .addOnSuccessListener {

@@ -20,6 +20,7 @@ import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.layout.wrapContentHeight
 import androidx.compose.foundation.lazy.LazyColumn
+import androidx.compose.foundation.lazy.itemsIndexed
 import androidx.compose.material3.Button
 import androidx.compose.material.IconButton
 import androidx.compose.material.icons.Icons
@@ -34,6 +35,12 @@ import androidx.compose.material3.Text
 import androidx.compose.material3.TopAppBar
 import androidx.compose.material3.TopAppBarDefaults
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.livedata.observeAsState
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
@@ -52,7 +59,11 @@ import com.google.firebase.ktx.Firebase
 @SuppressLint("UnusedMaterial3ScaffoldPaddingParameter")
 @RequiresApi(Build.VERSION_CODES.O)
 @Composable
-fun Home(navController: NavHostController) {
+fun Home(navController: NavHostController, viewModel: ToDoListItemViewModel) {
+    LaunchedEffect(Unit) {
+        viewModel.syncDataFromFirebase()
+    }
+
     Scaffold(
         topBar = {
             TopAppBar(
@@ -148,44 +159,17 @@ fun Home(navController: NavHostController) {
                 modifier = Modifier.padding(bottom = 7.dp)
             )
 
-            val sampleList: List<String> = listOf("Groceries", "FIT5046 Assignment 1", "Groceries Again", "Running", "Club", "FIT5225 Assignment 1")
-            ItemList(sampleList)
-        }
-    }
-}
-
-// Item
-@Composable
-fun Item(name: String) {
-    Row(horizontalArrangement = Arrangement.SpaceBetween,
-        modifier = Modifier.padding(16.dp))
-    {
-        Text(text = name)
-    }
-}
-
-
-// Item List
-@Composable
-fun ItemList(list: List<String>) {
-    LazyColumn {
-        list.forEachIndexed { index, listItem ->
-            item {
-                Card(
-                    modifier = Modifier
-                        .fillMaxWidth()
-                        .wrapContentHeight()
-                        .padding(
-                            top = 10.dp,
-                            bottom = 10.dp,
-                            start = 20.dp,
-                            end = 20.dp
-                        )
-                ) {
-                    Item(listItem)
+            var toDoListItems by remember { mutableStateOf(emptyList<ToDoListItem>()) }
+            viewModel.allToDoListItems.observeAsState(emptyList()).apply {
+                toDoListItems = this.value.sortedBy { it.createdAt }
+            }
+            Column() {
+                LazyColumn {
+                    itemsIndexed(toDoListItems) { index, item ->
+                        ListToDoListItem(item, false)
+                    }
                 }
             }
         }
     }
 }
-

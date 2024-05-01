@@ -11,5 +11,6 @@ data class ToDoListItem(
     val tag: String,
     val dueDate: String,
     val friend: String,
-    var completed: Boolean
+    var completed: Boolean,
+    val createdAt: Long
 )

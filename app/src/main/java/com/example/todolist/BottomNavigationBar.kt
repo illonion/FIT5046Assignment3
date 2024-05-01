@@ -71,7 +71,7 @@ fun BottomNavigationBar(toDoListViewModel: ToDoListItemViewModel) {
                 CreateToDoListItem(navController, toDoListViewModel)
             }
             composable(Routes.Home.value) {
-                Home(navController)
+                Home(navController, toDoListViewModel)
             }
             composable(Routes.MainLogin.value) {
                 MainLogin(navController)

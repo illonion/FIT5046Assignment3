@@ -42,8 +42,9 @@ class ToDoListItemViewModel(application: Application) : AndroidViewModel(applica
                         val dueDate = snapshot.child("dueDate").value.toString()
                         val friend = snapshot.child("friend").value.toString()
                         val completed = convertToBoolean(snapshot.child("completed").value)
+                        val createdAt = snapshot.child("createdAt").value.toString().toLong()
 
-                        listOfToDoListItems.add(ToDoListItem(taskId,userId,name,tag,dueDate,friend,completed))
+                        listOfToDoListItems.add(ToDoListItem(taskId,userId,name,tag,dueDate,friend,completed,createdAt))
                     }
                     viewModelScope.launch(Dispatchers.IO) {
                         repository.clearAllToDoListItems()
