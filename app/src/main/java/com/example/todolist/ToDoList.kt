@@ -2,7 +2,6 @@ package com.example.todolist
 
 import android.annotation.SuppressLint
 import android.os.Build
-import android.util.Log
 import androidx.annotation.RequiresApi
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
@@ -238,7 +237,7 @@ fun ToDoList(navController: NavHostController, viewModel: ToDoListItemViewModel)
             ) {
                 LazyColumn {
                     itemsIndexed(toDoListItems) { index, item ->
-                        ListToDoListItem(item, true)
+                        ListToDoListItem(item, true, viewModel)
                     }
                 }
             }

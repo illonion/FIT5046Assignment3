@@ -14,6 +14,7 @@ import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 
 class ToDoListItemViewModel(application: Application) : AndroidViewModel(application) {
+    private val taskReference = FirebaseDatabase.getInstance("https://fit5046-assignment-3-5083c-default-rtdb.asia-southeast1.firebasedatabase.app/").getReference("tasks")
     private val repository: ToDoListItemRepository
     init{
         repository = ToDoListItemRepository(application)
@@ -26,11 +27,12 @@ class ToDoListItemViewModel(application: Application) : AndroidViewModel(applica
         repository.update(toDoListItem)
     }
     fun deleteToDoListItem(toDoListItem: ToDoListItem) = viewModelScope.launch(Dispatchers.IO) {
-        repository.delete(toDoListItem)
+        taskReference.child(toDoListItem.taskId).removeValue()
+            .addOnSuccessListener { syncDataFromFirebase() }
+            .addOnFailureListener { }
     }
     fun syncDataFromFirebase() {
-        val databaseReference = FirebaseDatabase.getInstance("https://fit5046-assignment-3-5083c-default-rtdb.asia-southeast1.firebasedatabase.app/").getReference("tasks")
-        databaseReference.addListenerForSingleValueEvent(object : ValueEventListener {
+        taskReference.addListenerForSingleValueEvent(object : ValueEventListener {
             override fun onDataChange(dataSnapshot: DataSnapshot) {
                 if (dataSnapshot.exists()) {
                     val listOfToDoListItems = mutableListOf<ToDoListItem>()
@@ -57,6 +59,16 @@ class ToDoListItemViewModel(application: Application) : AndroidViewModel(applica
                 Log.e("FirebaseError", error.message)
             }
         })
+    }
+
+    fun markItemAsCompleted(taskId: String) {
+        taskReference.child(taskId).child("completed").setValue(true).addOnCompleteListener {
+            if (it.isSuccessful) {
+                syncDataFromFirebase()
+            } else {
+                // Handle the error, possibly notifying the user or logging the failure
+            }
+        }
     }
 }
 

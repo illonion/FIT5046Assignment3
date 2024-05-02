@@ -40,6 +40,7 @@ import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.sp
 import com.google.firebase.auth.ktx.auth
+import com.google.firebase.database.FirebaseDatabase
 import com.google.firebase.ktx.Firebase
 import java.time.LocalDate
 import java.time.format.DateTimeFormatter
@@ -50,6 +51,10 @@ import java.time.format.DateTimeFormatter
 @RequiresApi(Build.VERSION_CODES.O)
 @Composable
 fun Home(navController: NavHostController, viewModel: ToDoListItemViewModel) {
+    val database = FirebaseDatabase.getInstance("https://fit5046-assignment-3-5083c-default-rtdb.asia-southeast1.firebasedatabase.app/")
+    val mDatabase = database.reference
+    val taskReference = mDatabase.child("tasks")
+
     LaunchedEffect(Unit) {
         viewModel.syncDataFromFirebase()
     }
@@ -155,7 +160,6 @@ fun Home(navController: NavHostController, viewModel: ToDoListItemViewModel) {
                 toDoListItems = this.value
                     .filter { it.userId == currentUserUid || it.friend == currentUserUid } // Remove items where the user is not the user OR a friend
                     .filter { LocalDate.parse(it.dueDate, DateTimeFormatter.ofPattern("dd/MM/yyyy")) == LocalDate.now() } // Filter by today
-                    .filter { !it.completed} // Filter by completed or not completed
                     .sortedBy { it.createdAt } // Sort by creation date
             }
 
@@ -165,7 +169,7 @@ fun Home(navController: NavHostController, viewModel: ToDoListItemViewModel) {
                 Column(modifier = Modifier.padding(16.dp)) {
                     LazyColumn {
                         itemsIndexed(toDoListItems) { index, item ->
-                            ListToDoListItem(item, false)
+                            ListToDoListItem(item, false, viewModel)
                         }
                     }
                 }
