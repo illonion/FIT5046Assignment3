@@ -44,7 +44,6 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.navigation.NavHostController
 import com.google.firebase.auth.ktx.auth
-import com.google.firebase.database.FirebaseDatabase
 import com.google.firebase.ktx.Firebase
 import java.time.LocalDate
 import java.time.format.DateTimeFormatter
@@ -54,37 +53,13 @@ import java.time.format.DateTimeFormatter
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun ToDoList(navController: NavHostController, viewModel: ToDoListItemViewModel) {
-    val database = FirebaseDatabase.getInstance("https://fit5046-assignment-3-5083c-default-rtdb.asia-southeast1.firebasedatabase.app/")
-    val mDatabase = database.reference
-
     var completeIsExpanded by remember { mutableStateOf(false) }
     val complete = listOf("Not Completed", "Completed", "All")
     var selectedComplete by remember { mutableStateOf(complete[0]) }
 
-//    var userList by remember { mutableStateOf<List<User>>(emptyList()) }
+
     LaunchedEffect(Unit) {
-        val updatedUserList = mutableListOf<User>()
         viewModel.syncDataFromFirebase()
-//        usersRef.addListenerForSingleValueEvent(object : ValueEventListener {
-//            // Getting the data
-//            override fun onDataChange(dataSnapshot: DataSnapshot) {
-//                // This method is called once with the initial value and again
-//                // whenever data at this location is updated.
-//
-//                for (userSnapshot in dataSnapshot.children) {
-//                    val userId = userSnapshot.key.toString()
-//                    val userFirstName = userSnapshot.child("firstName").value.toString()
-//                    val userLastName = userSnapshot.child("lastName").value.toString()
-//                    val userEmail = userSnapshot.child("email").value.toString()
-//                    updatedUserList.add(User(userId, userFirstName, userLastName, userEmail))
-//                }
-//                userList = updatedUserList
-//            }
-//
-//            override fun onCancelled(error: DatabaseError) {
-//                TODO("Not yet implemented")
-//            }
-//        })
     }
 
     // Top bar
@@ -146,7 +121,7 @@ fun ToDoList(navController: NavHostController, viewModel: ToDoListItemViewModel)
         }
         Spacer(modifier = Modifier.height(4.dp))
         // Filter by completeness
-        Row() {
+        Row {
             Text(
                 text = "Complete: ",
                 style = TextStyle(
@@ -236,7 +211,7 @@ fun ToDoList(navController: NavHostController, viewModel: ToDoListItemViewModel)
                 modifier = Modifier.padding(top = 8.dp)
             ) {
                 LazyColumn {
-                    itemsIndexed(toDoListItems) { index, item ->
+                    itemsIndexed(toDoListItems) { _, item ->
                         ListToDoListItem(item, true, viewModel)
                     }
                 }
