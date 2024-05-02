@@ -79,7 +79,7 @@ fun ToDoList(navController: NavHostController, viewModel: ToDoListItemViewModel)
 
     Column(modifier = Modifier.padding(16.dp)) {
         Spacer(modifier = Modifier.height(60.dp))
-        Header(
+        CalendarHeader(
             data = calendarUiModel,
             onPrevClickListener = { startDate ->
                 // refresh the CalendarUiModel with new data
@@ -94,7 +94,7 @@ fun ToDoList(navController: NavHostController, viewModel: ToDoListItemViewModel)
                 calendarUiModel = dataSource.getData(startDate = finalStartDate, lastSelectedDate = calendarUiModel.selectedDate.date)
             }
         )
-        Content(data = calendarUiModel, onDateClickListener = { date ->
+        Calendar(data = calendarUiModel, onDateClickListener = { date ->
             // refresh the CalendarUiModel with new data
             // by changing only the `selectedDate` with the date selected by User
             calendarUiModel = calendarUiModel.copy(
