@@ -2,7 +2,6 @@ package com.example.todolist
 
 import android.annotation.SuppressLint
 import android.os.Build
-import android.widget.Toast
 import androidx.annotation.RequiresApi
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
@@ -13,26 +12,25 @@ import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
-import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
-import androidx.compose.foundation.layout.wrapContentHeight
 import androidx.compose.foundation.lazy.LazyColumn
+import androidx.compose.foundation.lazy.itemsIndexed
 import androidx.compose.material3.Button
-import androidx.compose.material.IconButton
-import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.rounded.Menu
-import androidx.compose.material3.Card
-import androidx.compose.material3.ElevatedButton
 import androidx.compose.material3.ExperimentalMaterial3Api
-import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
 import androidx.compose.material3.TopAppBar
 import androidx.compose.material3.TopAppBarDefaults
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.livedata.observeAsState
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
@@ -40,15 +38,27 @@ import androidx.navigation.NavHostController
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.style.TextAlign
-import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.sp
+import com.google.firebase.auth.ktx.auth
+import com.google.firebase.database.FirebaseDatabase
+import com.google.firebase.ktx.Firebase
+import java.time.LocalDate
+import java.time.format.DateTimeFormatter
 
 // Home screen
 @OptIn(ExperimentalMaterial3Api::class)
 @SuppressLint("UnusedMaterial3ScaffoldPaddingParameter")
 @RequiresApi(Build.VERSION_CODES.O)
 @Composable
-fun Home(navController: NavHostController) {
+fun Home(navController: NavHostController, viewModel: ToDoListItemViewModel) {
+    val database = FirebaseDatabase.getInstance("https://fit5046-assignment-3-5083c-default-rtdb.asia-southeast1.firebasedatabase.app/")
+    val mDatabase = database.reference
+    val taskReference = mDatabase.child("tasks")
+
+    LaunchedEffect(Unit) {
+        viewModel.syncDataFromFirebase()
+    }
+
     Scaffold(
         topBar = {
             TopAppBar(
@@ -144,44 +154,26 @@ fun Home(navController: NavHostController) {
                 modifier = Modifier.padding(bottom = 7.dp)
             )
 
-            val sampleList: List<String> = listOf("Groceries", "FIT5046 Assignment 1", "Groceries Again", "Running", "Club", "FIT5225 Assignment 1")
-            ItemList(sampleList)
-        }
-    }
-}
+            var toDoListItems by remember { mutableStateOf(emptyList<ToDoListItem>()) }
+            val currentUserUid = Firebase.auth.currentUser?.uid
+            viewModel.allToDoListItems.observeAsState(emptyList()).apply {
+                toDoListItems = this.value
+                    .filter { it.userId == currentUserUid || it.friend == currentUserUid } // Remove items where the user is not the user OR a friend
+                    .filter { LocalDate.parse(it.dueDate, DateTimeFormatter.ofPattern("dd/MM/yyyy")) == LocalDate.now() } // Filter by today
+                    .sortedBy { it.createdAt } // Sort by creation date
+            }
 
-// Item
-@Composable
-fun Item(name: String) {
-    Row(horizontalArrangement = Arrangement.SpaceBetween,
-        modifier = Modifier.padding(16.dp))
-    {
-        Text(text = name)
-    }
-}
-
-
-// Item List
-@Composable
-fun ItemList(list: List<String>) {
-    LazyColumn {
-        list.forEachIndexed { index, listItem ->
-            item {
-                Card(
-                    modifier = Modifier
-                        .fillMaxWidth()
-                        .wrapContentHeight()
-                        .padding(
-                            top = 10.dp,
-                            bottom = 10.dp,
-                            start = 20.dp,
-                            end = 20.dp
-                        )
-                ) {
-                    Item(listItem)
+            if (toDoListItems.isEmpty()) {
+                Text(text = "There are currently no items in today's task list!")
+            } else {
+                Column(modifier = Modifier.padding(16.dp)) {
+                    LazyColumn {
+                        itemsIndexed(toDoListItems) { index, item ->
+                            ListToDoListItem(item, false, viewModel)
+                        }
+                    }
                 }
             }
         }
     }
 }
-
