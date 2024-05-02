@@ -74,7 +74,6 @@ fun ToDoList(navController: NavHostController, viewModel: ToDoListItemViewModel)
 
     // Column from https://medium.com/@meytataliti/android-simple-calendar-with-jetpack-compose-662e4d1794b
     val dataSource = CalendarDataSource()
-    // we use `mutableStateOf` and `remember` inside composable function to schedules recomposition
     var calendarUiModel by remember { mutableStateOf(dataSource.getData(lastSelectedDate = dataSource.today)) }
 
     Column(modifier = Modifier.padding(16.dp)) {

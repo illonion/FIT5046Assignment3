@@ -1,5 +1,6 @@
 import android.annotation.SuppressLint
 import android.os.Build
+import android.widget.Toast
 import androidx.annotation.RequiresApi
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Box
@@ -31,17 +32,18 @@ import androidx.compose.material3.rememberDatePickerState
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableLongStateOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.alpha
 import androidx.compose.ui.focus.focusProperties
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.unit.dp
 import androidx.navigation.NavHostController
 import com.example.todolist.Routes
 import com.example.todolist.ToDoListItem
-import com.example.todolist.ToDoListItemViewModel
 import com.google.firebase.Firebase
 import com.google.firebase.auth.auth
 import com.google.firebase.database.DataSnapshot
@@ -60,11 +62,14 @@ import java.util.UUID
 
 data class Friend(val name: String, val uid: String)
 
-@SuppressLint("SimpleDateFormat")
+@SuppressLint("SimpleDateFormat", "MutableCollectionMutableState")
 @RequiresApi(Build.VERSION_CODES.O)
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun CreateToDoListItem(navController: NavHostController, toDoListItemViewModel: ToDoListItemViewModel) {
+fun CreateToDoListItem(navController: NavHostController) {
+    // Current context
+    val context = LocalContext.current
+
     // Firebase
     val currentUser = Firebase.auth.currentUser
     val currentUserUid = currentUser?.uid
@@ -87,12 +92,12 @@ fun CreateToDoListItem(navController: NavHostController, toDoListItemViewModel: 
         initialSelectedDateMillis = Instant.now().toEpochMilli()
     )
     var showDatePicker by remember { mutableStateOf(false) }
-    var selectedDate by remember { mutableStateOf(calendar.timeInMillis) }
+    var selectedDate by remember { mutableLongStateOf(calendar.timeInMillis) }
     val formatter = SimpleDateFormat("dd/MM/yyyy", Locale.ROOT)
 
     // Friends
-    var friends by remember { mutableStateOf(mutableListOf(Friend("No One", ""))) }
-    var friendsUids = mutableListOf<String>("")
+    val friends by remember { mutableStateOf(mutableListOf(Friend("No One", ""))) }
+    val friendsUids = mutableListOf("")
     var friendIsExpanded by remember { mutableStateOf(false) }
     var selectedFriend by remember { mutableStateOf(friends[0]) }
 
@@ -124,9 +129,9 @@ fun CreateToDoListItem(navController: NavHostController, toDoListItemViewModel: 
                                     userSnapshot.child("firstName").value.toString() + " " + userSnapshot.child(
                                         "lastName"
                                     ).value.toString()
-                                val friendUid = userSnapshot.key.toString()
+                                val currentFriendUid = userSnapshot.key.toString()
                                 if (friendName.trim().isNotBlank()) {
-                                    friends.add(Friend(friendName, friendUid))
+                                    friends.add(Friend(friendName, currentFriendUid))
                                 }
                             }
                         }
@@ -320,8 +325,9 @@ fun CreateToDoListItem(navController: NavHostController, toDoListItemViewModel: 
                 mDatabase.child("tasks").child(itemId).setValue(item)
                     .addOnSuccessListener {
                         navController.navigate(Routes.ToDoList.value)
+                        Toast.makeText(context,"Successfully created Task!",Toast.LENGTH_LONG).show()
                     }
-                    .addOnFailureListener { e -> }
+                    .addOnFailureListener { e -> Toast.makeText(context,"Error $e!",Toast.LENGTH_LONG).show()}
             },
             modifier = Modifier
                 .fillMaxWidth()
