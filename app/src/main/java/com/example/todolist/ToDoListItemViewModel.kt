@@ -24,12 +24,26 @@ class ToDoListItemViewModel(application: Application) : AndroidViewModel(applica
         repository.insert(toDoListItem)
     }
     fun updateToDoListItem(toDoListItem: ToDoListItem) = viewModelScope.launch(Dispatchers.IO) {
+        // Convert to do list item to a map (such that it can be updated by firebase)
+        val toDoListItemMap = mapOf(
+            "completed" to toDoListItem.completed,
+            "createdAt" to toDoListItem.createdAt,
+            "dueDate" to toDoListItem.dueDate,
+            "friend" to toDoListItem.friend,
+            "name" to toDoListItem.name,
+            "tag" to toDoListItem.tag,
+            "taskId" to toDoListItem.taskId,
+            "userId" to toDoListItem.userId
+        )
+        taskReference.child(toDoListItem.taskId).updateChildren(toDoListItemMap)
         repository.update(toDoListItem)
     }
     fun deleteToDoListItem(toDoListItem: ToDoListItem) = viewModelScope.launch(Dispatchers.IO) {
         taskReference.child(toDoListItem.taskId).removeValue()
             .addOnSuccessListener { syncDataFromFirebase() }
-            .addOnFailureListener { }
+            .addOnFailureListener {
+                // Handle the error, possibly notifying the user or logging the failure
+            }
     }
     fun syncDataFromFirebase() {
         taskReference.addListenerForSingleValueEvent(object : ValueEventListener {
