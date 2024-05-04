@@ -77,10 +77,10 @@ fun MainLogin(navController: NavHostController) {
             // Login Button
             Button(
                 onClick = {
-//                    AuthenticationActivity().signIn(email, password) { isSuccess ->
+                    AuthenticationActivity().signIn(email, password) { isSuccess ->
 //                        Comment the above line and uncomment the below line
 //                        when you don't want to type(just press login button)
-                    AuthenticationActivity().signIn("test13@test.com", "123456") { isSuccess ->
+//                    AuthenticationActivity().signIn("test13@test.com", "123456") { isSuccess ->
                         if (isSuccess) {
                             navController.navigate(Routes.Home.value)
                         }
