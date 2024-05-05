@@ -7,8 +7,11 @@ import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.ArrowBack
+import androidx.compose.material.icons.filled.Visibility
+import androidx.compose.material.icons.filled.VisibilityOff
 import androidx.compose.material3.Button
 import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.ExperimentalMaterial3Api
@@ -27,10 +30,14 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.text.input.KeyboardType
+import androidx.compose.ui.text.input.PasswordVisualTransformation
+import androidx.compose.ui.text.input.VisualTransformation
 import androidx.compose.ui.unit.dp
 import androidx.navigation.NavHostController
 import com.google.firebase.auth.FirebaseAuth
 import com.example.todolist.Navigation.Routes
+																		
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -42,6 +49,7 @@ fun MainSignup(navController: NavHostController) {
     var emailAddress by remember { mutableStateOf("") }
     var message by remember { mutableStateOf("") }
     var loading by remember { mutableStateOf(false) }
+    var hidePassword by remember { mutableStateOf(true) }
 
     val context = LocalContext.current
     val auth = FirebaseAuth.getInstance()
@@ -102,7 +110,31 @@ fun MainSignup(navController: NavHostController) {
             label = { Text("New Password")},
             modifier = Modifier
                 .fillMaxWidth()
-                .padding(bottom = 8.dp)
+                .padding(bottom = 8.dp),
+            visualTransformation = if (hidePassword) {
+                PasswordVisualTransformation()
+            } else {
+                VisualTransformation.None
+            },
+            keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Password),
+            trailingIcon = {
+                if (hidePassword) {
+                    androidx.compose.material.IconButton(
+                        onClick = { hidePassword = false }) {
+                        Icon(
+                            imageVector = Icons.Filled.Visibility,
+                            contentDescription = "hide_password"
+                        )
+                    }
+                } else {
+                    androidx.compose.material.IconButton(onClick = { hidePassword = true }) {
+                        Icon(
+                            imageVector = Icons.Filled.VisibilityOff,
+                            contentDescription = "show_password"
+                        )
+                    }
+                }
+            }
         )
         if (message.isNotEmpty()) {
             Text(text = message, color = MaterialTheme.colorScheme.error, style = MaterialTheme.typography.bodyLarge)

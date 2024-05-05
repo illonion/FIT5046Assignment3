@@ -6,6 +6,7 @@ enum class Routes(val value: String) {
     FriendsList("FriendsList"),
     Home("Home"),
     MainLogin("MainLogin"),
+    MainLogout("MainLogout"),
     MainSignup("MainSignup"),
     ToDoList("ToDoList")
 }
