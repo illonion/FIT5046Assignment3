@@ -1,5 +1,6 @@
 import android.annotation.SuppressLint
 import android.os.Build
+import android.widget.Toast
 import androidx.annotation.RequiresApi
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Box
@@ -37,8 +38,10 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.alpha
 import androidx.compose.ui.focus.focusProperties
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.unit.dp
 import androidx.navigation.NavHostController
+import com.example.todolist.InputValidation
 import com.example.todolist.Routes
 import com.example.todolist.ToDoListItem
 import com.example.todolist.ToDoListItemViewModel
@@ -66,6 +69,7 @@ data class Friend(val name: String, val uid: String)
 @Composable
 fun CreateToDoListItem(navController: NavHostController, toDoListItemViewModel: ToDoListItemViewModel) {
     // Firebase
+    val context = LocalContext.current
     val currentUser = Firebase.auth.currentUser
     val currentUserUid = currentUser?.uid
     val database = FirebaseDatabase.getInstance("https://fit5046-assignment-3-5083c-default-rtdb.asia-southeast1.firebasedatabase.app/")
@@ -308,20 +312,41 @@ fun CreateToDoListItem(navController: NavHostController, toDoListItemViewModel: 
         // Add item button
         Button(
             onClick = {
-                navController.navigate(Routes.ToDoList.value)
-                val itemId = "task_" + UUID.randomUUID().toString()
+                if (InputValidation().isValidTaskName(toDoItem)) {
+                    navController.navigate(Routes.ToDoList.value)
+                    val itemId = "task_" + UUID.randomUUID().toString()
 
-                // Get date in readable format
-                val instant = Instant.ofEpochMilli(selectedDate)
-                val date = LocalDateTime.ofInstant(instant, ZoneId.systemDefault())
-                val format = DateTimeFormatter.ofPattern("dd/MM/yyyy")
-                val item = currentUserUid?.let { ToDoListItem(itemId, it, toDoItem, selectedTag, date.format(format), selectedFriend.uid, false, System.currentTimeMillis()) }
-
-                mDatabase.child("tasks").child(itemId).setValue(item)
-                    .addOnSuccessListener {
-                        navController.navigate(Routes.ToDoList.value)
+                    // Get date in readable format
+                    val instant = Instant.ofEpochMilli(selectedDate)
+                    val date = LocalDateTime.ofInstant(instant, ZoneId.systemDefault())
+                    val format = DateTimeFormatter.ofPattern("dd/MM/yyyy")
+                    val item = currentUserUid?.let {
+                        ToDoListItem(
+                            itemId,
+                            it,
+                            toDoItem,
+                            selectedTag,
+                            date.format(format),
+                            selectedFriend.uid,
+                            false,
+                            System.currentTimeMillis()
+                        )
                     }
-                    .addOnFailureListener { e -> }
+
+                    mDatabase.child("tasks").child(itemId).setValue(item)
+                        .addOnSuccessListener {
+                            navController.navigate(Routes.ToDoList.value)
+                        }
+                        .addOnFailureListener { e -> }
+                } else {
+                    // Add something
+
+                    Toast.makeText(
+                        context,
+                        "INVALID INPUT: Please enter the Task Name",
+                        Toast.LENGTH_SHORT
+                    ).show()
+                }
             },
             modifier = Modifier
                 .fillMaxWidth()

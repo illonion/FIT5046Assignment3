@@ -68,7 +68,7 @@ fun ListToDoListItem(toDoListItem: ToDoListItem, showIcon: Boolean, viewModel: T
                 horizontalArrangement = Arrangement.SpaceBetween
             ) {
                 Text(
-                    text = toDoListItem.name,
+                    text = addEllipsisIfOver(toDoListItem.name, 20),
                     style = TextStyle(
                         fontSize = 18.sp,
                         lineHeight = 36.sp
@@ -160,4 +160,11 @@ fun EditTaskDialog(toDoListItem: ToDoListItem, onDismiss: () -> Unit, onSave: (T
             )
         }
     )
+}
+
+fun addEllipsisIfOver(s:String, n: Int): String {
+    if (s.length < n) {
+        return s
+    }
+    return s.take(n-3) + "..."
 }
