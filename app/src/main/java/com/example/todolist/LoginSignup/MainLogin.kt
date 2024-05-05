@@ -135,20 +135,18 @@ fun MainLogin(navController: NavHostController) {
             // Login Button
             Button(
                 onClick = {
-                    AuthenticationActivity().signIn(email, password) { isSuccess ->
-                        if (!emailError && !passwordError) {
-                            AuthenticationActivity().signIn(email, password)
+                    if (!emailError && !passwordError) {
+                        AuthenticationActivity().signIn(email, password)
 //                    AuthenticationActivity().signIn("test13@test.com", "123456")
-                            { isSuccess ->
-                                if (isSuccess) {
-                                    navController.navigate(Routes.Home.value)
-                                } else {
-                                    Toast.makeText(
-                                        mContext,
-                                        "Sign-in failed. Please check your credentials.",
-                                        Toast.LENGTH_SHORT
-                                    ).show()
-                                }
+                        { isSuccess ->
+                            if (isSuccess) {
+                                navController.navigate(Routes.Home.value)
+                            } else {
+                                Toast.makeText(
+                                    mContext,
+                                    "Sign-in failed. Please check your credentials.",
+                                    Toast.LENGTH_SHORT
+                                ).show()
                             }
                         }
                     }
