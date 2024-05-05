@@ -38,6 +38,12 @@ fun MainLogin(navController: NavHostController) {
     var email by remember { mutableStateOf("") }
     var password by remember { mutableStateOf("") }
     val context = LocalContext.current
+
+
+    val mContext = LocalContext.current
+    var emailError by remember { mutableStateOf(true) }
+    var passwordError by remember { mutableStateOf(true) }
+
     // AuthenticationActivity().signOut()
 
     // Top bar
@@ -55,22 +61,36 @@ fun MainLogin(navController: NavHostController) {
         // Username
         OutlinedTextField(
             value = email,
-            onValueChange = { email = it },
+            onValueChange = {
+                email = it
+                emailError = !isValidEmail(it)
+                            },
             label = { Text("Email") },
             modifier = Modifier
                 .fillMaxWidth()
                 .padding(bottom = 8.dp)
         )
 
+        if (emailError) {
+            Text("Invalid email address", color = Color.Red)
+        }
+
         // Password
         OutlinedTextField(
             value = password,
-            onValueChange = { password = it },
+            onValueChange = {
+                password = it
+                passwordError = it.isEmpty()
+                            },
             label = { Text("Password")},
             modifier = Modifier
                 .fillMaxWidth()
                 .padding(bottom = 8.dp)
         )
+
+        if (passwordError) {
+            Text("Password cannot be empty", color = Color.Red)
+        }
 
         // Buttons
         Row(modifier = Modifier.padding(0.dp)) {
@@ -78,13 +98,19 @@ fun MainLogin(navController: NavHostController) {
             Button(
                 onClick = {
                     AuthenticationActivity().signIn(email, password) { isSuccess ->
-//                        Comment the above line and uncomment the below line
-//                        when you don't want to type(just press login button)
-//                    AuthenticationActivity().signIn("test13@test.com", "123456") { isSuccess ->
-                        if (isSuccess) {
-                            navController.navigate(Routes.Home.value)
+                    if (!emailError && !passwordError) {
+                        AuthenticationActivity().signIn(email, password)
+//                    AuthenticationActivity().signIn("test13@test.com", "123456")
+                        { isSuccess ->
+                            if (isSuccess) {
+                                navController.navigate(Routes.Home.value)
+                            }
+                            else {
+                                Toast.makeText(mContext, "Sign-in failed. Please check your credentials.", Toast.LENGTH_SHORT).show()
+                            }
                         }
                     }
+
                 },
                 modifier = Modifier
                     .padding(bottom = 16.dp)
@@ -92,6 +118,7 @@ fun MainLogin(navController: NavHostController) {
             ) {
                 Text("Login")
             }
+
 
             Text(text = " -OR- ",
                 modifier = Modifier
@@ -134,4 +161,10 @@ fun MainLogin(navController: NavHostController) {
             Text("Sign Up Now")
         }
     }
+}
+
+
+
+fun isValidEmail(email: String): Boolean {
+    return android.util.Patterns.EMAIL_ADDRESS.matcher(email).matches()
 }

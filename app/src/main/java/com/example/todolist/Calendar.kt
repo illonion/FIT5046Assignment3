@@ -37,7 +37,7 @@ import java.time.format.FormatStyle
 // Code adapted from https://medium.com/@meytataliti/android-simple-calendar-with-jetpack-compose-662e4d1794b
 @RequiresApi(Build.VERSION_CODES.O)
 @Composable
-fun Header(
+fun CalendarHeader(
     data: CalendarUiModel,
     onPrevClickListener: (LocalDate) -> Unit,
     onNextClickListener: (LocalDate) -> Unit,
@@ -79,7 +79,7 @@ fun Header(
 // Code adapted from https://medium.com/@meytataliti/android-simple-calendar-with-jetpack-compose-662e4d1794b
 @RequiresApi(Build.VERSION_CODES.O)
 @Composable
-fun ContentItem(
+fun CalendarItem(
     date: CalendarUiModel.Date,
     onClickListener: (CalendarUiModel.Date) -> Unit
 ) {
@@ -96,7 +96,8 @@ fun ContentItem(
             modifier = Modifier
                 .width(43.dp)
                 .height(63.dp)
-                .padding(4.dp)
+                .padding(4.dp),
+            verticalArrangement = Arrangement.Center
         ) {
             Text(
                 text = date.date.dayOfMonth.toString(),
@@ -116,16 +117,16 @@ fun ContentItem(
     }
 }
 
-// Code from https://medium.com/@meytataliti/android-simple-calendar-with-jetpack-compose-662e4d1794b
+// Code adapted from https://medium.com/@meytataliti/android-simple-calendar-with-jetpack-compose-662e4d1794b
 @RequiresApi(Build.VERSION_CODES.O)
 @Composable
-fun Content(
+fun Calendar(
     data: CalendarUiModel,
     onDateClickListener: (CalendarUiModel.Date) -> Unit,
 ) {
     LazyRow {
         items(items = data.visibleDates) { date ->
-            ContentItem(date = date, onDateClickListener)
+            CalendarItem(date = date, onDateClickListener)
         }
     }
 }

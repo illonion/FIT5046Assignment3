@@ -44,7 +44,6 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.navigation.NavHostController
 import com.google.firebase.auth.ktx.auth
-import com.google.firebase.database.FirebaseDatabase
 import com.google.firebase.ktx.Firebase
 import java.time.LocalDate
 import java.time.format.DateTimeFormatter
@@ -54,37 +53,13 @@ import java.time.format.DateTimeFormatter
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun ToDoList(navController: NavHostController, viewModel: ToDoListItemViewModel) {
-    val database = FirebaseDatabase.getInstance("https://fit5046-assignment-3-5083c-default-rtdb.asia-southeast1.firebasedatabase.app/")
-    val mDatabase = database.reference
-
     var completeIsExpanded by remember { mutableStateOf(false) }
     val complete = listOf("Not Completed", "Completed", "All")
     var selectedComplete by remember { mutableStateOf(complete[0]) }
 
-//    var userList by remember { mutableStateOf<List<User>>(emptyList()) }
+
     LaunchedEffect(Unit) {
-        val updatedUserList = mutableListOf<User>()
         viewModel.syncDataFromFirebase()
-//        usersRef.addListenerForSingleValueEvent(object : ValueEventListener {
-//            // Getting the data
-//            override fun onDataChange(dataSnapshot: DataSnapshot) {
-//                // This method is called once with the initial value and again
-//                // whenever data at this location is updated.
-//
-//                for (userSnapshot in dataSnapshot.children) {
-//                    val userId = userSnapshot.key.toString()
-//                    val userFirstName = userSnapshot.child("firstName").value.toString()
-//                    val userLastName = userSnapshot.child("lastName").value.toString()
-//                    val userEmail = userSnapshot.child("email").value.toString()
-//                    updatedUserList.add(User(userId, userFirstName, userLastName, userEmail))
-//                }
-//                userList = updatedUserList
-//            }
-//
-//            override fun onCancelled(error: DatabaseError) {
-//                TODO("Not yet implemented")
-//            }
-//        })
     }
 
     // Top bar
@@ -99,12 +74,11 @@ fun ToDoList(navController: NavHostController, viewModel: ToDoListItemViewModel)
 
     // Column from https://medium.com/@meytataliti/android-simple-calendar-with-jetpack-compose-662e4d1794b
     val dataSource = CalendarDataSource()
-    // we use `mutableStateOf` and `remember` inside composable function to schedules recomposition
     var calendarUiModel by remember { mutableStateOf(dataSource.getData(lastSelectedDate = dataSource.today)) }
 
     Column(modifier = Modifier.padding(16.dp)) {
         Spacer(modifier = Modifier.height(60.dp))
-        Header(
+        CalendarHeader(
             data = calendarUiModel,
             onPrevClickListener = { startDate ->
                 // refresh the CalendarUiModel with new data
@@ -119,7 +93,7 @@ fun ToDoList(navController: NavHostController, viewModel: ToDoListItemViewModel)
                 calendarUiModel = dataSource.getData(startDate = finalStartDate, lastSelectedDate = calendarUiModel.selectedDate.date)
             }
         )
-        Content(data = calendarUiModel, onDateClickListener = { date ->
+        Calendar(data = calendarUiModel, onDateClickListener = { date ->
             // refresh the CalendarUiModel with new data
             // by changing only the `selectedDate` with the date selected by User
             calendarUiModel = calendarUiModel.copy(
@@ -146,7 +120,7 @@ fun ToDoList(navController: NavHostController, viewModel: ToDoListItemViewModel)
         }
         Spacer(modifier = Modifier.height(4.dp))
         // Filter by completeness
-        Row() {
+        Row {
             Text(
                 text = "Complete: ",
                 style = TextStyle(
@@ -236,7 +210,7 @@ fun ToDoList(navController: NavHostController, viewModel: ToDoListItemViewModel)
                 modifier = Modifier.padding(top = 8.dp)
             ) {
                 LazyColumn {
-                    itemsIndexed(toDoListItems) { index, item ->
+                    itemsIndexed(toDoListItems) { _, item ->
                         ListToDoListItem(item, true, viewModel)
                     }
                 }
