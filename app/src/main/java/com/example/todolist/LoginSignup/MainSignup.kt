@@ -1,5 +1,6 @@
 package com.example.todolist.LoginSignup
 
+import android.widget.Toast
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
@@ -26,6 +27,7 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.unit.dp
 import androidx.navigation.NavHostController
@@ -45,6 +47,16 @@ fun MainSignup(navController: NavHostController) {
 
     val context = LocalContext.current
     val auth = FirebaseAuth.getInstance()
+
+
+    // variables for validation
+    val mContext = LocalContext.current
+    var firstNameError by remember { mutableStateOf(false) }
+    var lastNameError by remember { mutableStateOf(false) }
+    var emailAddressError by remember { mutableStateOf(false) }
+    var newPasswordError by remember { mutableStateOf(false) }
+
+
 
     // Top Bar
     TopAppBar(
@@ -70,7 +82,10 @@ fun MainSignup(navController: NavHostController) {
         Row(modifier = Modifier.padding(0.dp)) {
             OutlinedTextField(
                 value = firstName,
-                onValueChange = { firstName = it },
+                onValueChange = {
+                    firstName = it
+                    firstNameError = it.isEmpty()
+                                },
                 label = { Text("First Name") },
                 modifier = Modifier
                     .fillMaxWidth(0.5f)
@@ -79,7 +94,10 @@ fun MainSignup(navController: NavHostController) {
 
             OutlinedTextField(
                 value = lastName,
-                onValueChange = { lastName = it },
+                onValueChange = {
+                    lastName = it
+                    lastNameError = it.isEmpty()
+                                },
                 label = { Text("Last Name") },
                 modifier = Modifier
                     .fillMaxWidth()
@@ -89,34 +107,65 @@ fun MainSignup(navController: NavHostController) {
 
         OutlinedTextField(
             value = emailAddress,
-            onValueChange = { emailAddress = it },
+            onValueChange = {
+                emailAddress = it
+                emailAddressError = !isValidEmail(it)
+                            },
             label = { Text("Email Address")},
             modifier = Modifier
                 .fillMaxWidth()
                 .padding(bottom = 8.dp)
         )
+        if (emailAddressError) {
+            Text("Invalid email address", color = Color.Red)
+        }
+
 
         OutlinedTextField(
             value = newPassword,
-            onValueChange = { newPassword = it },
+            onValueChange = {
+                newPassword = it
+                newPasswordError = !isValidPassword(it)
+                            },
             label = { Text("New Password")},
             modifier = Modifier
                 .fillMaxWidth()
                 .padding(bottom = 8.dp)
         )
+        if (newPasswordError) {
+            Text("Password must have a minimum length of 6 characters and cannot contain spaces", color = Color.Red)
+        }
+
+
         if (message.isNotEmpty()) {
             Text(text = message, color = MaterialTheme.colorScheme.error, style = MaterialTheme.typography.bodyLarge)
         }
 
         Button(
             onClick = {
-                loading = true
-                AuthenticationActivity().createAccount(emailAddress, newPassword, firstName, lastName) { isSuccess ->
-                        loading = false
-                        if (isSuccess) {
-                            navController.navigate(Routes.Home.value)
+                if (firstName.isNotBlank() && lastName.isNotBlank()
+                    && emailAddress.isNotBlank() && newPassword.isNotBlank())
+                {
+                    if (!emailAddressError && !newPasswordError)
+                    {
+                        loading = true
+                        AuthenticationActivity().createAccount(emailAddress, newPassword, firstName, lastName) { isSuccess ->
+                            loading = false
+                            if (isSuccess) {
+                                navController.navigate(Routes.Home.value)
+                            }
                         }
                     }
+
+                }
+                else {
+                    Toast.makeText(
+                        mContext,
+                        "No fields could be empty.",
+                        Toast.LENGTH_SHORT
+                    ).show()
+                }
+
             },
             modifier = Modifier
                 .padding(bottom = 16.dp)
@@ -131,3 +180,5 @@ fun MainSignup(navController: NavHostController) {
         }
     }
 }
+
+

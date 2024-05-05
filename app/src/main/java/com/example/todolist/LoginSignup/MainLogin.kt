@@ -38,6 +38,7 @@ fun MainLogin(navController: NavHostController) {
     val context = LocalContext.current
 
 
+    // variables for validation
     val mContext = LocalContext.current
     var emailError by remember { mutableStateOf(false) }
     var passwordError by remember { mutableStateOf(false) }
@@ -177,4 +178,12 @@ fun MainLogin(navController: NavHostController) {
 
 fun isValidEmail(email: String): Boolean {
     return android.util.Patterns.EMAIL_ADDRESS.matcher(email).matches()
+}
+
+
+fun isValidPassword(password: String): Boolean {
+    // Remove all spaces from the password
+    val trimmedPassword = password.replace("\\s".toRegex(), "")
+    // Check the length of password
+    return trimmedPassword.length >= 6
 }
