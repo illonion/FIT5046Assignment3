@@ -1,4 +1,4 @@
-package com.example.todolist
+package com.example.todolist.LoginSignup
 
 import android.widget.Toast
 import androidx.compose.foundation.layout.Column
@@ -9,7 +9,6 @@ import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.material3.Button
 import androidx.compose.material3.Divider
-import androidx.compose.material3.ElevatedButton
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.OutlinedTextField
@@ -27,9 +26,8 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.unit.dp
 import androidx.navigation.NavHostController
-import com.google.firebase.quickstart.auth.kotlin.AuthenticationActivity
 
-import android.util.Log
+import com.example.todolist.Navigation.Routes
 
 // Main login page
 @OptIn(ExperimentalMaterial3Api::class)
@@ -98,19 +96,22 @@ fun MainLogin(navController: NavHostController) {
             Button(
                 onClick = {
                     AuthenticationActivity().signIn(email, password) { isSuccess ->
-                    if (!emailError && !passwordError) {
-                        AuthenticationActivity().signIn(email, password)
+                        if (!emailError && !passwordError) {
+                            AuthenticationActivity().signIn(email, password)
 //                    AuthenticationActivity().signIn("test13@test.com", "123456")
-                        { isSuccess ->
-                            if (isSuccess) {
-                                navController.navigate(Routes.Home.value)
-                            }
-                            else {
-                                Toast.makeText(mContext, "Sign-in failed. Please check your credentials.", Toast.LENGTH_SHORT).show()
+                            { isSuccess ->
+                                if (isSuccess) {
+                                    navController.navigate(Routes.Home.value)
+                                } else {
+                                    Toast.makeText(
+                                        mContext,
+                                        "Sign-in failed. Please check your credentials.",
+                                        Toast.LENGTH_SHORT
+                                    ).show()
+                                }
                             }
                         }
                     }
-
                 },
                 modifier = Modifier
                     .padding(bottom = 16.dp)

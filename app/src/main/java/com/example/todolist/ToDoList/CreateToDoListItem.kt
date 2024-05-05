@@ -42,8 +42,8 @@ import androidx.compose.ui.focus.focusProperties
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.unit.dp
 import androidx.navigation.NavHostController
-import com.example.todolist.Routes
-import com.example.todolist.ToDoListItem
+import com.example.todolist.Navigation.Routes
+import com.example.todolist.ToDoList.ToDoListItem
 import com.google.firebase.Firebase
 import com.google.firebase.auth.auth
 import com.google.firebase.database.DataSnapshot

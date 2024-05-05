@@ -1,4 +1,4 @@
-package com.example.todolist
+package com.example.todolist.LoginSignup
 
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
@@ -30,9 +30,7 @@ import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.unit.dp
 import androidx.navigation.NavHostController
 import com.google.firebase.auth.FirebaseAuth
-import com.google.firebase.database.FirebaseDatabase
-import com.example.todolist.Routes
-import com.google.firebase.quickstart.auth.kotlin.AuthenticationActivity
+import com.example.todolist.Navigation.Routes
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable

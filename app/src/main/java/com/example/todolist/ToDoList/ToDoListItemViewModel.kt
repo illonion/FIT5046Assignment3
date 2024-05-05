@@ -1,4 +1,4 @@
-package com.example.todolist
+package com.example.todolist.ToDoList
 
 import android.app.Application
 import android.util.Log

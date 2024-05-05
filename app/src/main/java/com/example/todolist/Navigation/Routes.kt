@@ -1,4 +1,4 @@
-package com.example.todolist
+package com.example.todolist.Navigation
 
 enum class Routes(val value: String) {
     Analytics("Analytics"),

@@ -1,4 +1,4 @@
-package com.example.todolist
+package com.example.todolist.FriendsList
 
 import android.annotation.SuppressLint
 import android.widget.Toast
@@ -43,6 +43,8 @@ import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.navigation.NavHostController
+import com.example.todolist.Navigation.Routes
+import com.example.todolist.User
 import com.example.todolist.ui.theme.Purple40
 import com.google.firebase.Firebase
 import com.google.firebase.auth.auth

@@ -1,4 +1,4 @@
-package com.example.todolist
+package com.example.todolist.Analytics
 
 import android.graphics.Paint
 import androidx.compose.foundation.Canvas
@@ -8,11 +8,9 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.geometry.Size
 import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.graphics.drawscope.rotate
 import androidx.compose.ui.graphics.nativeCanvas
 import androidx.compose.ui.graphics.toArgb
 import androidx.compose.ui.unit.dp
-import kotlin.math.PI
 
 // Composable function for drawing a pie chart
 @Composable

@@ -1,9 +1,8 @@
-package com.example.todolist
+package com.example.todolist.Analytics
 
 import android.annotation.SuppressLint
 import android.os.Build
 import androidx.annotation.RequiresApi
-import androidx.compose.foundation.Canvas
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Spacer
@@ -37,7 +36,6 @@ import androidx.compose.ui.graphics.*
 import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.auth.FirebaseUser
 import androidx.compose.runtime.LaunchedEffect
-import androidx.compose.runtime.remember
 import androidx.lifecycle.viewmodel.compose.viewModel
 import com.example.todolist.ui.theme.Purple40
 
@@ -119,7 +117,7 @@ fun Analytics(navController: NavHostController) {
                 // PieChart composable displaying completed and incomplete tasks as a pie chart
                 PieChart(
                     modifier = Modifier
-                        .size(500.dp)
+                        .size(300.dp)
                     .align(Alignment.CenterHorizontally), // Align pie chart center horizontally
                     input = listOf(
                         PieChartInput(
@@ -152,7 +150,7 @@ fun PieChartLegend(legendItems: List<LegendItem>) {
             .fillMaxWidth()
             .wrapContentHeight(), // Adjust height to wrap content
         horizontalArrangement = Arrangement.Center, // Center items horizontally
-        verticalAlignment = Alignment.CenterVertically
+        verticalAlignment = Alignment.Top
     ) {
         legendItems.forEachIndexed { index, item ->
             if (index > 0) {

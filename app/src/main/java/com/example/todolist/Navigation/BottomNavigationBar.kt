@@ -1,3 +1,6 @@
+package com.example.todolist.Navigation
+
+import CreateToDoListItem
 import android.os.Build
 import androidx.annotation.RequiresApi
 import androidx.compose.foundation.layout.padding
@@ -15,15 +18,13 @@ import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.currentBackStackEntryAsState
 import androidx.navigation.compose.rememberNavController
-import com.example.todolist.MainSignup
-import com.example.todolist.Analytics
-import com.example.todolist.FriendsList
+import com.example.todolist.LoginSignup.MainSignup
+import com.example.todolist.Analytics.Analytics
+import com.example.todolist.FriendsList.FriendsList
 import com.example.todolist.Home
-import com.example.todolist.MainLogin
-import com.example.todolist.NavBarItem
-import com.example.todolist.ToDoList
-import com.example.todolist.Routes
-import com.example.todolist.ToDoListItemViewModel
+import com.example.todolist.LoginSignup.MainLogin
+import com.example.todolist.ToDoList.ToDoList
+import com.example.todolist.ToDoList.ToDoListItemViewModel
 
 @RequiresApi(Build.VERSION_CODES.O)
 @Composable
