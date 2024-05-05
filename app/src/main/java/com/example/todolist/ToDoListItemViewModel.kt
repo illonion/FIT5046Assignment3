@@ -2,6 +2,7 @@ package com.example.todolist
 
 import android.app.Application
 import android.util.Log
+import android.widget.Toast
 import androidx.lifecycle.AndroidViewModel
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.asLiveData
@@ -20,9 +21,6 @@ class ToDoListItemViewModel(application: Application) : AndroidViewModel(applica
         repository = ToDoListItemRepository(application)
     }
     val allToDoListItems: LiveData<List<ToDoListItem>> = repository.allToDoListItems.asLiveData()
-    fun insertToDoListItem(toDoListItem: ToDoListItem) = viewModelScope.launch(Dispatchers.IO) {
-        repository.insert(toDoListItem)
-    }
     fun updateToDoListItem(toDoListItem: ToDoListItem) = viewModelScope.launch(Dispatchers.IO) {
         // Convert to do list item to a map (such that it can be updated by firebase)
         val toDoListItemMap = mapOf(
@@ -40,9 +38,13 @@ class ToDoListItemViewModel(application: Application) : AndroidViewModel(applica
     }
     fun deleteToDoListItem(toDoListItem: ToDoListItem) = viewModelScope.launch(Dispatchers.IO) {
         taskReference.child(toDoListItem.taskId).removeValue()
-            .addOnSuccessListener { syncDataFromFirebase() }
+            .addOnSuccessListener {
+                syncDataFromFirebase()
+                makeToast("Successfully deleted item!")
+            }
             .addOnFailureListener {
                 // Handle the error, possibly notifying the user or logging the failure
+                makeToast("Failed to deleted item!")
             }
     }
     fun syncDataFromFirebase() {
@@ -79,11 +81,15 @@ class ToDoListItemViewModel(application: Application) : AndroidViewModel(applica
         taskReference.child(taskId).child("completed").setValue(true).addOnCompleteListener {
             if (it.isSuccessful) {
                 syncDataFromFirebase()
+                makeToast("Successfully marked item as complete!")
             } else {
-                // Handle the error, possibly notifying the user or logging the failure
+                makeToast("Failed to mark item as complete!")
             }
         }
     }
+
+    // Make a toast
+    private fun makeToast(message: String) { Toast.makeText(getApplication(), message, Toast.LENGTH_LONG).show() }
 }
 
 fun convertToBoolean(value: Any?): Boolean {
