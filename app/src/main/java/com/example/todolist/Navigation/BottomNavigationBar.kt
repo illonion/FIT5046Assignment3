@@ -23,6 +23,7 @@ import com.example.todolist.Analytics.Analytics
 import com.example.todolist.FriendsList.FriendsList
 import com.example.todolist.Home
 import com.example.todolist.LoginSignup.MainLogin
+import com.example.todolist.LoginSignup.MainLogout
 import com.example.todolist.ToDoList.ToDoList
 import com.example.todolist.ToDoList.ToDoListItemViewModel
 
@@ -76,6 +77,9 @@ fun BottomNavigationBar(toDoListViewModel: ToDoListItemViewModel) {
             }
             composable(Routes.MainLogin.value) {
                 MainLogin(navController)
+            }
+            composable(Routes.MainLogout.value) {
+                MainLogout(navController)
             }
             composable(Routes.MainSignup.value) {
                 MainSignup(navController)
