@@ -39,8 +39,8 @@ fun MainLogin(navController: NavHostController) {
 
 
     val mContext = LocalContext.current
-    var emailError by remember { mutableStateOf(true) }
-    var passwordError by remember { mutableStateOf(true) }
+    var emailError by remember { mutableStateOf(false) }
+    var passwordError by remember { mutableStateOf(false) }
 
     // AuthenticationActivity().signOut()
 
@@ -95,22 +95,31 @@ fun MainLogin(navController: NavHostController) {
             // Login Button
             Button(
                 onClick = {
-                    AuthenticationActivity().signIn(email, password) { isSuccess ->
-                        if (!emailError && !passwordError) {
-                            AuthenticationActivity().signIn(email, password)
+                    if (email.isNotBlank() && password.isNotBlank()) {
+                        AuthenticationActivity().signIn(email, password) { isSuccess ->
+                            if (!emailError && !passwordError) {
+                                AuthenticationActivity().signIn(email, password)
 //                    AuthenticationActivity().signIn("test13@test.com", "123456")
-                            { isSuccess ->
-                                if (isSuccess) {
-                                    navController.navigate(Routes.Home.value)
-                                } else {
-                                    Toast.makeText(
-                                        mContext,
-                                        "Sign-in failed. Please check your credentials.",
-                                        Toast.LENGTH_SHORT
-                                    ).show()
+                                { isSuccess ->
+                                    if (isSuccess) {
+                                        navController.navigate(Routes.Home.value)
+                                    } else {
+                                        Toast.makeText(
+                                            mContext,
+                                            "Sign-in failed. Please check your credentials.",
+                                            Toast.LENGTH_SHORT
+                                        ).show()
+                                    }
                                 }
                             }
                         }
+                    }
+                    else {
+                        Toast.makeText(
+                            mContext,
+                            "Please enter your email and password.",
+                            Toast.LENGTH_SHORT
+                        ).show()
                     }
                 },
                 modifier = Modifier
