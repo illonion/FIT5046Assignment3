@@ -42,6 +42,7 @@ import androidx.compose.ui.unit.sp
 import com.google.firebase.auth.ktx.auth
 import com.google.firebase.database.FirebaseDatabase
 import com.google.firebase.ktx.Firebase
+import com.google.firebase.quickstart.auth.kotlin.AuthenticationActivity
 import java.time.LocalDate
 import java.time.format.DateTimeFormatter
 
@@ -54,7 +55,17 @@ fun Home(navController: NavHostController, viewModel: ToDoListItemViewModel) {
     val database = FirebaseDatabase.getInstance("https://fit5046-assignment-3-5083c-default-rtdb.asia-southeast1.firebasedatabase.app/")
     val mDatabase = database.reference
     val taskReference = mDatabase.child("tasks")
-
+//    checking session example, will need to be removed later
+//    SOOOOO UGLY
+//    Also it will crash the app if the user is logged out before this is executed(need better handling)
+//    DatabaseActivity().getCurrentSessionTokenCallback() { sessionToken ->
+//        AuthenticationActivity().getTokenCallback { token ->
+//            println("TOKEN-------------------$token")
+//            println("STOKEN-------------------$sessionToken")
+//            val isExpired = !(sessionToken == token)
+//            println("-------------------$isExpired")
+//        }
+//    }
     LaunchedEffect(Unit) {
         viewModel.syncDataFromFirebase()
     }

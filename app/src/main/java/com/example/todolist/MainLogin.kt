@@ -30,6 +30,15 @@ import androidx.navigation.NavHostController
 import com.google.firebase.quickstart.auth.kotlin.AuthenticationActivity
 
 import android.util.Log
+import androidx.compose.foundation.text.KeyboardOptions
+import androidx.compose.material.IconButton
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.Visibility
+import androidx.compose.material.icons.filled.VisibilityOff
+import androidx.compose.material3.Icon
+import androidx.compose.ui.text.input.KeyboardType
+import androidx.compose.ui.text.input.PasswordVisualTransformation
+import androidx.compose.ui.text.input.VisualTransformation
 
 // Main login page
 @OptIn(ExperimentalMaterial3Api::class)
@@ -37,8 +46,11 @@ import android.util.Log
 fun MainLogin(navController: NavHostController) {
     var email by remember { mutableStateOf("") }
     var password by remember { mutableStateOf("") }
+    var hidePassword by remember { mutableStateOf(true) }
+    if (AuthenticationActivity().checkIsLoggedIn()) {
+        navController.navigate(Routes.Home.value)
+    }
     val context = LocalContext.current
-    // AuthenticationActivity().signOut()
 
     // Top bar
     TopAppBar(
@@ -69,7 +81,31 @@ fun MainLogin(navController: NavHostController) {
             label = { Text("Password")},
             modifier = Modifier
                 .fillMaxWidth()
-                .padding(bottom = 8.dp)
+                .padding(bottom = 8.dp) ,
+            visualTransformation = if (hidePassword) {
+                PasswordVisualTransformation()
+            } else {
+                VisualTransformation.None
+            },
+            keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Password),
+            trailingIcon = {
+                if (hidePassword) {
+                    IconButton(
+                        onClick = { hidePassword = false }) {
+                        Icon(
+                            imageVector = Icons.Filled.Visibility,
+                            contentDescription = "hide_password"
+                        )
+                    }
+                } else {
+                    IconButton(onClick = { hidePassword = true }) {
+                        Icon(
+                            imageVector = Icons.Filled.VisibilityOff,
+                            contentDescription = "show_password"
+                        )
+                    }
+                }
+            }
         )
 
         // Buttons
