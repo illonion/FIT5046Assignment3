@@ -313,21 +313,29 @@ fun CreateToDoListItem(navController: NavHostController) {
         // Add item button
         Button(
             onClick = {
-                navController.navigate(Routes.ToDoList.value)
-                val itemId = "task_" + UUID.randomUUID().toString()
+                if (InputValidation().isValidTaskName(toDoItem)) {
+                    navController.navigate(Routes.ToDoList.value)
+                    val itemId = "task_" + UUID.randomUUID().toString()
 
-                // Get date in readable format
-                val instant = Instant.ofEpochMilli(selectedDate)
-                val date = LocalDateTime.ofInstant(instant, ZoneId.systemDefault())
-                val format = DateTimeFormatter.ofPattern("dd/MM/yyyy")
-                val item = currentUserUid?.let { ToDoListItem(itemId, it, toDoItem, selectedTag, date.format(format), selectedFriend.uid, false, System.currentTimeMillis()) }
+                    // Get date in readable format
+                    val instant = Instant.ofEpochMilli(selectedDate)
+                    val date = LocalDateTime.ofInstant(instant, ZoneId.systemDefault())
+                    val format = DateTimeFormatter.ofPattern("dd/MM/yyyy")
+                    val item = currentUserUid?.let { ToDoListItem(itemId, it, toDoItem, selectedTag, date.format(format), selectedFriend.uid, false, System.currentTimeMillis()) }
 
-                mDatabase.child("tasks").child(itemId).setValue(item)
-                    .addOnSuccessListener {
-                        navController.navigate(Routes.ToDoList.value)
-                        Toast.makeText(context,"Successfully created Task!",Toast.LENGTH_LONG).show()
-                    }
-                    .addOnFailureListener { e -> Toast.makeText(context,"Error $e!",Toast.LENGTH_LONG).show()}
+                    mDatabase.child("tasks").child(itemId).setValue(item)
+                        .addOnSuccessListener {
+                            navController.navigate(Routes.ToDoList.value)
+                            Toast.makeText(context,"Successfully created Task!",Toast.LENGTH_LONG).show()
+                        }
+                        .addOnFailureListener { e -> Toast.makeText(context,"Error $e!",Toast.LENGTH_LONG).show()}
+                } else {
+                    Toast.makeText(
+                        context,
+                        "INVALID INPUT: Please enter the Task Name",
+                        Toast.LENGTH_SHORT
+                    ).show()
+                }
             },
             modifier = Modifier
                 .fillMaxWidth()
