@@ -4,6 +4,7 @@ import android.annotation.SuppressLint
 import android.os.Build
 import androidx.annotation.RequiresApi
 import androidx.compose.foundation.Canvas
+import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
@@ -67,6 +68,12 @@ fun Analytics(navController: NavHostController) {
         viewModel.fetchTaskCompletionData()
     }
 
+    //Define legend items
+    val legendItems = listOf(
+        LegendItem(color = CompleteGreen, label = "Completed"),
+        LegendItem(color = IncompleteGrey, label = "Incomplete")
+    )
+
     // Scaffold with TopAppBar and main content area
     Scaffold(
         topBar = {
@@ -95,6 +102,7 @@ fun Analytics(navController: NavHostController) {
                 .fillMaxSize()
                 .padding(horizontal = 45.dp)
                 .verticalScroll(rememberScrollState())
+                .wrapContentWidth(Alignment.CenterHorizontally) // Center content horizontally
         ) {
             Column(
                 modifier = Modifier.align(Alignment.Center)
@@ -111,7 +119,8 @@ fun Analytics(navController: NavHostController) {
                 // PieChart composable displaying completed and incomplete tasks as a pie chart
                 PieChart(
                     modifier = Modifier
-                        .size(500.dp),
+                        .size(500.dp)
+                    .align(Alignment.CenterHorizontally), // Align pie chart center horizontally
                     input = listOf(
                         PieChartInput(
                             color = CompleteGreen,
@@ -127,7 +136,43 @@ fun Analytics(navController: NavHostController) {
                     centerText = "Your Progress"
                 )
 
+                //Display legend for pie chart
+                PieChartLegend(legendItems = legendItems)
+
             }
+        }
+    }
+}
+
+@Composable
+fun PieChartLegend(legendItems: List<LegendItem>) {
+    Row(
+        modifier = Modifier
+            .padding(vertical = 16.dp)
+            .fillMaxWidth()
+            .wrapContentHeight(), // Adjust height to wrap content
+        horizontalArrangement = Arrangement.Center, // Center items horizontally
+        verticalAlignment = Alignment.CenterVertically
+    ) {
+        legendItems.forEachIndexed { index, item ->
+            if (index > 0) {
+                Spacer(modifier = Modifier.width(16.dp)) // Add spacing between legend items
+            }
+
+            // Draw color indicator
+            Box(
+                modifier = Modifier
+                    .size(16.dp)
+                    .background(item.color)
+            )
+
+            // Display legend label
+            Spacer(modifier = Modifier.width(8.dp))
+            Text(
+                text = item.label,
+                style = MaterialTheme.typography.bodyMedium,
+                color = Color.Black
+            )
         }
     }
 }
@@ -136,4 +181,9 @@ data class Task(
     val name: String,
     val completed: Boolean,
     val completedAt: Long //Timestamp when task was completed
+)
+
+data class LegendItem(
+    val color: Color,
+    val label: String
 )
