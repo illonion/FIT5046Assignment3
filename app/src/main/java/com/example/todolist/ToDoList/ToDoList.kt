@@ -22,7 +22,7 @@ import com.example.todolist.Navigation.Routes
 import com.example.todolist.ToDoList.Calendar.Calendar
 import com.example.todolist.ToDoList.Calendar.CalendarDataSource
 import com.example.todolist.ToDoList.Calendar.CalendarHeader
-import com.example.todolist.ToDoList.Calendar.CalendarUiModel
+import com.example.todolist.ToDoList.Calendar.CalendareDataClass
 import com.google.firebase.auth.ktx.auth
 import com.google.firebase.ktx.Firebase
 import java.time.LocalDate
@@ -68,7 +68,7 @@ private fun ToDoListContent(navController: NavHostController, viewModel: ToDoLis
         CalendarHeader(
             data = calendarUiModel,
             onPrevClickListener = { calendarUiModel = dataSource.getData(startDate = it.minusDays(1), lastSelectedDate = calendarUiModel.selectedDate.date) },
-            onNextClickListener = { calendarUiModel = dataSource.getData(startDate = it.plusDays(2), lastSelectedDate = calendarUiModel.selectedDate.date) }
+            onNextClickListener = { calendarUiModel = dataSource.getData(startDate = it.plusDays(3), lastSelectedDate = calendarUiModel.selectedDate.date) }
         )
         Calendar(data = calendarUiModel, onDateClickListener = { calendarUiModel = calendarUiModel.copy(selectedDate = it, visibleDates = calendarUiModel.visibleDates.map { date -> date.copy(isSelected = date.date.isEqual(it.date)) }) })
 
@@ -205,16 +205,15 @@ private fun ToDoListContent(navController: NavHostController, viewModel: ToDoLis
 
         // To Do list items
         Spacer(modifier = Modifier.height(16.dp))
-        ToDoListItems(navController, viewModel, calendarUiModel, selectedComplete, selectedTag)
+        ToDoListItems(viewModel, calendarUiModel, selectedComplete, selectedTag)
     }
 }
 
 @RequiresApi(Build.VERSION_CODES.O)
 @Composable
 private fun ToDoListItems(
-    navController: NavHostController,
     viewModel: ToDoListItemViewModel,
-    calendarUiModel: CalendarUiModel,
+    calendarUiModel: CalendareDataClass,
     selectedComplete: String,
     selectedTag: String
 ) {
