@@ -1,5 +1,6 @@
 package com.example.todolist.LoginSignup
 
+import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
@@ -13,6 +14,7 @@ import androidx.compose.material.icons.automirrored.filled.ArrowBack
 import androidx.compose.material.icons.filled.Visibility
 import androidx.compose.material.icons.filled.VisibilityOff
 import androidx.compose.material3.Button
+import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
@@ -29,6 +31,7 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.text.input.PasswordVisualTransformation
@@ -79,7 +82,7 @@ fun MainSignup(navController: NavHostController) {
             OutlinedTextField(
                 value = firstName,
                 onValueChange = { firstName = it },
-                label = { Text("First Name") },
+                label = { Text("First Name *") },
                 modifier = Modifier
                     .fillMaxWidth(0.5f)
                     .padding(end = 8.dp)
@@ -88,7 +91,7 @@ fun MainSignup(navController: NavHostController) {
             OutlinedTextField(
                 value = lastName,
                 onValueChange = { lastName = it },
-                label = { Text("Last Name") },
+                label = { Text("Last Name *") },
                 modifier = Modifier
                     .fillMaxWidth()
                     .padding(bottom = 8.dp)
@@ -98,7 +101,7 @@ fun MainSignup(navController: NavHostController) {
         OutlinedTextField(
             value = emailAddress,
             onValueChange = { emailAddress = it },
-            label = { Text("Email Address")},
+            label = { Text("Email Address *")},
             modifier = Modifier
                 .fillMaxWidth()
                 .padding(bottom = 8.dp)
@@ -107,7 +110,7 @@ fun MainSignup(navController: NavHostController) {
         OutlinedTextField(
             value = newPassword,
             onValueChange = { newPassword = it },
-            label = { Text("New Password")},
+            label = { Text("New Password *")},
             modifier = Modifier
                 .fillMaxWidth()
                 .padding(bottom = 8.dp),
@@ -151,8 +154,9 @@ fun MainSignup(navController: NavHostController) {
                     }
             },
             modifier = Modifier
-                .padding(bottom = 16.dp)
-                .align(Alignment.CenterHorizontally),
+                .padding(bottom = 5.dp)
+                .align(Alignment.CenterHorizontally)
+                .fillMaxWidth(),
             enabled = !loading
         ) {
             if (loading) {
@@ -160,6 +164,21 @@ fun MainSignup(navController: NavHostController) {
             } else {
                 Text("Create New Account")
             }
+        }
+
+        // Cancel button
+        Button(
+            onClick = { navController.navigate("MainLogin") },
+            modifier = Modifier
+                .fillMaxWidth()
+                .padding(bottom = 5.dp),
+            colors = ButtonDefaults.buttonColors(
+                containerColor = Color.White,
+                contentColor = MaterialTheme.colorScheme.primary
+            ),
+            border = BorderStroke(2.dp, MaterialTheme.colorScheme.primary)
+        ) {
+            Text("Cancel")
         }
     }
 }
