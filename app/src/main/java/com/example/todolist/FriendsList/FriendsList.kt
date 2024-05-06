@@ -1,6 +1,7 @@
 package com.example.todolist.FriendsList
 
 import android.annotation.SuppressLint
+import android.util.Log
 import android.widget.Toast
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
@@ -80,7 +81,7 @@ fun FriendsList(navController: NavHostController) {
 
                 for (snapshot in friendsSnapshot.children) {
                     val friendId1 = snapshot.child("friendId1").value.toString()
-                    val friendId2 = snapshot.child("friendId1").value.toString()
+                    val friendId2 = snapshot.child("friendId2").value.toString()
 
                     if (friendId1 == currentUserUid) { friendListUserIds.add(friendId2) }
                     else if (friendId2 == currentUserUid) { friendListUserIds.add(friendId1) }
@@ -261,6 +262,7 @@ fun FriendsList(navController: NavHostController) {
 @Composable
 fun ListFriends(friend: User, friendsReference: DatabaseReference, onFriendDeleted: () -> Unit) {
     val context = LocalContext.current
+    Log.i("Name", friend.firstName)
     Row(
         modifier = Modifier
             .fillMaxWidth()
