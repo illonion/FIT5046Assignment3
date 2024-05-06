@@ -42,6 +42,7 @@ import androidx.compose.ui.focus.focusProperties
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.unit.dp
 import androidx.navigation.NavHostController
+import com.example.todolist.InputValidation
 import com.example.todolist.Navigation.Routes
 import com.example.todolist.ToDoList.ToDoListItem
 import com.google.firebase.Firebase
@@ -332,7 +333,7 @@ fun CreateToDoListItem(navController: NavHostController) {
                 } else {
                     Toast.makeText(
                         context,
-                        "INVALID INPUT: Please enter the Task Name",
+                        "INVALID INPUT: Task name cannot be empty or more than 25 characters long",
                         Toast.LENGTH_SHORT
                     ).show()
                 }
