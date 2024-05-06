@@ -179,7 +179,7 @@ fun CreateToDoListItem(navController: NavHostController) {
         OutlinedTextField(
             value = toDoItem,
             onValueChange = {toDoItem = it},
-            label = { Text("Task Name") },
+            label = { Text("Task Name *") },
             modifier = Modifier
                 .fillMaxWidth()
                 .padding(bottom = 8.dp)
@@ -199,7 +199,7 @@ fun CreateToDoListItem(navController: NavHostController) {
                 readOnly = true,
                 value = selectedTag,
                 onValueChange = {},
-                label = { Text("Tag") },
+                label = { Text("Tag *") },
                 trailingIcon = {
                     ExposedDropdownMenuDefaults.TrailingIcon(expanded = tagsIsExpanded)
                 }
@@ -254,7 +254,7 @@ fun CreateToDoListItem(navController: NavHostController) {
                 value = formatter.format(Date(selectedDate)),
                 onValueChange = {},
                 readOnly = true,
-                label = { Text("Due Date") },
+                label = { Text("Due Date *") },
                 modifier = Modifier
                     .fillMaxWidth()
                     .padding(bottom = 8.dp),
@@ -289,7 +289,7 @@ fun CreateToDoListItem(navController: NavHostController) {
                 readOnly = true,
                 value = selectedFriend.name,
                 onValueChange = {},
-                label = { Text("Friend") },
+                label = { Text("Friend *") },
                 trailingIcon = {
                     ExposedDropdownMenuDefaults.TrailingIcon(expanded = friendIsExpanded) // Use friendIsExpanded here
                 }
