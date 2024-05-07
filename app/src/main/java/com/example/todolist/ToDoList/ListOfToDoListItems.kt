@@ -15,7 +15,6 @@ import androidx.compose.material3.AlertDialog
 import androidx.compose.material3.Button
 import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
-import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.Text
@@ -62,14 +61,16 @@ fun ListToDoListItem(toDoListItem: ToDoListItem, showIcon: Boolean, viewModel: T
                 verticalAlignment = Alignment.CenterVertically,
                 horizontalArrangement = Arrangement.SpaceBetween
             ) {
+                // To do list item text
                 Text(
-                    text = addEllipsis(toDoListItem.name, 20),
+                    text = addEllipsis(toDoListItem.name,25),
                     style = TextStyle(
                         fontSize = 18.sp,
                         lineHeight = 36.sp
                     ),
                     modifier = Modifier.padding(start = 8.dp)
                 )
+                // Show completion icons on todolist page
                 if (showIcon) {
                     Row(
                         modifier = Modifier.fillMaxWidth(),
@@ -102,6 +103,7 @@ fun ListToDoListItem(toDoListItem: ToDoListItem, showIcon: Boolean, viewModel: T
     }
 }
 
+// To Do List Item Icon
 @Composable
 fun ToDoListItemIcon(
     specificIcon: ImageVector,
@@ -121,7 +123,7 @@ fun ToDoListItemIcon(
     }
 }
 
-@OptIn(ExperimentalMaterial3Api::class)
+// Edit task dialog
 @Composable
 fun EditTaskDialog(toDoListItem: ToDoListItem, onDismiss: () -> Unit, onSave: (ToDoListItem) -> Unit) {
     var editedToDoListItem by remember { mutableStateOf(toDoListItem) }

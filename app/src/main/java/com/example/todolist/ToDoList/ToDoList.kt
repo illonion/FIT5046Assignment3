@@ -229,6 +229,7 @@ private fun ToDoListItems(
     // Make it into a list
     viewModel.allToDoListItems.observeAsState(emptyList()).apply {
         toDoListItems = this.value
+            .asSequence()
             .filter { it.userId == currentUserUid || it.friend == currentUserUid }
             .filter { LocalDate.parse(it.dueDate, DateTimeFormatter.ofPattern("dd/MM/yyyy")) == calendarUiModel.selectedDate.date }
             .filter {
