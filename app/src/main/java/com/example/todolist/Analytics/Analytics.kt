@@ -100,7 +100,8 @@ fun Analytics(navController: NavHostController) {
                 .wrapContentWidth(Alignment.CenterHorizontally) // Center content horizontally
         ) {
             Column(
-                modifier = Modifier.align(Alignment.Center)
+                modifier = Modifier.align(Alignment.Center),
+                horizontalAlignment = Alignment.CenterHorizontally
             ) {
                 // Display completion percentage text or message if no tasks for today
                 if (tasksForTodayExist) {
@@ -151,7 +152,7 @@ fun Analytics(navController: NavHostController) {
                         .size(300.dp)
                         .align(Alignment.CenterHorizontally), // Align pie chart center horizontally
                     input = pieChartInput,
-                    centerText = "$completionPercentage%"
+                    centerText = "$completionPercentage%",
                     centerLabelColor = Color.White,
                     centerTransparentColor = Color.White.copy(alpha = 0.2f)
                 )
