@@ -6,7 +6,6 @@ import androidx.annotation.RequiresApi
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
-import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
@@ -47,16 +46,11 @@ import com.example.todolist.ToDoList.ListToDoListItem
 import com.example.todolist.ToDoList.ToDoListItem
 import com.example.todolist.ToDoList.ToDoListItemViewModel
 import com.google.firebase.auth.ktx.auth
-import com.google.firebase.database.FirebaseDatabase
 import com.google.firebase.ktx.Firebase
 import java.time.LocalDate
 import java.time.format.DateTimeFormatter
-import com.example.todolist.DatabaseActivity
-import com.example.todolist.LoginSignup.AuthenticationActivity
 import com.example.todolist.ui.theme.CompleteGreen
 import com.example.todolist.ui.theme.IncompleteGrey
-import com.example.todolist.ui.theme.Purple40
-import com.example.todolist.ui.theme.Purple60
 
 // Home screen
 @OptIn(ExperimentalMaterial3Api::class)
@@ -64,21 +58,6 @@ import com.example.todolist.ui.theme.Purple60
 @RequiresApi(Build.VERSION_CODES.O)
 @Composable
 fun Home(navController: NavHostController, toDoListItemViewModel: ToDoListItemViewModel, analyticsViewModel: AnalyticsViewModel) {
-    val database = FirebaseDatabase.getInstance("https://fit5046-assignment-3-5083c-default-rtdb.asia-southeast1.firebasedatabase.app/")
-    val mDatabase = database.reference
-    val taskReference = mDatabase.child("tasks")
-//    checking session example, will need to be removed later
-//    SOOOOO UGLY
-//    Also it will crash the app if the user is logged out before this is executed(need better handling)
-//    DatabaseActivity().getCurrentSessionTokenCallback() { sessionToken ->
-//        AuthenticationActivity().getTokenCallback { token ->
-//            println("TOKEN-------------------$token")
-//            println("STOKEN-------------------$sessionToken")
-//            val isExpired = !(sessionToken == token)
-//            println("-------------------$isExpired")
-//        }
-//    }
-
     val completionPercentage by analyticsViewModel.completionPercentage.observeAsState(initial = 0)
     val completedTasks by analyticsViewModel.completedTasks.observeAsState(initial = 0)
     val incompleteTasks by analyticsViewModel.incompleteTasks.observeAsState(initial = 0)
@@ -167,12 +146,12 @@ fun Home(navController: NavHostController, toDoListItemViewModel: ToDoListItemVi
                         listOf(
                             PieChartInput(
                                 color = CompleteGreen,
-                                value = completedTasks.toDouble() ?: 0.0,
+                                value = completedTasks.toDouble(),
                                 description = "Completed Tasks"
                             ),
                             PieChartInput(
                                 color = IncompleteGrey,
-                                value = incompleteTasks.toDouble() ?: 0.0,
+                                value = incompleteTasks.toDouble(),
                                 description = "Incomplete Tasks"
                             )
                         )
@@ -180,7 +159,7 @@ fun Home(navController: NavHostController, toDoListItemViewModel: ToDoListItemVi
                         // No tasks for today, show 100% completed (purple40)
                         listOf(
                             PieChartInput(
-                                color = Purple60,
+                                color = IncompleteGrey,
                                 value = 100.0, // 100% completion
                                 description = "No Tasks Today"
                             )
@@ -238,7 +217,7 @@ fun Home(navController: NavHostController, toDoListItemViewModel: ToDoListItemVi
             } else {
                 Column(modifier = Modifier.padding(16.dp)) {
                     LazyColumn {
-                        itemsIndexed(toDoListItems) { index, item ->
+                        itemsIndexed(toDoListItems) { _, item ->
                             ListToDoListItem(item, false, toDoListItemViewModel)
                         }
                     }
