@@ -3,6 +3,7 @@ package com.example.todolist.LoginSignup
 import android.accounts.AccountManager
 import android.app.Activity
 import android.content.Context
+import android.content.SharedPreferences
 import android.os.Bundle
 import android.util.Log
 import androidx.credentials.CredentialManager
@@ -79,7 +80,8 @@ class AuthenticationActivity : Activity() {
             }
     }
 
-    public fun signIn(email: String, password: String, isSuccess:  (Boolean) -> Unit) {
+    public fun signIn(email: String, password: String, rememberLogin: Boolean, sharedPref: SharedPreferences, isSuccess:  (Boolean) -> Unit) {
+
         auth.signInWithEmailAndPassword(email, password)
             .addOnCompleteListener(this) { task ->
                 if (task.isSuccessful) {
@@ -87,6 +89,15 @@ class AuthenticationActivity : Activity() {
                     val user = auth.currentUser
                     getTokenCallback() { token ->
                         DatabaseActivity().setCurrentSessionId(user, token)
+                        with (sharedPref.edit()) {
+                            if (rememberLogin) {
+                                putString("email", email)
+                            } else {
+                                putString("email", "")
+                            }
+                            putBoolean("rememberLogin", rememberLogin)
+                            apply()
+                        }
                         isSuccess(true)
                     }
 
@@ -97,7 +108,10 @@ class AuthenticationActivity : Activity() {
             }
     }
     public fun signOut() {
-        auth.signOut()
+        val currentUser = auth.currentUser
+        if (currentUser != null) {
+            auth.signOut()
+        }
     }
     public fun signOutCheckToken(isSuccess: (Boolean) -> Unit) {
 //        unused, for test purpose only
