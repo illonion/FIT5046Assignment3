@@ -21,8 +21,8 @@ import androidx.navigation.compose.rememberNavController
 import com.example.todolist.LoginSignup.MainSignup
 import com.example.todolist.Analytics.Analytics
 import com.example.todolist.Analytics.AnalyticsViewModel
-import com.example.todolist.FriendsList.FriendsList
-import com.example.todolist.FriendsList.FriendsListViewModel
+import com.example.todolist.friendslist.FriendsList
+import com.example.todolist.friendslist.FriendsListViewModel
 import com.example.todolist.Home
 import com.example.todolist.LoginSignup.MainLogin
 import com.example.todolist.LoginSignup.MainLogout
@@ -31,9 +31,12 @@ import com.example.todolist.ToDoList.ToDoListItemViewModel
 
 @RequiresApi(Build.VERSION_CODES.O)
 @Composable
+// Bottom navigation and the navigation controller
 fun BottomNavigationBar(toDoListViewModel: ToDoListItemViewModel, analyticsViewModel: AnalyticsViewModel, friendsListViewModel: FriendsListViewModel) {
+    // Navigation controller
     val navController = rememberNavController()
     Scaffold(
+        // Bottom bar
         bottomBar = {
             val navBackStackEntry by
             navController.currentBackStackEntryAsState()
@@ -49,10 +52,6 @@ fun BottomNavigationBar(toDoListViewModel: ToDoListItemViewModel, analyticsViewM
                             } == true,
                             onClick = {
                                 navController.navigate(navItem.route) {
-                                    // Commented this code out to make sure the logout button works
-                                    // popUpTo(navController.graph.findStartDestination().id) {
-                                    //     saveState = true
-                                    // }
                                     launchSingleTop = true
                                     restoreState = true
                                 }
@@ -63,6 +62,7 @@ fun BottomNavigationBar(toDoListViewModel: ToDoListItemViewModel, analyticsViewM
             }
         }
     ){ paddingValues ->
+        // All nav hosts
         NavHost(
             navController,
             startDestination = Routes.MainLogin.value,

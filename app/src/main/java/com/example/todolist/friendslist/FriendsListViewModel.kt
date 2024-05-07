@@ -1,4 +1,4 @@
-package com.example.todolist.FriendsList
+package com.example.todolist.friendslist
 
 import android.app.Application
 import android.widget.Toast

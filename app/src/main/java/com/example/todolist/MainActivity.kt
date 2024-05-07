@@ -8,7 +8,7 @@ import androidx.activity.compose.setContent
 import androidx.activity.viewModels
 import androidx.annotation.RequiresApi
 import com.example.todolist.Analytics.AnalyticsViewModel
-import com.example.todolist.FriendsList.FriendsListViewModel
+import com.example.todolist.friendslist.FriendsListViewModel
 import com.example.todolist.ToDoList.ToDoListItemViewModel
 
 class MainActivity : ComponentActivity() {

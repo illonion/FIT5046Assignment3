@@ -1,4 +1,4 @@
-package com.example.todolist.FriendsList
+package com.example.todolist.friendslist
 
 import android.annotation.SuppressLint
 import android.util.Log
