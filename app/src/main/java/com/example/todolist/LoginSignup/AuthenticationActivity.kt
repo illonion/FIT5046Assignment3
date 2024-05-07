@@ -30,24 +30,15 @@ import kotlin.coroutines.suspendCoroutine
 
 class AuthenticationActivity : Activity() {
 
-    // [START declare_auth]
     private var auth: FirebaseAuth = Firebase.auth
-    // [END declare_auth]
 
     // google auth
     private val WEB_CLIENT_ID = "594256886966-de46qrlc59o61nksda8g7ek4c4frmsfc.apps.googleusercontent.com"
-    // ...
 
     public override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-
-        // [START initialize_auth]
-        // Initialize Firebase Auth
-//        auth = Firebase.auth
-        // [END initialize_auth]
     }
 
-    // [START on_start_check_user]
     public override fun onStart() {
         super.onStart()
         // Check if user is signed in (non-null) and update UI accordingly.
@@ -56,10 +47,8 @@ class AuthenticationActivity : Activity() {
 
         }
     }
-    // [END on_start_check_user]
 
     public fun createAccount(email: String, password: String, firstName: String, lastName: String, isSuccess:  (Boolean) -> Unit) {
-        // [START create_user_with_email]
         auth.createUserWithEmailAndPassword(email, password)
             .addOnCompleteListener(this) { task ->
                 if (task.isSuccessful) {
@@ -177,11 +166,7 @@ class AuthenticationActivity : Activity() {
 
     public fun checkIsLoggedIn(): Boolean {
         val user = Firebase.auth.currentUser
-        if (user != null) {
-            return true
-        } else {
-            return false
-        }
+        return user != null
     }
 
     suspend fun getTokenSuspend(): String? {
