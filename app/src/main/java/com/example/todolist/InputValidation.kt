@@ -6,6 +6,9 @@ class InputValidation {
         if (taskName.isEmpty()) {
             return false
         }
+        if (taskName.length > 25) {
+            return false
+        }
         return true
     }
 //
