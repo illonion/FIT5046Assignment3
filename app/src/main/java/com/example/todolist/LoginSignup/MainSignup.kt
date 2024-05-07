@@ -217,10 +217,7 @@ fun checkEmailExists(email: String, callback: (Boolean) -> Unit) {
         }
 
         override fun onCancelled(databaseError: DatabaseError) {
-            // Handle errors if the query is cancelled or fails
-            // For simplicity, let's log the error
             Log.e("Firebase", "Error querying email existence: $databaseError")
-            // Assume email doesn't exist if there's an error
             callback(false)
         }
     })
