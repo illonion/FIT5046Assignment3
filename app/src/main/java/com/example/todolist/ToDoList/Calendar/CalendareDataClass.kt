@@ -6,15 +6,15 @@ import java.time.LocalDate
 import java.time.format.DateTimeFormatter
 
 // Code from https://medium.com/@meytataliti/android-simple-calendar-with-jetpack-compose-662e4d1794b
-data class CalendarUiModel(
-    val selectedDate: Date,
-    val visibleDates: List<Date>
+data class CalendareDataClass(
+    val selectedDate: CalendarDate,
+    val visibleDates: List<CalendarDate>
 ) {
 
-    val startDate: Date = visibleDates.first()
-    val endDate: Date = visibleDates.last()
+    val startDate: CalendarDate = visibleDates.first()
+    val endDate: CalendarDate = visibleDates.last()
 
-    data class Date(
+    data class CalendarDate(
         val date: LocalDate,
         val isSelected: Boolean,
         val isToday: Boolean
