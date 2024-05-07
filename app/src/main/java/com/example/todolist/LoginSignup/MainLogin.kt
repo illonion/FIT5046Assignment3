@@ -185,5 +185,9 @@ fun isValidPassword(password: String): Boolean {
     // Remove all spaces from the password
     val trimmedPassword = password.replace("\\s".toRegex(), "")
     // Check the length of password
-    return trimmedPassword.length >= 6
+    return (trimmedPassword.length >= 6 && trimmedPassword.length == password.length)
 }
+
+
+
+
