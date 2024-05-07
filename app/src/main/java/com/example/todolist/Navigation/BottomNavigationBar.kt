@@ -20,6 +20,7 @@ import androidx.navigation.compose.currentBackStackEntryAsState
 import androidx.navigation.compose.rememberNavController
 import com.example.todolist.LoginSignup.MainSignup
 import com.example.todolist.Analytics.Analytics
+import com.example.todolist.Analytics.AnalyticsViewModel
 import com.example.todolist.FriendsList.FriendsList
 import com.example.todolist.Home
 import com.example.todolist.LoginSignup.MainLogin
@@ -29,7 +30,7 @@ import com.example.todolist.ToDoList.ToDoListItemViewModel
 
 @RequiresApi(Build.VERSION_CODES.O)
 @Composable
-fun BottomNavigationBar(toDoListViewModel: ToDoListItemViewModel) {
+fun BottomNavigationBar(toDoListViewModel: ToDoListItemViewModel, analyticsViewModel: AnalyticsViewModel) {
     val navController = rememberNavController()
     Scaffold(
         bottomBar = {
@@ -73,7 +74,7 @@ fun BottomNavigationBar(toDoListViewModel: ToDoListItemViewModel) {
                 CreateToDoListItem(navController)
             }
             composable(Routes.Home.value) {
-                Home(navController, toDoListViewModel)
+                Home(navController, toDoListViewModel, analyticsViewModel)
             }
             composable(Routes.MainLogin.value) {
                 MainLogin(navController)
