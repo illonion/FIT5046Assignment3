@@ -1,15 +1,27 @@
 package com.example.todolist.LoginSignup
 
+import android.accounts.AccountManager
 import android.app.Activity
+import android.content.Context
 import android.os.Bundle
 import android.util.Log
+import androidx.credentials.CredentialManager
+import androidx.credentials.GetCredentialRequest
 import com.example.todolist.DatabaseActivity
+import com.google.android.libraries.identity.googleid.GetSignInWithGoogleOption
+import com.google.android.libraries.identity.googleid.GoogleIdTokenCredential
 import com.google.firebase.Firebase
 import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.auth.FirebaseUser
 import com.google.firebase.auth.GetTokenResult
+import com.google.firebase.auth.GoogleAuthProvider
 import com.google.firebase.auth.auth
+import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.launch
 import kotlinx.coroutines.runBlocking
+import java.time.LocalDateTime
+import java.time.ZoneId
+import java.util.Date
 import java.util.UUID
 import java.util.concurrent.CountDownLatch
 import kotlin.coroutines.resume
@@ -18,33 +30,25 @@ import kotlin.coroutines.suspendCoroutine
 
 class AuthenticationActivity : Activity() {
 
-    // [START declare_auth]
     private var auth: FirebaseAuth = Firebase.auth
-    // [END declare_auth]
+
+    // google auth
+    private val WEB_CLIENT_ID = "594256886966-de46qrlc59o61nksda8g7ek4c4frmsfc.apps.googleusercontent.com"
 
     public override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-
-        // [START initialize_auth]
-        // Initialize Firebase Auth
-//        auth = Firebase.auth
-        // [END initialize_auth]
     }
 
-    // [START on_start_check_user]
     public override fun onStart() {
         super.onStart()
         // Check if user is signed in (non-null) and update UI accordingly.
         val currentUser = auth.currentUser
         if (currentUser != null) {
-//            reload()
+
         }
     }
-    // [END on_start_check_user]
 
     public fun createAccount(email: String, password: String, firstName: String, lastName: String, isSuccess:  (Boolean) -> Unit) {
-        // [START create_user_with_email]
-//        auth = Firebase.auth
         auth.createUserWithEmailAndPassword(email, password)
             .addOnCompleteListener(this) { task ->
                 if (task.isSuccessful) {
@@ -73,7 +77,6 @@ class AuthenticationActivity : Activity() {
                     isSuccess(false)
                 }
             }
-        // [END create_user_with_email]
     }
 
     public fun signIn(email: String, password: String, isSuccess:  (Boolean) -> Unit) {
@@ -86,6 +89,7 @@ class AuthenticationActivity : Activity() {
                         DatabaseActivity().setCurrentSessionId(user, token)
                         isSuccess(true)
                     }
+
                 } else {
                     Log.w(TAG, "signInWithEmail:failure", task.exception)
                     isSuccess(false)
@@ -108,13 +112,61 @@ class AuthenticationActivity : Activity() {
 
     }
 
+    public fun signInWithGoogle(context: Context, scope: CoroutineScope, isSuccess: (Boolean) -> Unit) {
+        val credentialManager = CredentialManager.create(context)
+
+        val googleIdOption = GetSignInWithGoogleOption.Builder(WEB_CLIENT_ID)
+            .build()
+
+        val request = GetCredentialRequest.Builder()
+            .addCredentialOption(googleIdOption)
+            .build()
+
+        scope.launch {
+            try {
+                val result = credentialManager.getCredential(
+                    context = context,
+                    request = request
+                )
+                val credential = result.credential
+                val googleIdTokenCredential = GoogleIdTokenCredential
+                    .createFrom(credential.data)
+                val googleIdToken = googleIdTokenCredential.idToken
+
+                val firebaseCredential = GoogleAuthProvider
+                    .getCredential(googleIdToken, null)
+
+                val accounts = AccountManager.get(context).getAccounts()
+                val email = accounts[0].name
+
+                auth.signInWithCredential(firebaseCredential)
+                    .addOnCompleteListener { task ->
+                        if (task.isSuccessful) {
+                            val user = auth.currentUser
+                            getTokenCallback() { token ->
+                                DatabaseActivity().addNewUser(user, email, "", "") { isSuccess ->
+                                    if (isSuccess) {
+                                        DatabaseActivity().setCurrentSessionId(user, token)
+                                        isSuccess(true)
+                                    } else {
+                                        isSuccess(false)
+                                    }
+                                    isSuccess(true)
+                                }
+                            }
+                        } else {
+                            isSuccess(false)
+                        }
+                    }
+            } catch (e: Exception) {
+                isSuccess(false)
+            }
+        }
+    }
+
     public fun checkIsLoggedIn(): Boolean {
         val user = Firebase.auth.currentUser
-        if (user != null) {
-            return true
-        } else {
-            return false
-        }
+        return user != null
     }
 
     suspend fun getTokenSuspend(): String? {

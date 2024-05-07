@@ -2,6 +2,8 @@ import android.annotation.SuppressLint
 import android.os.Build
 import android.widget.Toast
 import androidx.annotation.RequiresApi
+import androidx.compose.foundation.BorderStroke
+import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -13,6 +15,7 @@ import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.ArrowBack
 import androidx.compose.material.icons.outlined.DateRange
 import androidx.compose.material3.Button
+import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.DatePicker
 import androidx.compose.material3.DatePickerDialog
 import androidx.compose.material3.DropdownMenuItem
@@ -23,6 +26,7 @@ import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.OutlinedTextField
+import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
 import androidx.compose.material3.TextField
@@ -39,6 +43,7 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.alpha
 import androidx.compose.ui.focus.focusProperties
+import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.unit.dp
 import androidx.navigation.NavHostController
@@ -179,7 +184,7 @@ fun CreateToDoListItem(navController: NavHostController) {
         OutlinedTextField(
             value = toDoItem,
             onValueChange = {toDoItem = it},
-            label = { Text("Task Name") },
+            label = { Text("Task Name *") },
             modifier = Modifier
                 .fillMaxWidth()
                 .padding(bottom = 8.dp)
@@ -199,7 +204,7 @@ fun CreateToDoListItem(navController: NavHostController) {
                 readOnly = true,
                 value = selectedTag,
                 onValueChange = {},
-                label = { Text("Tag") },
+                label = { Text("Tag *") },
                 trailingIcon = {
                     ExposedDropdownMenuDefaults.TrailingIcon(expanded = tagsIsExpanded)
                 }
@@ -254,7 +259,7 @@ fun CreateToDoListItem(navController: NavHostController) {
                 value = formatter.format(Date(selectedDate)),
                 onValueChange = {},
                 readOnly = true,
-                label = { Text("Due Date") },
+                label = { Text("Due Date *") },
                 modifier = Modifier
                     .fillMaxWidth()
                     .padding(bottom = 8.dp),
@@ -289,7 +294,7 @@ fun CreateToDoListItem(navController: NavHostController) {
                 readOnly = true,
                 value = selectedFriend.name,
                 onValueChange = {},
-                label = { Text("Friend") },
+                label = { Text("Friend *") },
                 trailingIcon = {
                     ExposedDropdownMenuDefaults.TrailingIcon(expanded = friendIsExpanded) // Use friendIsExpanded here
                 }
@@ -333,16 +338,31 @@ fun CreateToDoListItem(navController: NavHostController) {
                 } else {
                     Toast.makeText(
                         context,
-                        "INVALID INPUT: Please enter the Task Name",
+                        "INVALID INPUT: Task name cannot be empty or more than 25 characters long",
                         Toast.LENGTH_SHORT
                     ).show()
                 }
             },
             modifier = Modifier
                 .fillMaxWidth()
-                .padding(bottom = 8.dp),
+                .padding(bottom = 5.dp),
         ) {
             Text("Add Task")
+        }
+
+        // Cancel button
+        Button(
+            onClick = { navController.navigate("ToDoList") },
+            modifier = Modifier
+                .fillMaxWidth()
+                .padding(bottom = 5.dp),
+            colors = ButtonDefaults.buttonColors(
+                containerColor = Color.White,
+                contentColor = MaterialTheme.colorScheme.primary
+            ),
+            border = BorderStroke(2.dp, MaterialTheme.colorScheme.primary)
+        ) {
+            Text("Cancel")
         }
     }
 }

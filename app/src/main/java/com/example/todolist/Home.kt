@@ -6,7 +6,6 @@ import androidx.annotation.RequiresApi
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
-import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
@@ -39,42 +38,36 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.sp
+import com.example.todolist.Analytics.AnalyticsViewModel
+import com.example.todolist.Analytics.PieChart
+import com.example.todolist.Analytics.PieChartInput
 import com.example.todolist.Navigation.Routes
 import com.example.todolist.ToDoList.ListToDoListItem
 import com.example.todolist.ToDoList.ToDoListItem
 import com.example.todolist.ToDoList.ToDoListItemViewModel
 import com.google.firebase.auth.ktx.auth
-import com.google.firebase.database.FirebaseDatabase
 import com.google.firebase.ktx.Firebase
 import java.time.LocalDate
 import java.time.format.DateTimeFormatter
-import com.example.todolist.DatabaseActivity
-import com.example.todolist.LoginSignup.AuthenticationActivity
+import com.example.todolist.ui.theme.CompleteGreen
+import com.example.todolist.ui.theme.IncompleteGrey
 
 // Home screen
 @OptIn(ExperimentalMaterial3Api::class)
 @SuppressLint("UnusedMaterial3ScaffoldPaddingParameter")
 @RequiresApi(Build.VERSION_CODES.O)
 @Composable
-fun Home(navController: NavHostController, viewModel: ToDoListItemViewModel) {
-    val database = FirebaseDatabase.getInstance("https://fit5046-assignment-3-5083c-default-rtdb.asia-southeast1.firebasedatabase.app/")
-    val mDatabase = database.reference
-    val taskReference = mDatabase.child("tasks")
-//    checking session example, will need to be removed later
-//    SOOOOO UGLY
-//    Also it will crash the app if the user is logged out before this is executed(need better handling)
-//    DatabaseActivity().getCurrentSessionTokenCallback() { sessionToken ->
-//        AuthenticationActivity().getTokenCallback { token ->
-//            println("TOKEN-------------------$token")
-//            println("STOKEN-------------------$sessionToken")
-//            val isExpired = !(sessionToken == token)
-//            println("-------------------$isExpired")
-//        }
-//    }
+fun Home(navController: NavHostController, toDoListItemViewModel: ToDoListItemViewModel, analyticsViewModel: AnalyticsViewModel) {
+    val completionPercentage by analyticsViewModel.completionPercentage.observeAsState(initial = 0)
+    val completedTasks by analyticsViewModel.completedTasks.observeAsState(initial = 0)
+    val incompleteTasks by analyticsViewModel.incompleteTasks.observeAsState(initial = 0)
+    val tasksForTodayExist by analyticsViewModel.tasksForTodayExist.observeAsState(initial = false)
 
     LaunchedEffect(Unit) {
-        viewModel.syncDataFromFirebase()
+        toDoListItemViewModel.syncDataFromFirebase()
+        analyticsViewModel.fetchTaskCompletionData()
     }
+
 
     Scaffold(
         topBar = {
@@ -91,7 +84,6 @@ fun Home(navController: NavHostController, viewModel: ToDoListItemViewModel) {
             modifier = Modifier
                 .padding(innerPadding)
                 .fillMaxSize(),
-            verticalArrangement = Arrangement.Center,
             horizontalAlignment = Alignment.CenterHorizontally
         ) {
             // Welcome to do list text
@@ -135,21 +127,61 @@ fun Home(navController: NavHostController, viewModel: ToDoListItemViewModel) {
                         .background(MaterialTheme.colorScheme.primary)
                         .clickable(onClick = { navController.navigate(Routes.Analytics.value) }),
                 ) {
+                    // Text for if there is completed tasks
+                    val percentageText = if (tasksForTodayExist) {
+                        "$completionPercentage% Complete! You got this!"
+                    } else {
+                        "Add some tasks to see your progress."
+                    }
                     Text(
-                        text = "56% Complete! You got this!",
+                        text = percentageText,
                         textAlign = TextAlign.Center,
                         fontSize = 20.sp,
                         modifier = Modifier.padding(top = 10.dp),
                         color = Color.White
                     )
-                    Image(
-                        painter = painterResource(R.drawable.homepagepiechart),
-                        contentDescription = null,
-                        modifier = Modifier
-                            .padding(bottom = 10.dp)
-                            .size(width = 100.dp, height = 100.dp)
-                            .align(Alignment.BottomCenter)
-                    )
+                    // Calculate input data for the PieChart based on task completion
+                    val pieChartInput = if (tasksForTodayExist) {
+                        // Tasks exist for today, show completed and incomplete tasks
+                        listOf(
+                            PieChartInput(
+                                color = CompleteGreen,
+                                value = completedTasks.toDouble(),
+                                description = "Completed Tasks"
+                            ),
+                            PieChartInput(
+                                color = IncompleteGrey,
+                                value = incompleteTasks.toDouble(),
+                                description = "Incomplete Tasks"
+                            )
+                        )
+                    } else {
+                        // No tasks for today, show 100% completed (purple40)
+                        listOf(
+                            PieChartInput(
+                                color = IncompleteGrey,
+                                value = 100.0, // 100% completion
+                                description = "No Tasks Today"
+                            )
+                        )
+                    }
+
+                    // PieChart composable displaying completed and incomplete tasks as a pie chart
+
+                    Box(
+                        contentAlignment = Alignment.BottomCenter,
+                        modifier = Modifier.fillMaxSize()
+                    ) {
+                        PieChart(
+                            modifier = Modifier
+                                .size(120.dp)
+                                .padding(bottom = 10.dp),
+                            input = pieChartInput,
+                            centerText = "",
+                            centerLabelColor = MaterialTheme.colorScheme.primary,
+                            centerTransparentColor = MaterialTheme.colorScheme.primary
+                        )
+                    }
                 }
             }
 
@@ -173,7 +205,7 @@ fun Home(navController: NavHostController, viewModel: ToDoListItemViewModel) {
 
             var toDoListItems by remember { mutableStateOf(emptyList<ToDoListItem>()) }
             val currentUserUid = Firebase.auth.currentUser?.uid
-            viewModel.allToDoListItems.observeAsState(emptyList()).apply {
+            toDoListItemViewModel.allToDoListItems.observeAsState(emptyList()).apply {
                 toDoListItems = this.value
                     .filter { it.userId == currentUserUid || it.friend == currentUserUid } // Remove items where the user is not the user OR a friend
                     .filter { LocalDate.parse(it.dueDate, DateTimeFormatter.ofPattern("dd/MM/yyyy")) == LocalDate.now() } // Filter by today
@@ -185,8 +217,8 @@ fun Home(navController: NavHostController, viewModel: ToDoListItemViewModel) {
             } else {
                 Column(modifier = Modifier.padding(16.dp)) {
                     LazyColumn {
-                        itemsIndexed(toDoListItems) { index, item ->
-                            ListToDoListItem(item, false, viewModel)
+                        itemsIndexed(toDoListItems) { _, item ->
+                            ListToDoListItem(item, false, toDoListItemViewModel)
                         }
                     }
                 }

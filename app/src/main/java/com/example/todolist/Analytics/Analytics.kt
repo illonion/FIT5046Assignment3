@@ -152,6 +152,8 @@ fun Analytics(navController: NavHostController) {
                         .align(Alignment.CenterHorizontally), // Align pie chart center horizontally
                     input = pieChartInput,
                     centerText = "$completionPercentage%"
+                    centerLabelColor = Color.White,
+                    centerTransparentColor = Color.White.copy(alpha = 0.2f)
                 )
 
                 // Display legend for pie chart

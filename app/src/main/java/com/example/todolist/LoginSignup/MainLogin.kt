@@ -37,9 +37,10 @@ import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Visibility
 import androidx.compose.material.icons.filled.VisibilityOff
 import androidx.compose.material3.Icon
+import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.text.input.PasswordVisualTransformation
-import androidx.compose.ui.text.input.VisualTransformation										  
+import androidx.compose.ui.text.input.VisualTransformation
 
 // Main login page
 @OptIn(ExperimentalMaterial3Api::class)
@@ -52,13 +53,12 @@ fun MainLogin(navController: NavHostController) {
         navController.navigate(Routes.Home.value)
     }
     val context = LocalContext.current
-
+    val scope = rememberCoroutineScope()
 
     val mContext = LocalContext.current
     var emailError by remember { mutableStateOf(true) }
     var passwordError by remember { mutableStateOf(true) }
-
-    // AuthenticationActivity().signOut()
+    var isLoginButtonClicked by remember { mutableStateOf(false) }
 
     // Top bar
     TopAppBar(
@@ -85,7 +85,7 @@ fun MainLogin(navController: NavHostController) {
                 .padding(bottom = 8.dp)
         )
 
-        if (emailError) {
+        if (emailError and isLoginButtonClicked) {
             Text("Invalid email address", color = Color.Red)
         }
 
@@ -94,7 +94,7 @@ fun MainLogin(navController: NavHostController) {
             value = password,
             onValueChange = {
                 password = it
-                passwordError = it.isEmpty()
+                passwordError = password.isEmpty() or (password.length < 6)
                             },
             label = { Text("Password")},
             modifier = Modifier
@@ -126,8 +126,8 @@ fun MainLogin(navController: NavHostController) {
             }
         )
 
-        if (passwordError) {
-            Text("Password cannot be empty", color = Color.Red)
+        if (passwordError and isLoginButtonClicked) {
+            Text("Password cannot be less than 6 characters", color = Color.Red)
         }
 
         // Buttons
@@ -135,6 +135,7 @@ fun MainLogin(navController: NavHostController) {
             // Login Button
             Button(
                 onClick = {
+                    isLoginButtonClicked = true
                     if (!emailError && !passwordError) {
                         AuthenticationActivity().signIn(email, password)
 //                    AuthenticationActivity().signIn("test13@test.com", "123456")
@@ -168,11 +169,18 @@ fun MainLogin(navController: NavHostController) {
             // Google Login Button
             Button(
                 onClick = {
-                    Toast.makeText(
-                        context,
-                        "GoogleSignIn",
-                        Toast.LENGTH_SHORT
-                    ).show()
+                        AuthenticationActivity().signInWithGoogle(context, scope) { isSuccess ->
+                            if (isSuccess) {
+                                navController.navigate(Routes.Home.value)
+                            } else {
+                                Toast.makeText(
+                                    mContext,
+                                    "Sign-in with google failed.",
+                                    Toast.LENGTH_SHORT
+                                ).show()
+                            }
+
+                    }
                 },
                 modifier = Modifier
                     .padding(bottom = 16.dp)
