@@ -1,5 +1,6 @@
 package com.example.todolist.Analytics
 
+import androidx.navigation.NavController
 import android.annotation.SuppressLint
 import android.os.Build
 import androidx.annotation.RequiresApi
@@ -44,12 +45,11 @@ import androidx.compose.foundation.clickable
 import androidx.compose.material3.Button
 import com.example.todolist.Navigation.Routes
 
-// Composable function for displaying analytics
 @SuppressLint("UnusedMaterial3ScaffoldPaddingParameter")
 @RequiresApi(Build.VERSION_CODES.O)
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun Analytics(navController: NavHostController) {
+fun SevenDayTagsAnalytics(navController: NavHostController) {
     // Initialise AnalyticsViewModel
     val viewModel: AnalyticsViewModel = viewModel()
 
@@ -171,8 +171,8 @@ fun Analytics(navController: NavHostController) {
                         color = Color.Black
                     )
 /*
-                    SevenDayTagsAnalytics(
-                    navController, onClick = { navController.navigate("SevenDayTagsAnalytics") } )
+                    AnalyticsButton(
+                        navController, onClick = { navController.navigate("Analytics") } )
 
  */
 
@@ -184,10 +184,10 @@ fun Analytics(navController: NavHostController) {
 
 /*
 @Composable
-fun SevenDayTagsAnalytics(navController: NavHostController, onClick: () -> Unit) {
+fun AnalyticsButton(navController: NavHostController, onClick: () -> Unit) {
     Button(
         onClick = {
-            navController.navigate(Routes.SevenDayTagsAnalytics.value)
+            navController.navigate(Routes.Analytics.value)
         },
         modifier = Modifier
             .fillMaxWidth() // Button takes full width of its parent
@@ -205,48 +205,3 @@ fun SevenDayTagsAnalytics(navController: NavHostController, onClick: () -> Unit)
 }
 
  */
-
-
-@Composable
-fun PieChartLegend(legendItems: List<LegendItem>) {
-    Row(
-        modifier = Modifier
-            .padding(vertical = 16.dp)
-            .fillMaxWidth()
-            .wrapContentHeight(), // Adjust height to wrap content
-        horizontalArrangement = Arrangement.Center, // Center items horizontally
-        verticalAlignment = Alignment.Top
-    ) {
-        legendItems.forEachIndexed { index, item ->
-            if (index > 0) {
-                Spacer(modifier = Modifier.width(16.dp)) // Add spacing between legend items
-            }
-
-            // Draw color indicator
-            Box(
-                modifier = Modifier
-                    .size(16.dp)
-                    .background(item.color)
-            )
-
-            // Display legend label
-            Spacer(modifier = Modifier.width(8.dp))
-            Text(
-                text = item.label,
-                style = MaterialTheme.typography.bodyMedium,
-                color = Color.Black
-            )
-        }
-    }
-}
-
-data class Task(
-    val name: String,
-    val completed: Boolean,
-    val completedAt: Long //Timestamp when task was completed
-)
-
-data class LegendItem(
-    val color: Color,
-    val label: String
-)

@@ -18,7 +18,7 @@ fun PieChart(
     modifier: Modifier = Modifier,
     input: List<PieChartInput>,
     centerText: String = "Your Progress",
-    centerTextSize: Float = 60f,
+    centerTextSize: Float = 45f,
     centerLabelColor: Color,
     centerTransparentColor: Color
 ) {
@@ -105,7 +105,3 @@ data class PieChartInput(
     val value: Double,
     val description: String
 )
-
-
-
-

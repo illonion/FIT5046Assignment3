@@ -21,6 +21,7 @@ import androidx.navigation.compose.rememberNavController
 import com.example.todolist.LoginSignup.MainSignup
 import com.example.todolist.Analytics.Analytics
 import com.example.todolist.Analytics.AnalyticsViewModel
+import com.example.todolist.Analytics.SevenDayTagsAnalytics
 import com.example.todolist.friendslist.FriendsList
 import com.example.todolist.friendslist.FriendsListViewModel
 import com.example.todolist.Home
@@ -92,6 +93,12 @@ fun BottomNavigationBar(toDoListViewModel: ToDoListItemViewModel, analyticsViewM
             composable(Routes.ToDoList.value) {
                 ToDoList(navController, toDoListViewModel)
             }
+            /*
+            composable(Routes.SevenDayTagsAnalytics.value) {
+                SevenDayTagsAnalytics(navController)
+            }
+
+             */
         }
     }
 }

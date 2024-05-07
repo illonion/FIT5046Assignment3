@@ -117,15 +117,3 @@ class AnalyticsViewModel : ViewModel() {
         return dateFormat.format(cal.time)
     }
 }
-
-
-
-
-
-
-
-
-
-
-
-

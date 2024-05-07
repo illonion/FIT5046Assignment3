@@ -129,7 +129,7 @@ fun Home(navController: NavHostController, toDoListItemViewModel: ToDoListItemVi
                 ) {
                     // Text for if there is completed tasks
                     val percentageText = if (tasksForTodayExist) {
-                        "$completionPercentage% Complete! You got this!"
+                        "Progress:\n $completionPercentage% Completed"
                     } else {
                         "Add some tasks to see your progress."
                     }
@@ -138,7 +138,7 @@ fun Home(navController: NavHostController, toDoListItemViewModel: ToDoListItemVi
                         textAlign = TextAlign.Center,
                         fontSize = 20.sp,
                         modifier = Modifier.padding(top = 10.dp),
-                        color = Color.White
+                        color = Color.Black
                     )
                     // Calculate input data for the PieChart based on task completion
                     val pieChartInput = if (tasksForTodayExist) {
@@ -167,7 +167,6 @@ fun Home(navController: NavHostController, toDoListItemViewModel: ToDoListItemVi
                     }
 
                     // PieChart composable displaying completed and incomplete tasks as a pie chart
-
                     Box(
                         contentAlignment = Alignment.BottomCenter,
                         modifier = Modifier.fillMaxSize()
@@ -198,7 +197,7 @@ fun Home(navController: NavHostController, toDoListItemViewModel: ToDoListItemVi
 
             // Show today's to do list
             Text(
-                text = "Today's task list",
+                text = "Today's Tasks",
                 style = MaterialTheme.typography.headlineMedium,
                 modifier = Modifier.padding(bottom = 7.dp)
             )
