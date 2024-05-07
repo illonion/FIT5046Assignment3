@@ -22,6 +22,7 @@ import com.example.todolist.LoginSignup.MainSignup
 import com.example.todolist.Analytics.Analytics
 import com.example.todolist.Analytics.AnalyticsViewModel
 import com.example.todolist.FriendsList.FriendsList
+import com.example.todolist.FriendsList.FriendsListViewModel
 import com.example.todolist.Home
 import com.example.todolist.LoginSignup.MainLogin
 import com.example.todolist.LoginSignup.MainLogout
@@ -30,7 +31,7 @@ import com.example.todolist.ToDoList.ToDoListItemViewModel
 
 @RequiresApi(Build.VERSION_CODES.O)
 @Composable
-fun BottomNavigationBar(toDoListViewModel: ToDoListItemViewModel, analyticsViewModel: AnalyticsViewModel) {
+fun BottomNavigationBar(toDoListViewModel: ToDoListItemViewModel, analyticsViewModel: AnalyticsViewModel, friendsListViewModel: FriendsListViewModel) {
     val navController = rememberNavController()
     Scaffold(
         bottomBar = {
@@ -86,7 +87,7 @@ fun BottomNavigationBar(toDoListViewModel: ToDoListItemViewModel, analyticsViewM
                 MainSignup(navController)
             }
             composable(Routes.FriendsList.value) {
-                FriendsList(navController)
+                FriendsList(navController, friendsListViewModel)
             }
             composable(Routes.ToDoList.value) {
                 ToDoList(navController, toDoListViewModel)

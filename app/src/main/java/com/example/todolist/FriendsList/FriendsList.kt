@@ -17,15 +17,12 @@ import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.itemsIndexed
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.filled.Add
-import androidx.compose.material.icons.filled.Clear
 import androidx.compose.material.icons.filled.Delete
 import androidx.compose.material3.Card
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
-import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.Text
 import androidx.compose.material3.TopAppBar
 import androidx.compose.material3.TopAppBarDefaults
@@ -39,7 +36,6 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalContext
-import androidx.compose.ui.platform.LocalSoftwareKeyboardController
 import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
@@ -59,15 +55,14 @@ import java.util.UUID
 @SuppressLint("MutableCollectionMutableState")
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun FriendsList(navController: NavHostController) {
+fun FriendsList(navController: NavHostController, friendsListViewModel: FriendsListViewModel) {
+
     val currentUser = Firebase.auth.currentUser
     val currentUserUid = currentUser?.uid
     val database = FirebaseDatabase.getInstance("https://fit5046-assignment-3-5083c-default-rtdb.asia-southeast1.firebasedatabase.app/")
     val mDatabase = database.reference
     val friendsReference = mDatabase.child("friends")
     val usersReference = mDatabase.child("users")
-    val friendListUserIds by remember { mutableStateOf(mutableListOf<String>()) }
-    var friendListUsers by remember { mutableStateOf(mutableListOf<User>()) }
 
     var validationMessage by remember { mutableStateOf("") }
 
@@ -75,50 +70,7 @@ fun FriendsList(navController: NavHostController) {
 
     // Load all current friends
     LaunchedEffect(Unit) {
-        friendsReference.addListenerForSingleValueEvent(object : ValueEventListener {
-            override fun onDataChange(friendsSnapshot: DataSnapshot) {
-                val newFriendListUsers = mutableListOf<User>() // Temporary list to hold updated friends
-
-                for (snapshot in friendsSnapshot.children) {
-                    val friendId1 = snapshot.child("friendId1").value.toString()
-                    val friendId2 = snapshot.child("friendId2").value.toString()
-
-                    if (friendId1 == currentUserUid) { friendListUserIds.add(friendId2) }
-                    else if (friendId2 == currentUserUid) { friendListUserIds.add(friendId1) }
-                }
-
-                usersReference.addListenerForSingleValueEvent(object: ValueEventListener {
-                    override fun onDataChange(usersSnapshot: DataSnapshot) {
-                        if (usersSnapshot.exists()) {
-                            for (snapshot in usersSnapshot.children) {
-                                val userId = snapshot.key
-                                if (userId != null && friendListUserIds.contains(userId)) {
-                                    newFriendListUsers.add(
-                                        User(
-                                            userId,
-                                            snapshot.child("firstName").value.toString(),
-                                            snapshot.child("lastName").value.toString(),
-                                            snapshot.child("email").value.toString()
-                                        )
-                                    )
-                                }
-                            }
-
-                            // Update friendListUsers with the new list of friends
-                            friendListUsers = newFriendListUsers
-                        }
-                    }
-
-                    override fun onCancelled(error: DatabaseError) {
-                        validationMessage = "Something went wrong with loading your friends! Please try again later."
-                    }
-                })
-            }
-
-            override fun onCancelled(error: DatabaseError) {
-                validationMessage = "Something went wrong with loading your friends! Please try again later."
-            }
-        })
+        friendsListViewModel.loadAllFriends()
     }
 
     // Top Bar
@@ -208,7 +160,6 @@ fun FriendsList(navController: NavHostController) {
                                                 }
                                                 .addOnFailureListener {
                                                     validationMessage = "Sorry! Something went wrong. Please try again later."
-                                                    return@addOnFailureListener
                                                 }
                                         }
                                     }
@@ -244,150 +195,17 @@ fun FriendsList(navController: NavHostController) {
         }
     }
 
+    var currentFriendsListUsers = friendsListViewModel.getFriendsListUsers
+    Log.i("Friend", currentFriendsListUsers.size.toString())
     Column (
         modifier = Modifier.padding(16.dp)
     ) {
         Spacer(modifier = Modifier.height(270.dp))
         LazyColumn {
-            itemsIndexed(friendListUsers) { _, item ->
+            itemsIndexed(currentFriendsListUsers) { _, item ->
+                Log.i("Friend", item.firstName)
                 ListFriends(item, friendsReference) {
-                    friendListUsers = friendListUsers.filter { it.userId != item.userId }.toMutableList()
-                }
-            }
-        }
-    }
-}
-
-// List of to do list items
-@Composable
-fun ListFriends(friend: User, friendsReference: DatabaseReference, onFriendDeleted: () -> Unit) {
-    val context = LocalContext.current
-    Log.i("Name", friend.firstName)
-    Row(
-        modifier = Modifier
-            .fillMaxWidth()
-            .padding(3.dp),
-        verticalAlignment = Alignment.CenterVertically,
-    ) {
-        Card(
-            modifier = Modifier
-                .fillMaxWidth()
-                .wrapContentHeight()
-                .padding(3.dp),
-            shape = RoundedCornerShape(60.dp),
-        ) {
-            Row(
-                modifier = Modifier.padding(10.dp)
-                    .fillMaxWidth(),
-                verticalAlignment = Alignment.CenterVertically,
-                horizontalArrangement = Arrangement.SpaceBetween
-            ) {
-                Text(
-                    text = "${friend.firstName} ${friend.lastName}",
-                    style = TextStyle(
-                        fontSize = 18.sp,
-                        lineHeight = 36.sp
-                    ),
-                    modifier = Modifier.padding(start = 8.dp)
-                )
-                Row(
-                    modifier = Modifier.fillMaxWidth(),
-                    horizontalArrangement = Arrangement.End
-                ) {
-                    IconButton(
-                        onClick = {
-                            friendsReference.addListenerForSingleValueEvent(object : ValueEventListener {
-                                override fun onDataChange(friendsSnapshot: DataSnapshot) {
-                                    var friendListId = ""
-                                    var foundFriend = false
-                                    for (snapshot in friendsSnapshot.children) {
-
-                                        val friendId1 = snapshot.child("friendId1").value.toString()
-                                        val friendId2 = snapshot.child("friendId1").value.toString()
-
-                                        if ((friendId1 == Firebase.auth.uid && friendId2 == friend.userId) ||
-                                            (friendId2 == Firebase.auth.uid && friendId1 == friend.userId)) {
-                                            friendListId = snapshot.key.toString()
-                                            foundFriend = true
-                                        }
-
-                                        if (foundFriend) break
-                                    }
-
-                                    if (foundFriend) {
-                                        friendsReference.child(friendListId).removeValue()
-                                            .addOnSuccessListener {
-                                                Toast.makeText(context, "Successfully removed friend!", Toast.LENGTH_LONG).show()
-                                                onFriendDeleted()
-                                            }
-                                            .addOnFailureListener {e -> Toast.makeText(context, "Error: $e", Toast.LENGTH_LONG).show() }
-                                    }
-                                }
-
-                                override fun onCancelled(error: DatabaseError) {
-                                    Toast.makeText(context, "Could not remove friend!", Toast.LENGTH_LONG).show()
-                                }
-                            })
-                        }
-                    ) {
-                        Icon(
-                            imageVector = Icons.Default.Delete,
-                            contentDescription = null,
-                            tint = Purple40,
-                            modifier = Modifier.size(24.dp)
-                        )
-                    }
-                }
-            }
-        }
-    }
-}
-
-// Add friend section
-@Composable
-fun TopSectionAddFriend (onAdd: (String) -> Unit) {
-    var emailValue by remember { mutableStateOf("") }
-    val keyboardController = LocalSoftwareKeyboardController.current
-    Spacer(modifier = Modifier.height(65.dp))
-    Card(
-        modifier = Modifier
-            .fillMaxWidth()
-            .padding(
-                start = 16.dp,
-                end = 16.dp,
-                top = 16.dp,
-                bottom = 10.dp
-            )
-    ) {
-        Column(modifier = Modifier.padding(16.dp)) {
-            OutlinedTextField(
-                value = emailValue,
-                onValueChange = { emailValue = it },
-                label = { Text("Email") },
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .padding(bottom = 8.dp)
-            )
-            Row(
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .padding(8.dp),
-                horizontalArrangement = Arrangement.SpaceBetween
-            ) {
-                IconButton(onClick = { onAdd(emailValue) }) {
-                    Icon(
-                        imageVector = Icons.Default.Add,
-                        contentDescription = ""
-                    )
-                }
-                IconButton(onClick = {
-                    emailValue = ""
-                    keyboardController?.hide()
-                }) {
-                    Icon(
-                        imageVector = Icons.Default.Clear,
-                        contentDescription = ""
-                    )
+                    currentFriendsListUsers = currentFriendsListUsers.filter { it.userId != item.userId }.toMutableList()
                 }
             }
         }
