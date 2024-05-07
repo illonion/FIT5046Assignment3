@@ -1,7 +1,5 @@
 package com.example.todolist.FriendsList
 
-import android.util.Log
-import android.widget.Toast
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxWidth
@@ -18,24 +16,16 @@ import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import androidx.navigation.NavHostController
 import com.example.todolist.User
 import com.example.todolist.ui.theme.Purple40
-import com.google.firebase.Firebase
-import com.google.firebase.auth.auth
-import com.google.firebase.database.DataSnapshot
-import com.google.firebase.database.DatabaseError
-import com.google.firebase.database.DatabaseReference
-import com.google.firebase.database.ValueEventListener
 
 // List of to do list items
 @Composable
-fun ListFriends(friend: User, friendsReference: DatabaseReference, onFriendDeleted: () -> Unit) {
-    val context = LocalContext.current
-    Log.i("Name", friend.firstName)
+fun ListFriends(navController: NavHostController, friendsListViewModel : FriendsListViewModel, friend: User) {
     Row(
         modifier = Modifier
             .fillMaxWidth()
@@ -55,6 +45,7 @@ fun ListFriends(friend: User, friendsReference: DatabaseReference, onFriendDelet
                 verticalAlignment = Alignment.CenterVertically,
                 horizontalArrangement = Arrangement.SpaceBetween
             ) {
+                // Friend's name
                 Text(
                     text = "${friend.firstName} ${friend.lastName}",
                     style = TextStyle(
@@ -63,53 +54,19 @@ fun ListFriends(friend: User, friendsReference: DatabaseReference, onFriendDelet
                     ),
                     modifier = Modifier.padding(start = 8.dp)
                 )
-                Row(
-                    modifier = Modifier.fillMaxWidth(),
-                    horizontalArrangement = Arrangement.End
-                ) {
-                    IconButton(
-                        onClick = {
-                            friendsReference.addListenerForSingleValueEvent(object : ValueEventListener {
-                                override fun onDataChange(friendsSnapshot: DataSnapshot) {
-                                    var friendListId = ""
-                                    var foundFriend = false
-                                    for (snapshot in friendsSnapshot.children) {
-
-                                        val friendId1 = snapshot.child("friendId1").value.toString()
-                                        val friendId2 = snapshot.child("friendId1").value.toString()
-
-                                        if ((friendId1 == Firebase.auth.uid && friendId2 == friend.userId) ||
-                                            (friendId2 == Firebase.auth.uid && friendId1 == friend.userId)) {
-                                            friendListId = snapshot.key.toString()
-                                            foundFriend = true
-                                        }
-
-                                        if (foundFriend) break
-                                    }
-
-                                    if (foundFriend) {
-                                        friendsReference.child(friendListId).removeValue()
-                                            .addOnSuccessListener {
-                                                Toast.makeText(context, "Successfully removed friend!", Toast.LENGTH_LONG).show()
-                                                onFriendDeleted()
-                                            }
-                                            .addOnFailureListener {e -> Toast.makeText(context, "Error: $e", Toast.LENGTH_LONG).show() }
-                                    }
-                                }
-
-                                override fun onCancelled(error: DatabaseError) {
-                                    Toast.makeText(context, "Could not remove friend!", Toast.LENGTH_LONG).show()
-                                }
-                            })
-                        }
-                    ) {
-                        Icon(
-                            imageVector = Icons.Default.Delete,
-                            contentDescription = null,
-                            tint = Purple40,
-                            modifier = Modifier.size(24.dp)
-                        )
+                // Button
+                IconButton(
+                    onClick = {
+                        friendsListViewModel.removeFriend(friend)
+                        navController.navigate("FriendsList")
                     }
+                ) {
+                    Icon(
+                        imageVector = Icons.Default.Delete,
+                        contentDescription = null,
+                        tint = Purple40,
+                        modifier = Modifier.size(24.dp)
+                    )
                 }
             }
         }

@@ -23,24 +23,21 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalSoftwareKeyboardController
 import androidx.compose.ui.unit.dp
+import androidx.navigation.NavHostController
 
 // Add friend section
 @Composable
-fun TopSectionAddFriend (onAdd: (String) -> Unit) {
+fun TopSectionAddFriend (navController : NavHostController, onAdd: (String) -> Unit) {
     var emailValue by remember { mutableStateOf("") }
     val keyboardController = LocalSoftwareKeyboardController.current
     Spacer(modifier = Modifier.height(65.dp))
     Card(
         modifier = Modifier
             .fillMaxWidth()
-            .padding(
-                start = 16.dp,
-                end = 16.dp,
-                top = 16.dp,
-                bottom = 10.dp
-            )
+            .padding(16.dp)
     ) {
         Column(modifier = Modifier.padding(16.dp)) {
+            // Enter in email
             OutlinedTextField(
                 value = emailValue,
                 onValueChange = { emailValue = it },
@@ -49,18 +46,24 @@ fun TopSectionAddFriend (onAdd: (String) -> Unit) {
                     .fillMaxWidth()
                     .padding(bottom = 8.dp)
             )
+            // Buttons
             Row(
                 modifier = Modifier
                     .fillMaxWidth()
                     .padding(8.dp),
                 horizontalArrangement = Arrangement.SpaceBetween
             ) {
-                IconButton(onClick = { onAdd(emailValue) }) {
+                // Add button
+                IconButton(onClick = {
+                    onAdd(emailValue)
+                    navController.navigate("FriendsList")
+                }) {
                     Icon(
                         imageVector = Icons.Default.Add,
                         contentDescription = ""
                     )
                 }
+                // Clear button
                 IconButton(onClick = {
                     emailValue = ""
                     keyboardController?.hide()
