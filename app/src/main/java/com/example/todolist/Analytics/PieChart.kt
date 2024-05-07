@@ -18,7 +18,7 @@ fun PieChart(
     modifier: Modifier = Modifier,
     input: List<PieChartInput>,
     centerText: String = "Your Progress",
-    centerTextSize: Float = 40f
+    centerTextSize: Float = 60f
 ) {
     Canvas(
         modifier = modifier

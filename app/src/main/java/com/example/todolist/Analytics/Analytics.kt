@@ -151,8 +151,7 @@ fun Analytics(navController: NavHostController) {
                         .size(300.dp)
                         .align(Alignment.CenterHorizontally), // Align pie chart center horizontally
                     input = pieChartInput,
-                    centerText = "$completionPercentage%",
-                    centerTextSize = 65f
+                    centerText = "$completionPercentage%"
                 )
 
                 // Display legend for pie chart
