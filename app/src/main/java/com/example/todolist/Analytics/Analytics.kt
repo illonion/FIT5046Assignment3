@@ -338,7 +338,9 @@ fun Analytics(navController: NavHostController) {
                         .size(300.dp)
                         .align(Alignment.CenterHorizontally), // Align pie chart center horizontally
                     input = pieChartInput,
-                    centerText = "Your Progress"
+                    centerText = "Your Progress",
+                    centerLabelColor = Color.White,
+                    centerTransparentColor = Color.White.copy(alpha = 0.2f)
                 )
 
                 // Display legend for pie chart

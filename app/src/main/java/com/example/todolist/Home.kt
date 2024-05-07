@@ -199,6 +199,8 @@ fun Home(navController: NavHostController, toDoListItemViewModel: ToDoListItemVi
                                 .padding(bottom = 10.dp),
                             input = pieChartInput,
                             centerText = "",
+                            centerLabelColor = MaterialTheme.colorScheme.primary,
+                            centerTransparentColor = MaterialTheme.colorScheme.primary
                         )
                     }
                 }
