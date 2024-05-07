@@ -1,4 +1,4 @@
-package com.example.todolist.friendslist
+package com.example.todolist.friendsList
 
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column

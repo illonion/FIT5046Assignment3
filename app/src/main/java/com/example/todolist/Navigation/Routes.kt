@@ -8,5 +8,6 @@ enum class Routes(val value: String) {
     MainLogin("MainLogin"),
     MainLogout("MainLogout"),
     MainSignup("MainSignup"),
-    ToDoList("ToDoList")
+    ToDoList("ToDoList"),
+    SevenDayTagsAnalytics("SevenDayTagsAnalytics")
 }
