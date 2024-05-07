@@ -18,6 +18,7 @@ fun PieChart(
     modifier: Modifier = Modifier,
     input: List<PieChartInput>,
     centerText: String = "Your Progress",
+    centerTextSize: Float = 60f,
     centerLabelColor: Color,
     centerTransparentColor: Color
 ) {
@@ -80,7 +81,7 @@ fun PieChart(
         // Draw bold text at the center
         val textPaint = androidx.compose.ui.graphics.Paint().asFrameworkPaint().apply {
             color = Color.Black.toArgb()
-            textSize = 40f
+            textSize = centerTextSize
             isFakeBoldText = true // Make the text bold
             textAlign = android.graphics.Paint.Align.CENTER
         }
