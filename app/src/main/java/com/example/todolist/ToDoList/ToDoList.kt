@@ -68,7 +68,7 @@ private fun ToDoListContent(navController: NavHostController, viewModel: ToDoLis
         CalendarHeader(
             data = calendarUiModel,
             onPrevClickListener = { calendarUiModel = dataSource.getData(startDate = it.minusDays(1), lastSelectedDate = calendarUiModel.selectedDate.date) },
-            onNextClickListener = { calendarUiModel = dataSource.getData(startDate = it.plusDays(3), lastSelectedDate = calendarUiModel.selectedDate.date) }
+            onNextClickListener = { calendarUiModel = dataSource.getData(startDate = it.plusDays(1), lastSelectedDate = calendarUiModel.selectedDate.date) }
         )
         Calendar(data = calendarUiModel, onDateClickListener = { calendarUiModel = calendarUiModel.copy(selectedDate = it, visibleDates = calendarUiModel.visibleDates.map { date -> date.copy(isSelected = date.date.isEqual(it.date)) }) })
 
