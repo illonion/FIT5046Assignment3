@@ -181,20 +181,21 @@ fun EditTaskDialog(toDoListItem: ToDoListItem, navController: NavHostController?
                     if (InputValidation().isValidTaskName(editedToDoListItem.name)) {
                         onSave(editedToDoListItem)
                         onDismiss()
-                    // Delete item
-                    DatabaseActivity().checkValidSession { isValidSession ->
-                        if (isValidSession) {
-                            if (InputValidation().isValidTaskName(editedToDoListItem.name)) {
-                                onSave(editedToDoListItem)
-                                onDismiss()
+                        // Delete item
+                        DatabaseActivity().checkValidSession { isValidSession ->
+                            if (isValidSession) {
+                                if (InputValidation().isValidTaskName(editedToDoListItem.name)) {
+                                    onSave(editedToDoListItem)
+                                    onDismiss()
+                                }
+                            } else {
+                                Toast.makeText(
+                                    context,
+                                    "Session Expired, please log in again",
+                                    Toast.LENGTH_SHORT
+                                ).show()
+                                navController?.navigate(Routes.MainLogout.value)
                             }
-                        } else {
-                            Toast.makeText(
-                                context,
-                                "Session Expired, please log in again",
-                                Toast.LENGTH_SHORT
-                            ).show()
-                            navController?.navigate(Routes.MainLogout.value)
                         }
                     }
                 }
