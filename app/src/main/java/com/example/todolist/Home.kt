@@ -1,5 +1,6 @@
 package com.example.todolist
 
+import WeatherScreen
 import android.annotation.SuppressLint
 import android.os.Build
 import android.widget.Toast
@@ -108,27 +109,28 @@ fun Home(navController: NavHostController, toDoListItemViewModel: ToDoListItemVi
             Spacer(modifier = Modifier.size(30.dp))
             Row {
                 // Weather API
-                Box {
-                    Image(
-                        painter = painterResource(R.drawable.sunny),
-                        contentDescription = null,
-                        modifier = Modifier
-                            .size(width = 185.dp, height = 185.dp)
-                    )
-                    Text(
-                        "Sunny",
-                        modifier = Modifier.align(Alignment.TopCenter)
-                            .padding(top = 10.dp),
-                        color = Color.White,
-                        fontSize = 30.sp,
-                    )
-                    Text(
-                        "25C",
-                        modifier = Modifier.align(Alignment.Center),
-                        color = Color.White,
-                        fontSize = 80.sp
-                    )
-                }
+//                Box {
+//                    Image(
+//                        painter = painterResource(R.drawable.sunny),
+//                        contentDescription = null,
+//                        modifier = Modifier
+//                            .size(width = 185.dp, height = 185.dp)
+//                    )
+//                    Text(
+//                        "Sunny",
+//                        modifier = Modifier.align(Alignment.TopCenter)
+//                            .padding(top = 10.dp),
+//                        color = Color.White,
+//                        fontSize = 30.sp,
+//                    )
+//                    Text(
+//                        "25C",
+//                        modifier = Modifier.align(Alignment.Center),
+//                        color = Color.White,
+//                        fontSize = 80.sp
+//                    )
+//                }
+                WeatherScreen()
 
                 Spacer(modifier = Modifier.width(20.dp))
 
