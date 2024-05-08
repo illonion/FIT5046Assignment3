@@ -38,6 +38,7 @@ import androidx.compose.runtime.mutableIntStateOf
 import androidx.compose.runtime.mutableLongStateOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
+import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.alpha
@@ -47,6 +48,7 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.unit.dp
 import androidx.navigation.NavHostController
+import com.example.todolist.DatabaseActivity
 import com.example.todolist.InputValidation
 import com.example.todolist.Navigation.Routes
 import com.example.todolist.ToDoList.ToDoListItem
@@ -54,6 +56,8 @@ import com.example.todolist.ToDoList.ToDoListItemViewModel
 import com.google.firebase.Firebase
 import com.google.firebase.auth.auth
 import com.google.firebase.database.FirebaseDatabase
+import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.delay
 import java.text.SimpleDateFormat
 import java.time.Instant
 import java.time.LocalDateTime
@@ -73,6 +77,9 @@ data class Friend(val name: String, val uid: String)
 fun CreateToDoListItem(navController: NavHostController, toDoListItemViewModel: ToDoListItemViewModel) {
     // Current context
     val context = LocalContext.current
+
+    // Scope
+    val scope = rememberCoroutineScope()
 
     // Firebase
     val currentUser = Firebase.auth.currentUser
@@ -106,6 +113,40 @@ fun CreateToDoListItem(navController: NavHostController, toDoListItemViewModel: 
     // Learned LaunchedEffect from https://medium.com/@sujathamudadla1213/what-is-launchedeffect-coroutine-api-android-jetpack-compose-76d568b79e63
     LaunchedEffect(Unit) {
         toDoListItemViewModel.fetchFriends()
+    }
+
+    // Check if user logged in another device every 5 seconds
+    LaunchedEffect(Unit) {
+        while (true) {
+            DatabaseActivity().checkValidSession { isValidSession ->
+                if (!isValidSession) {
+                    Toast.makeText(
+                        context,
+                        "New log in detected on another device. please login again",
+                        Toast.LENGTH_SHORT
+                    ).show()
+                    navController.navigate(Routes.MainLogout.value)
+                }
+            }
+            delay(5000)
+        }
+    }
+
+    // Check if user logged in another device every 5 seconds
+    LaunchedEffect(Unit) {
+        while (true) {
+            DatabaseActivity().checkValidSession { isValidSession ->
+                if (!isValidSession) {
+                    Toast.makeText(
+                        context,
+                        "Detected log in from another device, please try log in again",
+                        Toast.LENGTH_SHORT
+                    ).show()
+                    navController.navigate(Routes.MainLogout.value)
+                }
+            }
+            delay(5000)
+        }
     }
 
     // Top Bar
@@ -290,7 +331,6 @@ fun CreateToDoListItem(navController: NavHostController, toDoListItemViewModel: 
         Button(
             onClick = {
                 if (InputValidation().isValidTaskName(toDoItem)) {
-                    navController.navigate(Routes.ToDoList.value)
                     val itemId = "task_" + UUID.randomUUID().toString()
 
                     // Get date in readable format
@@ -300,18 +340,39 @@ fun CreateToDoListItem(navController: NavHostController, toDoListItemViewModel: 
                     val item = currentUserUid?.let { ToDoListItem(itemId, it, toDoItem, selectedTag, date.format(format), selectedFriend.uid, false, System.currentTimeMillis()) }
 
                     // Append item to database
-                    mDatabase.child("tasks").child(itemId).setValue(item)
-                        .addOnSuccessListener {
-                            navController.navigate(Routes.ToDoList.value)
-                            Toast.makeText(context,"Successfully created Task!",Toast.LENGTH_LONG).show()
+                    DatabaseActivity().checkValidSession { isValidSession ->
+                        if (isValidSession) {
+                            mDatabase.child("tasks").child(itemId).setValue(item)
+                                .addOnSuccessListener {
+                                    navController.navigate(Routes.ToDoList.value)
+                                    Toast.makeText(
+                                        context,
+                                        "Successfully created Task!",
+                                        Toast.LENGTH_LONG
+                                    ).show()
+                                }
+                                .addOnFailureListener { e ->
+                                    Toast.makeText(
+                                        context,
+                                        "Error $e!",
+                                        Toast.LENGTH_LONG
+                                    ).show()
+                                }
+                        } else {
+                            Toast.makeText(
+                                context,
+                                "Session Expired, please log in again",
+                                Toast.LENGTH_SHORT
+                            ).show()
+                            navController.navigate(Routes.MainLogout.value)
                         }
-                        .addOnFailureListener { e -> Toast.makeText(context,"Error $e!",Toast.LENGTH_LONG).show()}
+                    }
                 } else {
-                    Toast.makeText(
-                        context,
-                        "INVALID INPUT: Task name cannot be empty or more than 25 characters long",
-                        Toast.LENGTH_SHORT
-                    ).show()
+                        Toast.makeText(
+                            context,
+                            "INVALID INPUT: Task name cannot be empty or more than 25 characters long",
+                            Toast.LENGTH_SHORT
+                        ).show()
                 }
             },
             modifier = Modifier

@@ -1,5 +1,6 @@
 package com.example.todolist.LoginSignup
 
+import android.content.Context
 import android.widget.Toast
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
@@ -36,6 +37,7 @@ import androidx.compose.material.IconButton
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Visibility
 import androidx.compose.material.icons.filled.VisibilityOff
+import androidx.compose.material3.Checkbox
 import androidx.compose.material3.Icon
 import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.ui.text.input.KeyboardType
@@ -46,19 +48,25 @@ import androidx.compose.ui.text.input.VisualTransformation
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun MainLogin(navController: NavHostController) {
-    var email by remember { mutableStateOf("") }
+    val context = LocalContext.current
+    val scope = rememberCoroutineScope()
+    val sharedPref = context.getSharedPreferences("rememberLoginRef", Context.MODE_PRIVATE)
+    val oldEmail = sharedPref.getString("email", "") ?: ""
+    val oldRememberLogin = sharedPref.getBoolean("rememberLogin", false)
+
+    var email by remember { mutableStateOf(oldEmail) }
     var password by remember { mutableStateOf("") }
     var hidePassword by remember { mutableStateOf(true) }
+
     if (AuthenticationActivity().checkIsLoggedIn()) {
         navController.navigate(Routes.Home.value)
     }
-    val context = LocalContext.current
-    val scope = rememberCoroutineScope()
 
     val mContext = LocalContext.current
-    var emailError by remember { mutableStateOf(true) }
+    var emailError by remember { mutableStateOf(!isValidEmail(email)) }
     var passwordError by remember { mutableStateOf(true) }
     var isLoginButtonClicked by remember { mutableStateOf(false) }
+    var rememberLogin = remember { mutableStateOf(oldRememberLogin) }
 
     // Top bar
     TopAppBar(
@@ -130,6 +138,20 @@ fun MainLogin(navController: NavHostController) {
             Text("Password cannot be less than 6 characters", color = Color.Red)
         }
 
+        Row(modifier = Modifier.padding(0.dp)) {
+            Checkbox(
+                modifier = Modifier
+                    .padding(start = 0.dp, bottom = 0.dp),
+                checked = rememberLogin.value,
+                onCheckedChange = { rememberLogin.value = it }
+            )
+            Text(text = " Remember me",
+                modifier = Modifier
+                    .padding(bottom = 0.dp)
+                    .align(Alignment.CenterVertically)
+            )
+        }
+
         // Buttons
         Row(modifier = Modifier.padding(0.dp)) {
             // Login Button
@@ -137,8 +159,8 @@ fun MainLogin(navController: NavHostController) {
                 onClick = {
                     isLoginButtonClicked = true
                     if (!emailError && !passwordError) {
-                        AuthenticationActivity().signIn(email, password)
-//                    AuthenticationActivity().signIn("test13@test.com", "123456")
+                        AuthenticationActivity().signIn(email, password, rememberLogin.value, sharedPref)
+//                    AuthenticationActivity().signIn("test13@test.com", "123456", rememberLogin)
                         { isSuccess ->
                             if (isSuccess) {
                                 navController.navigate(Routes.Home.value)
@@ -169,7 +191,7 @@ fun MainLogin(navController: NavHostController) {
             // Google Login Button
             Button(
                 onClick = {
-                        AuthenticationActivity().signInWithGoogle(context, scope) { isSuccess ->
+                        AuthenticationActivity().signInWithGoogle(context, scope, rememberLogin.value, sharedPref) { isSuccess ->
                             if (isSuccess) {
                                 navController.navigate(Routes.Home.value)
                             } else {

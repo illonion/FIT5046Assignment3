@@ -2,6 +2,7 @@ package com.example.todolist.FriendsList
 
 import android.annotation.SuppressLint
 import android.util.Log
+import android.widget.Toast
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxWidth
@@ -20,18 +21,42 @@ import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.navigation.NavHostController
+import com.example.todolist.DatabaseActivity
+import com.example.todolist.Navigation.Routes
+import kotlinx.coroutines.delay
 
 @SuppressLint("MutableCollectionMutableState")
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun FriendsList(navController: NavHostController, friendsListViewModel: FriendsListViewModel) {
+    // Initialize local variable
+    val context = LocalContext.current
+
     // Load all current friends
     LaunchedEffect(Unit) {
         friendsListViewModel.loadAllFriends()
+    }
+
+    // Check if user logged in another device every 5 seconds
+    LaunchedEffect(Unit) {
+        while (true) {
+            DatabaseActivity().checkValidSession { isValidSession ->
+                if (!isValidSession) {
+                    Toast.makeText(
+                        context,
+                        "New log in detected on another device. please login again",
+                        Toast.LENGTH_SHORT
+                    ).show()
+                    navController.navigate(Routes.MainLogout.value)
+                }
+            }
+            delay(5000)
+        }
     }
 
     // Top Bar
@@ -47,7 +72,21 @@ fun FriendsList(navController: NavHostController, friendsListViewModel: FriendsL
             // Add friend
             TopSectionAddFriend(
                 navController,
-                onAdd = { email -> friendsListViewModel.addToFriendsList(email) }
+                onAdd = { email ->
+                    DatabaseActivity().checkValidSession { isValidSession ->
+                        if (isValidSession) {
+                            friendsListViewModel.addToFriendsList(email)
+                        } else {
+                            Toast.makeText(
+                                context,
+                                "Session Expired, please log in again",
+                                Toast.LENGTH_SHORT
+                            ).show()
+                            navController.navigate(Routes.MainLogout.value)
+
+                        }
+                    }
+                }
             )
 
             // Display validation message

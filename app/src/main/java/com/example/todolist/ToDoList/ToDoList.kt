@@ -1,7 +1,7 @@
 package com.example.todolist.ToDoList
 
 import android.os.Build
-import android.util.Log
+import android.widget.Toast
 import androidx.annotation.RequiresApi
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
@@ -15,10 +15,12 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.focus.focusProperties
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.navigation.NavHostController
+import com.example.todolist.DatabaseActivity
 import com.example.todolist.Navigation.Routes
 import com.example.todolist.ToDoList.Calendar.Calendar
 import com.example.todolist.ToDoList.Calendar.CalendarDataSource
@@ -60,10 +62,24 @@ private fun ToDoListContent(navController: NavHostController, viewModel: ToDoLis
     val dataSource = CalendarDataSource()
     var calendarUiModel by remember { mutableStateOf(dataSource.getData(lastSelectedDate = dataSource.today)) }
 
+    val context = LocalContext.current
     LaunchedEffect(Unit) {
         viewModel.syncDataFromFirebase()
+    }
+
+    // Check if user logged in another device every 5 seconds
+    LaunchedEffect(Unit) {
         while (true) {
-            Log.i("timer", "trigger")
+            DatabaseActivity().checkValidSession { isValidSession ->
+                if (!isValidSession) {
+                    Toast.makeText(
+                        context,
+                        "New log in detected on another device. please login again",
+                        Toast.LENGTH_SHORT
+                    ).show()
+                    navController.navigate(Routes.MainLogout.value)
+                }
+            }
             delay(5000)
         }
     }
@@ -256,7 +272,7 @@ private fun ToDoListItems(
     } else {
         LazyColumn(modifier = Modifier.padding(top = 8.dp)) {
             itemsIndexed(toDoListItems) { _, item ->
-                ListToDoListItem(item, true, viewModel)
+                ListToDoListItem(item, true, viewModel, null)
             }
         }
     }

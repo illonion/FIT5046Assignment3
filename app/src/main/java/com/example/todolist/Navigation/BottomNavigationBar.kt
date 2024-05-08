@@ -1,6 +1,7 @@
 package com.example.todolist.Navigation
 
 import CreateToDoListItem
+import android.content.Context
 import android.os.Build
 import androidx.annotation.RequiresApi
 import androidx.compose.foundation.layout.padding
@@ -13,6 +14,7 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.platform.LocalContext
 import androidx.navigation.NavDestination.Companion.hierarchy
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
@@ -25,6 +27,7 @@ import com.example.todolist.Analytics.SevenDayTagsAnalytics
 import com.example.todolist.FriendsList.FriendsList
 import com.example.todolist.FriendsList.FriendsListViewModel
 import com.example.todolist.Home
+import com.example.todolist.LoginSignup.AuthenticationActivity
 import com.example.todolist.LoginSignup.MainLogin
 import com.example.todolist.LoginSignup.MainLogout
 import com.example.todolist.ToDoList.ToDoList
@@ -34,6 +37,17 @@ import com.example.todolist.ToDoList.ToDoListItemViewModel
 @Composable
 // Bottom navigation and the navigation controller
 fun BottomNavigationBar(toDoListViewModel: ToDoListItemViewModel, analyticsViewModel: AnalyticsViewModel, friendsListViewModel: FriendsListViewModel) {
+
+//  Check remember login
+    val context = LocalContext.current
+    val sharedPref = context.getSharedPreferences("rememberLoginRef", Context.MODE_PRIVATE)
+    val rememberLogin = sharedPref.getBoolean("rememberLogin", false)
+    if (!rememberLogin) {
+        AuthenticationActivity().signOut()
+    }
+
+
+
     // Navigation controller
     val navController = rememberNavController()
     Scaffold(

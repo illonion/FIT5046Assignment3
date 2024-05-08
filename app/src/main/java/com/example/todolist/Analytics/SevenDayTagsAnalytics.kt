@@ -2,6 +2,7 @@ package com.example.todolist.Analytics
 
 import android.annotation.SuppressLint
 import android.os.Build
+import android.widget.Toast
 import androidx.annotation.RequiresApi
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.fillMaxSize
@@ -32,10 +33,14 @@ import androidx.compose.runtime.*
 import androidx.compose.ui.graphics.*
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.livedata.observeAsState
+import androidx.compose.ui.platform.LocalContext
 import androidx.lifecycle.viewmodel.compose.viewModel
 import com.example.todolist.ui.theme.Purple40
 import androidx.compose.ui.text.TextStyle
+import com.example.todolist.DatabaseActivity
+import com.example.todolist.Navigation.Routes
 import com.example.todolist.ui.theme.Purple80
+import kotlinx.coroutines.delay
 
 @SuppressLint("UnusedMaterial3ScaffoldPaddingParameter")
 @RequiresApi(Build.VERSION_CODES.O)
@@ -44,6 +49,9 @@ import com.example.todolist.ui.theme.Purple80
 fun SevenDayTagsAnalytics(navController: NavHostController) {
     // Initialise AnalyticsViewModel
     val viewModel: AnalyticsViewModel = viewModel()
+
+    // context
+    val context = LocalContext.current
 
     // Observe LiveData values for completed and incomplete tasks from the ViewModel
     val completionPercentage by viewModel.completionPercentage.observeAsState(initial = 0)
@@ -55,6 +63,23 @@ fun SevenDayTagsAnalytics(navController: NavHostController) {
     // Fetch task completion data from Firebase when ViewModel is first created/updated
     LaunchedEffect(key1 = viewModel) {
         viewModel.fetchTaskCompletionData()
+    }
+
+    // Check if user logged in another device every 5 seconds
+    LaunchedEffect(Unit) {
+        while (true) {
+            DatabaseActivity().checkValidSession { isValidSession ->
+                if (!isValidSession) {
+                    Toast.makeText(
+                        context,
+                        "New log in detected on another device. please login again",
+                        Toast.LENGTH_SHORT
+                    ).show()
+                    navController.navigate(Routes.MainLogout.value)
+                }
+            }
+            delay(5000)
+        }
     }
 
     // Define legend items
