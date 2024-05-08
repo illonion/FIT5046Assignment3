@@ -59,13 +59,8 @@ fun Analytics(navController: NavHostController) {
     // Check if user logged in another device every 5 seconds
     LaunchedEffect(Unit) {
         while (true) {
-            DatabaseActivity().checkValidSession { isValidSession ->
+            DatabaseActivity().checkValidSession(context) { isValidSession ->
                 if (!isValidSession) {
-                    Toast.makeText(
-                        context,
-                        "New log in detected on another device. please login again",
-                        Toast.LENGTH_SHORT
-                    ).show()
                     navController.navigate(Routes.MainLogout.value)
                 }
             }

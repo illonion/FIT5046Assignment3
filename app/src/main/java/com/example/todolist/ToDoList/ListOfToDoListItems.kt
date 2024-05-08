@@ -92,15 +92,10 @@ fun ListToDoListItem(toDoListItem: ToDoListItem, showIcon: Boolean, viewModel: T
                         if (!toDoListItem.completed) {
                             ToDoListItemIcon(Icons.Default.Check) {
                                 // Delete item
-                                DatabaseActivity().checkValidSession { isValidSession ->
+                                DatabaseActivity().checkValidSession(context) { isValidSession ->
                                     if (isValidSession) {
                                         viewModel.markItemAsCompleted(toDoListItem.taskId)
                                     } else {
-                                        Toast.makeText(
-                                            context,
-                                            "Session Expired, please log in again",
-                                            Toast.LENGTH_SHORT
-                                        ).show()
                                         navController?.navigate(Routes.MainLogout.value)
                                     }
                                 }
@@ -112,15 +107,10 @@ fun ListToDoListItem(toDoListItem: ToDoListItem, showIcon: Boolean, viewModel: T
                         }
                         ToDoListItemIcon(Icons.Default.Delete) {
                             // Delete item
-                            DatabaseActivity().checkValidSession { isValidSession ->
+                            DatabaseActivity().checkValidSession(context) { isValidSession ->
                                 if (isValidSession) {
                                     viewModel.deleteToDoListItem(toDoListItem)
                                 } else {
-                                    Toast.makeText(
-                                        context,
-                                        "Session Expired, please log in again",
-                                        Toast.LENGTH_SHORT
-                                    ).show()
                                     navController?.navigate(Routes.MainLogout.value)
                                 }
                             }
@@ -182,18 +172,13 @@ fun EditTaskDialog(toDoListItem: ToDoListItem, navController: NavHostController?
                         onSave(editedToDoListItem)
                         onDismiss()
                         // Delete item
-                        DatabaseActivity().checkValidSession { isValidSession ->
+                        DatabaseActivity().checkValidSession(context) { isValidSession ->
                             if (isValidSession) {
                                 if (InputValidation().isValidTaskName(editedToDoListItem.name)) {
                                     onSave(editedToDoListItem)
                                     onDismiss()
                                 }
                             } else {
-                                Toast.makeText(
-                                    context,
-                                    "Session Expired, please log in again",
-                                    Toast.LENGTH_SHORT
-                                ).show()
                                 navController?.navigate(Routes.MainLogout.value)
                             }
                         }

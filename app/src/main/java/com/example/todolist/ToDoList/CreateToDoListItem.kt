@@ -113,41 +113,14 @@ fun CreateToDoListItem(navController: NavHostController, toDoListItemViewModel: 
     // Learned LaunchedEffect from https://medium.com/@sujathamudadla1213/what-is-launchedeffect-coroutine-api-android-jetpack-compose-76d568b79e63
     LaunchedEffect(Unit) {
         toDoListItemViewModel.fetchFriends()
-    }
 
-    // Check if user logged in another device every 5 seconds
-    LaunchedEffect(Unit) {
-        while (true) {
-            DatabaseActivity().checkValidSession { isValidSession ->
-                if (!isValidSession) {
-                    Toast.makeText(
-                        context,
-                        "New log in detected on another device. please login again",
-                        Toast.LENGTH_SHORT
-                    ).show()
-                    navController.navigate(Routes.MainLogout.value)
-                }
+        DatabaseActivity().checkValidSession(context) { isValidSession ->
+            if (!isValidSession) {
+                navController.navigate(Routes.MainLogout.value)
             }
-            delay(5000)
         }
     }
 
-    // Check if user logged in another device every 5 seconds
-    LaunchedEffect(Unit) {
-        while (true) {
-            DatabaseActivity().checkValidSession { isValidSession ->
-                if (!isValidSession) {
-                    Toast.makeText(
-                        context,
-                        "Detected log in from another device, please try log in again",
-                        Toast.LENGTH_SHORT
-                    ).show()
-                    navController.navigate(Routes.MainLogout.value)
-                }
-            }
-            delay(5000)
-        }
-    }
 
     // Top Bar
     TopAppBar(
@@ -340,7 +313,7 @@ fun CreateToDoListItem(navController: NavHostController, toDoListItemViewModel: 
                     val item = currentUserUid?.let { ToDoListItem(itemId, it, toDoItem, selectedTag, date.format(format), selectedFriend.uid, false, System.currentTimeMillis()) }
 
                     // Append item to database
-                    DatabaseActivity().checkValidSession { isValidSession ->
+                    DatabaseActivity().checkValidSession(context) { isValidSession ->
                         if (isValidSession) {
                             mDatabase.child("tasks").child(itemId).setValue(item)
                                 .addOnSuccessListener {
@@ -359,20 +332,15 @@ fun CreateToDoListItem(navController: NavHostController, toDoListItemViewModel: 
                                     ).show()
                                 }
                         } else {
-                            Toast.makeText(
-                                context,
-                                "Session Expired, please log in again",
-                                Toast.LENGTH_SHORT
-                            ).show()
                             navController.navigate(Routes.MainLogout.value)
                         }
                     }
                 } else {
-                        Toast.makeText(
-                            context,
-                            "INVALID INPUT: Task name cannot be empty or more than 25 characters long",
-                            Toast.LENGTH_SHORT
-                        ).show()
+                    Toast.makeText(
+                        context,
+                        "INVALID INPUT: Task name cannot be empty or more than 25 characters long",
+                        Toast.LENGTH_SHORT
+                    ).show()
                 }
             },
             modifier = Modifier

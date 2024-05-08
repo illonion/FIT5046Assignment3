@@ -73,8 +73,6 @@ fun MainSignup(navController: NavHostController) {
     var emailAddressError by remember { mutableStateOf(false) }
     var newPasswordError by remember { mutableStateOf(false) }
 
-
-
     // Top Bar
     TopAppBar(
         title = { Text(text = "Create Account") },
@@ -176,7 +174,6 @@ fun MainSignup(navController: NavHostController) {
         if (newPasswordError) {
             Text("Password must have a minimum length of 6 characters and cannot contain spaces", color = Color.Red)
         }
-
 
         if (message.isNotEmpty()) {
             Text(text = message, color = MaterialTheme.colorScheme.error, style = MaterialTheme.typography.bodyLarge)

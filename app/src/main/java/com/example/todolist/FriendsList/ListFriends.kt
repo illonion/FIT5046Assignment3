@@ -65,16 +65,11 @@ fun ListFriends(navController: NavHostController, friendsListViewModel : Friends
                 IconButton(
                     onClick = {
                         // Delete item
-                        DatabaseActivity().checkValidSession { isValidSession ->
+                        DatabaseActivity().checkValidSession(context) { isValidSession ->
                             if (isValidSession) {
                                 friendsListViewModel.removeFriend(friend)
                                 navController.navigate("FriendsList")
                             } else {
-                                Toast.makeText(
-                                    context,
-                                    "Session Expired, please log in again",
-                                    Toast.LENGTH_SHORT
-                                ).show()
                                 navController.navigate(Routes.MainLogout.value)
                             }
                         }

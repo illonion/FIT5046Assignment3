@@ -40,22 +40,11 @@ fun FriendsList(navController: NavHostController, friendsListViewModel: FriendsL
     // Load all current friends
     LaunchedEffect(Unit) {
         friendsListViewModel.loadAllFriends()
-    }
 
-    // Check if user logged in another device every 5 seconds
-    LaunchedEffect(Unit) {
-        while (true) {
-            DatabaseActivity().checkValidSession { isValidSession ->
-                if (!isValidSession) {
-                    Toast.makeText(
-                        context,
-                        "New log in detected on another device. please login again",
-                        Toast.LENGTH_SHORT
-                    ).show()
-                    navController.navigate(Routes.MainLogout.value)
-                }
+        DatabaseActivity().checkValidSession(context) { isValidSession ->
+            if (!isValidSession) {
+                navController.navigate(Routes.MainLogout.value)
             }
-            delay(5000)
         }
     }
 
@@ -73,17 +62,11 @@ fun FriendsList(navController: NavHostController, friendsListViewModel: FriendsL
             TopSectionAddFriend(
                 navController,
                 onAdd = { email ->
-                    DatabaseActivity().checkValidSession { isValidSession ->
+                    DatabaseActivity().checkValidSession(context) { isValidSession ->
                         if (isValidSession) {
                             friendsListViewModel.addToFriendsList(email)
                         } else {
-                            Toast.makeText(
-                                context,
-                                "Session Expired, please log in again",
-                                Toast.LENGTH_SHORT
-                            ).show()
                             navController.navigate(Routes.MainLogout.value)
-
                         }
                     }
                 }

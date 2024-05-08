@@ -1,6 +1,9 @@
 package com.example.todolist
 
+import android.app.Application
+import android.content.Context
 import android.os.Bundle
+import android.widget.Toast
 import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.auth.FirebaseUser
 import com.google.firebase.database.DataSnapshot
@@ -19,17 +22,18 @@ import kotlinx.coroutines.withContext
 import java.util.concurrent.CountDownLatch
 import java.util.concurrent.Executors
 
-class DatabaseActivity {
+class DatabaseActivity() {
 
     private val database =
         FirebaseDatabase.getInstance("http://fit5046-assignment-3-5083c-default-rtdb.asia-southeast1.firebasedatabase.app")
 
-    public fun checkValidSession(isValidSession: (Boolean) -> Unit) {
+    public fun checkValidSession(context: Context, isValidSession: (Boolean) -> Unit) {
         getCurrentSessionTokenCallback() { dbSessionToken ->
             AuthenticationActivity().getTokenCallback() {authToken ->
                 if (dbSessionToken == authToken && authToken != null) {
                     isValidSession(true)
                 } else {
+                    Toast.makeText(context, "New login detected on another device. Please login again.", Toast.LENGTH_LONG).show()
                     isValidSession(false)
                 }
             }
