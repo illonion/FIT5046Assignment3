@@ -3,7 +3,9 @@ package com.example.todolist.Analytics
 import android.annotation.SuppressLint
 import android.os.Build
 import androidx.annotation.RequiresApi
+import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
@@ -32,43 +34,49 @@ import androidx.compose.runtime.*
 import androidx.compose.ui.graphics.*
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.livedata.observeAsState
-import androidx.lifecycle.viewmodel.compose.viewModel
-import com.example.todolist.ui.theme.Purple40
 import androidx.compose.ui.text.TextStyle
+import androidx.lifecycle.viewmodel.compose.viewModel
+import com.example.todolist.ui.theme.IndoorsPink
+import com.example.todolist.ui.theme.OutdoorsGreen
+import com.example.todolist.ui.theme.Purple40
+
 import com.example.todolist.ui.theme.Purple80
+import com.example.todolist.ui.theme.SchoolPurple
+import com.example.todolist.ui.theme.SportsOrange
+import com.example.todolist.ui.theme.WorkBlue
 
 @SuppressLint("UnusedMaterial3ScaffoldPaddingParameter")
 @RequiresApi(Build.VERSION_CODES.O)
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun SevenDayTagsAnalytics(navController: NavHostController) {
-    // Initialise AnalyticsViewModel
-    val viewModel: AnalyticsViewModel = viewModel()
+    // Initialise SevenDayViewModel
+    val viewModel: SevenDayViewModel = viewModel()
 
-    // Observe LiveData values for completed and incomplete tasks from the ViewModel
-    val completionPercentage by viewModel.completionPercentage.observeAsState(initial = 0)
-    val completedTasks by viewModel.completedTasks.observeAsState(initial = 0)
-    val incompleteTasks by viewModel.incompleteTasks.observeAsState(initial = 0)
+    // Observe LiveData value for tasks for today existence from the ViewModel
     val tasksForTodayExist by viewModel.tasksForTodayExist.observeAsState(initial = false)
-    val yesterdayCompletionPercentage by viewModel.yesterdayCompletionPercentage.observeAsState(initial = 0)
 
-    // Fetch task completion data from Firebase when ViewModel is first created/updated
+    // Fetch tag distribution data from Firebase when ViewModel is first created/updated
     LaunchedEffect(key1 = viewModel) {
-        viewModel.fetchTaskCompletionData()
+        viewModel.fetchTaskTagDistribution()
     }
 
     // Define legend items
     val legendItems = listOf(
-        LegendItem(color = CompleteGreen, label = "Completed"),
-        LegendItem(color = IncompleteGrey, label = "Incomplete")
+        LegendItem(color = IndoorsPink, label = "Indoors"),
+        LegendItem(color = OutdoorsGreen, label = "Outdoors"),
+        LegendItem(color = WorkBlue, label = "Work"),
+        LegendItem(color = SchoolPurple, label = "School"),
+        LegendItem(color = SportsOrange, label = "Sports"),
+        LegendItem(color = IncompleteGrey, label = "None")
     )
 
     // Scaffold with TopAppBar and main content area
     Scaffold(
         topBar = {
             TopAppBar(
-                title = { Text(text = "To Do List Analytics") },
-                // Back button to navigate back to previous analytics screen
+                title = { Text(text = "Analytics: Category Distribution") },
+                // Back button to navigate back to progress analytics
                 navigationIcon = {
                     IconButton(onClick = { navController.navigate("Analytics") }) {
                         Icon(
@@ -84,7 +92,8 @@ fun SevenDayTagsAnalytics(navController: NavHostController) {
                 )
             )
         }
-    ) {
+    )
+    {
         // Main content inside a Box with vertical scrolling capability
         Box(
             modifier = Modifier
@@ -96,96 +105,145 @@ fun SevenDayTagsAnalytics(navController: NavHostController) {
             Column(
                 modifier = Modifier.align(Alignment.Center),
                 horizontalAlignment = Alignment.CenterHorizontally
-            ) {
-                // Display completion percentage text or message if no tasks for today
-                if (tasksForTodayExist) {
-                    Text(
-                        text = "Today's Progress.\nYou got this!",
-                        textAlign = TextAlign.Center,
-                        fontSize = 30.sp,
-                        color = Purple40,
-                    )
-                } else {
-                    Text(
-                        text = "Add some tasks to see your progress.",
-                        textAlign = TextAlign.Center,
-                        fontSize = 30.sp,
-                        color = Purple40,
-                    )
-                }
+            )
+            {
+                Spacer(modifier = Modifier.height(30.dp))
+                // Display text based on tasks existence for today
+                Text(
+                    text = if (tasksForTodayExist) "Today's Task Distribution." else "Add some tasks to see distribution.",
+                    textAlign = TextAlign.Center,
+                    fontSize = 30.sp,
+                    color = Purple40,
+                )
+                Spacer(modifier = Modifier.height(16.dp))
 
-                // Calculate input data for the PieChart based on task completion
+                // Calculate input data for the PieChart based on tag distribution
                 val pieChartInput = if (tasksForTodayExist) {
-                    // Tasks exist for today, show completed and incomplete tasks
-                    listOf(
+                    viewModel.tagDistributionPercentage.value?.map { (tag, percentage) ->
+                        val color = when (tag) {
+                            "Indoors" -> IndoorsPink
+                            "Outdoors" -> OutdoorsGreen
+                            "Work" -> WorkBlue
+                            "School" -> SchoolPurple
+                            "Sports" -> SportsOrange
+                            else -> IncompleteGrey // Default color for unknown tag
+                        }
                         PieChartInput(
-                            color = CompleteGreen,
-                            value = completedTasks?.toDouble() ?: 0.0,
-                            description = "Completed Tasks"
-                        ),
-                        PieChartInput(
-                            color = IncompleteGrey,
-                            value = incompleteTasks?.toDouble() ?: 0.0,
-                            description = "Incomplete Tasks"
+                            color = color,
+                            value = percentage,
+                            description = tag
                         )
-                    )
+                    } ?: emptyList()
                 } else {
-                    // No tasks for today, show 100% completed (purple40)
                     listOf(
                         PieChartInput(
                             color = Purple40,
-                            value = 100.0, // 100% completion
+                            value = 100.0,
                             description = "No Tasks Today"
                         )
                     )
                 }
 
-                // PieChart composable displaying completed and incomplete tasks as a pie chart
+                // PieChart displaying tag distribution as pie chart slices
                 PieChart(
                     modifier = Modifier
                         .size(300.dp)
-                        .align(Alignment.CenterHorizontally), // Align pie chart center horizontally
+                        .align(Alignment.CenterHorizontally),
                     input = pieChartInput,
-                    centerText = "$completionPercentage%",
+                    centerText = "^_^",
                     centerLabelColor = Color.White,
                     centerTransparentColor = Color.White.copy(alpha = 0.2f)
                 )
 
-                // Display legend for pie chart
-                PieChartLegend(legendItems = legendItems)
+                // Display legend for the pie chart
+                SevenPieChartLegend(legendItems = legendItems)
 
-                // Display yesterday's completion percentage
-                if (yesterdayCompletionPercentage > 0) {
-                    Text(
-                        text = "Yesterday: $yesterdayCompletionPercentage% completed.",
-                        textAlign = TextAlign.Center,
-                        fontSize = 20.sp,
-                        color = Color.Black
-                    )
+                Spacer(modifier = Modifier.height(14.dp))
 
-                    AnalyticsButton(navController)
-                }
+                AnalyticsButton(navController)
             }
         }
     }
 }
-
 
 @Composable
 fun AnalyticsButton(navController: NavHostController) {
     Button(
         onClick = { navController.navigate("Analytics") },
         modifier = Modifier
-            .fillMaxWidth() // Button takes full width of its parent
-            .padding(16.dp), // Add padding around the button
+            .fillMaxWidth()
+            .padding(16.dp),
         colors = ButtonDefaults.buttonColors(
-            backgroundColor = Purple80, // Set background color of the button
+            backgroundColor = Purple80
         )
     ) {
         Text(
-            text = "View Today's Progress Analytics",
-            style = TextStyle(fontSize = 16.sp), // Set font size of the text
-            color = Purple40 // Set text color of the button text
+            text = "Back to Daily Progress Analytics",
+            style = TextStyle(fontSize = 17.sp),
+            color = Purple40
         )
+    }
+}
+
+@Composable
+fun SevenPieChartLegend(legendItems: List<LegendItem>) {
+    Column(
+        modifier = Modifier
+            .padding(vertical = 16.dp)
+            .fillMaxWidth()
+            .wrapContentHeight()
+    ) {
+        // Split legendItems into two lists of up to 3 items each
+        val firstRowItems = legendItems.take(3)
+        val secondRowItems = legendItems.drop(3)
+
+        // Render legend items in two rows
+        Row(
+            modifier = Modifier.fillMaxWidth(),
+            horizontalArrangement = Arrangement.Center,
+            verticalAlignment = Alignment.CenterVertically
+        ) {
+            // Render items for the first row
+            firstRowItems.forEachIndexed { index, item ->
+                if (index > 0) {
+                    Spacer(modifier = Modifier.width(8.dp))
+                }
+                Box(
+                    modifier = Modifier
+                        .size(16.dp)
+                        .background(item.color)
+                )
+                Spacer(modifier = Modifier.width(4.dp))
+                Text(
+                    text = item.label,
+                    style = MaterialTheme.typography.bodyMedium,
+                    color = Color.Black
+                )
+            }
+        }
+
+        // Render items for the second row
+        Row(
+            modifier = Modifier.fillMaxWidth(),
+            horizontalArrangement = Arrangement.Center,
+            verticalAlignment = Alignment.CenterVertically
+        ) {
+            secondRowItems.forEachIndexed { index, item ->
+                if (index > 0) {
+                    Spacer(modifier = Modifier.width(8.dp))
+                }
+                Box(
+                    modifier = Modifier
+                        .size(16.dp)
+                        .background(item.color)
+                )
+                Spacer(modifier = Modifier.width(4.dp))
+                Text(
+                    text = item.label,
+                    style = MaterialTheme.typography.bodyMedium,
+                    color = Color.Black
+                )
+            }
+        }
     }
 }

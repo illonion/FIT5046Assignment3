@@ -105,7 +105,3 @@ data class PieChartInput(
     val value: Double,
     val description: String
 )
-
-
-
-
