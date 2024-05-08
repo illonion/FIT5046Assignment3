@@ -90,7 +90,7 @@ fun Analytics(navController: NavHostController) {
     Scaffold(
         topBar = {
             TopAppBar(
-                title = { Text(text = "To Do List Analytics") },
+                title = { Text(text = "Analytics: Daily Progress") },
                 // Back button to navigate back to home screen
                 navigationIcon = {
                     IconButton(onClick = { navController.navigate("Home") }) {
@@ -107,7 +107,8 @@ fun Analytics(navController: NavHostController) {
                 )
             )
         }
-    ) {
+    )
+    {
         // Main content inside a Box with vertical scrolling capability
         Box(
             modifier = Modifier
@@ -119,7 +120,9 @@ fun Analytics(navController: NavHostController) {
             Column(
                 modifier = Modifier.align(Alignment.Center),
                 horizontalAlignment = Alignment.CenterHorizontally
-            ) {
+            )
+            {
+                Spacer(modifier = Modifier.height(30.dp))
                 // Display completion percentage text or message if no tasks for today
                 if (tasksForTodayExist) {
                     Text(
@@ -178,17 +181,19 @@ fun Analytics(navController: NavHostController) {
                 // Display legend for pie chart
                 PieChartLegend(legendItems = legendItems)
 
+                Spacer(modifier = Modifier.height(14.dp))
+
                 // Display yesterday's completion percentage
                 if (yesterdayCompletionPercentage > 0) {
+                    val difference = yesterdayCompletionPercentage - completionPercentage
                     Text(
-                        text = "Yesterday: $yesterdayCompletionPercentage% completed.",
+                        text = "Yesterday was $difference% more productive.",
                         textAlign = TextAlign.Center,
                         fontSize = 20.sp,
                         color = Color.Black
                     )
                 }
 
-                Spacer(modifier = Modifier.height(16.dp))
                 SevenDayTagsAnalyticsButton(navController)
             }
         }
