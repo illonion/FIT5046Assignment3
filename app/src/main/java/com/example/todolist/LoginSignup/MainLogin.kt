@@ -57,6 +57,7 @@ fun MainLogin(navController: NavHostController) {
     var email by remember { mutableStateOf(oldEmail) }
     var password by remember { mutableStateOf("") }
     var hidePassword by remember { mutableStateOf(true) }
+
     if (AuthenticationActivity().checkIsLoggedIn()) {
         navController.navigate(Routes.Home.value)
     }
@@ -156,8 +157,6 @@ fun MainLogin(navController: NavHostController) {
             // Login Button
             Button(
                 onClick = {
-                    println(email)
-                    println("#####################################")
                     isLoginButtonClicked = true
                     if (!emailError && !passwordError) {
                         AuthenticationActivity().signIn(email, password, rememberLogin.value, sharedPref)
@@ -192,7 +191,7 @@ fun MainLogin(navController: NavHostController) {
             // Google Login Button
             Button(
                 onClick = {
-                        AuthenticationActivity().signInWithGoogle(context, scope) { isSuccess ->
+                        AuthenticationActivity().signInWithGoogle(context, scope, rememberLogin.value, sharedPref) { isSuccess ->
                             if (isSuccess) {
                                 navController.navigate(Routes.Home.value)
                             } else {
