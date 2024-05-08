@@ -1,5 +1,6 @@
 package com.example.todolist.LoginSignup
 
+import android.util.Log
 import android.widget.Toast
 import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.layout.Column
@@ -191,7 +192,8 @@ fun MainSignup(navController: NavHostController) {
                     if (!emailAddressError && !newPasswordError)
                     {
                         checkEmailExists(emailAddress) { emailExists ->
-                            if (!emailExists) {
+                            Log.i("Email Exists", emailExists)
+                            if (emailExists == "Email Does Not Exist") {
                                 // If email does not exist, proceed with account creation
                                 loading = true
                                 AuthenticationActivity().createAccount(emailAddress, newPassword, firstName, lastName) { isSuccess ->
@@ -200,12 +202,18 @@ fun MainSignup(navController: NavHostController) {
                                         navController.navigate(Routes.Home.value)
                                     }
                                 }
-                            } else {
+                            } else if (emailExists == "Email Exists") {
                                 // If email already exists, display an error message
                                 Toast.makeText(
                                     mContext,
-                                    "Email address already exists.",
-                                    Toast.LENGTH_SHORT
+                                    "An account already exists with this email.",
+                                    Toast.LENGTH_LONG
+                                ).show()
+                            } else {
+                                Toast.makeText(
+                                    mContext,
+                                    "There was an error with the database. Please try again later.",
+                                    Toast.LENGTH_LONG
                                 ).show()
                             }
                         }
@@ -252,21 +260,24 @@ fun MainSignup(navController: NavHostController) {
 }
 
 
-fun checkEmailExists(email: String, callback: (Boolean) -> Unit) {
+fun checkEmailExists(email: String, callback: (String) -> Unit) {
     val database = FirebaseDatabase.getInstance("https://fit5046-assignment-3-5083c-default-rtdb.asia-southeast1.firebasedatabase.app/")
     val mDatabase = database.reference
     val usersRef = mDatabase.child("users")
-    val query = usersRef.orderByChild("email").equalTo(email)
 
-    query.addListenerForSingleValueEvent(object : ValueEventListener {
+    usersRef.addListenerForSingleValueEvent(object : ValueEventListener {
         override fun onDataChange(dataSnapshot: DataSnapshot) {
             // If there's at least one user with the provided email, it exists
-            val emailExists = dataSnapshot.exists()
-            callback(emailExists)
+            for (snapshot in dataSnapshot.children) {
+                if (snapshot.child("email").value.toString() == email) {
+                    return callback("Email Exists")
+                }
+            }
+            return callback("Email Does Not Exist")
         }
 
         override fun onCancelled(databaseError: DatabaseError) {
-            callback(false)
+            return callback("Database Error")
         }
     })
 }

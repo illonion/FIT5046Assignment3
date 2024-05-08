@@ -21,8 +21,7 @@ import java.util.concurrent.Executors
 
 class DatabaseActivity {
 
-    val auth = FirebaseAuth.getInstance()
-    val database =
+    private val database =
         FirebaseDatabase.getInstance("http://fit5046-assignment-3-5083c-default-rtdb.asia-southeast1.firebasedatabase.app")
 
     public fun checkValidSession(isValidSession: (Boolean) -> Unit) {
