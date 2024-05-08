@@ -1,5 +1,7 @@
 package com.example.todolist.LoginSignup
 
+import android.util.Log
+import android.widget.Toast
 import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
@@ -42,6 +44,12 @@ import com.google.firebase.auth.FirebaseAuth
 import com.example.todolist.Navigation.Routes
 																		
 
+import com.google.firebase.database.DataSnapshot
+import com.google.firebase.database.DatabaseError
+import com.google.firebase.database.FirebaseDatabase
+import com.google.firebase.database.ValueEventListener
+
+
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun MainSignup(navController: NavHostController) {
@@ -56,6 +64,14 @@ fun MainSignup(navController: NavHostController) {
 
     val context = LocalContext.current
     val auth = FirebaseAuth.getInstance()
+
+
+    // variables for validation
+    val mContext = LocalContext.current
+    var firstNameError by remember { mutableStateOf(false) }
+    var lastNameError by remember { mutableStateOf(false) }
+    var emailAddressError by remember { mutableStateOf(false) }
+    var newPasswordError by remember { mutableStateOf(false) }
 
     // Top Bar
     TopAppBar(
@@ -81,7 +97,10 @@ fun MainSignup(navController: NavHostController) {
         Row(modifier = Modifier.padding(0.dp)) {
             OutlinedTextField(
                 value = firstName,
-                onValueChange = { firstName = it },
+                onValueChange = {
+                    firstName = it.trim()
+                    firstNameError = it.isEmpty()
+                                },
                 label = { Text("First Name *") },
                 modifier = Modifier
                     .fillMaxWidth(0.5f)
@@ -90,8 +109,11 @@ fun MainSignup(navController: NavHostController) {
 
             OutlinedTextField(
                 value = lastName,
-                onValueChange = { lastName = it },
-                label = { Text("Last Name *") },
+                onValueChange = {
+                    lastName = it.trim()
+                    lastNameError = it.isEmpty()
+                                },
+                label = { Text("Last Name") },
                 modifier = Modifier
                     .fillMaxWidth()
                     .padding(bottom = 8.dp)
@@ -100,17 +122,27 @@ fun MainSignup(navController: NavHostController) {
 
         OutlinedTextField(
             value = emailAddress,
-            onValueChange = { emailAddress = it },
+            onValueChange = {
+                emailAddress = it.trim()
+                emailAddressError = !isValidEmail(it)
+                            },
             label = { Text("Email Address *")},
             modifier = Modifier
                 .fillMaxWidth()
                 .padding(bottom = 8.dp)
         )
+        if (emailAddressError) {
+            Text("Invalid email address", color = Color.Red)
+        }
+
 
         OutlinedTextField(
             value = newPassword,
-            onValueChange = { newPassword = it },
-            label = { Text("New Password *")},
+            onValueChange = {
+                newPassword = it.trim()
+                newPasswordError = !isValidPassword(it)
+                            },
+            label = { Text("New Password")},
             modifier = Modifier
                 .fillMaxWidth()
                 .padding(bottom = 8.dp),
@@ -139,19 +171,60 @@ fun MainSignup(navController: NavHostController) {
                 }
             }
         )
+        if (newPasswordError) {
+            Text("Password must have a minimum length of 6 characters and cannot contain spaces", color = Color.Red)
+        }
+
         if (message.isNotEmpty()) {
             Text(text = message, color = MaterialTheme.colorScheme.error, style = MaterialTheme.typography.bodyLarge)
         }
 
         Button(
             onClick = {
-                loading = true
-                AuthenticationActivity().createAccount(emailAddress, newPassword, firstName, lastName) { isSuccess ->
-                        loading = false
-                        if (isSuccess) {
-                            navController.navigate(Routes.Home.value)
+                // Check empty fields
+                if (firstName.isNotBlank() && lastName.isNotBlank()
+                    && emailAddress.isNotBlank() && newPassword.isNotBlank())
+                {
+                    // Validate email address and password
+                    if (!emailAddressError && !newPasswordError)
+                    {
+                        checkEmailExists(emailAddress) { emailExists ->
+                            Log.i("Email Exists", emailExists)
+                            if (emailExists == "Email Does Not Exist") {
+                                // If email does not exist, proceed with account creation
+                                loading = true
+                                AuthenticationActivity().createAccount(emailAddress, newPassword, firstName, lastName) { isSuccess ->
+                                    loading = false
+                                    if (isSuccess) {
+                                        navController.navigate(Routes.Home.value)
+                                    }
+                                }
+                            } else if (emailExists == "Email Exists") {
+                                // If email already exists, display an error message
+                                Toast.makeText(
+                                    mContext,
+                                    "An account already exists with this email.",
+                                    Toast.LENGTH_LONG
+                                ).show()
+                            } else {
+                                Toast.makeText(
+                                    mContext,
+                                    "There was an error with the database. Please try again later.",
+                                    Toast.LENGTH_LONG
+                                ).show()
+                            }
                         }
                     }
+
+                }
+                else {
+                    Toast.makeText(
+                        mContext,
+                        "No fields could be empty.",
+                        Toast.LENGTH_SHORT
+                    ).show()
+                }
+
             },
             modifier = Modifier
                 .padding(bottom = 5.dp)
@@ -181,4 +254,27 @@ fun MainSignup(navController: NavHostController) {
             Text("Cancel")
         }
     }
+}
+
+
+fun checkEmailExists(email: String, callback: (String) -> Unit) {
+    val database = FirebaseDatabase.getInstance("https://fit5046-assignment-3-5083c-default-rtdb.asia-southeast1.firebasedatabase.app/")
+    val mDatabase = database.reference
+    val usersRef = mDatabase.child("users")
+
+    usersRef.addListenerForSingleValueEvent(object : ValueEventListener {
+        override fun onDataChange(dataSnapshot: DataSnapshot) {
+            // If there's at least one user with the provided email, it exists
+            for (snapshot in dataSnapshot.children) {
+                if (snapshot.child("email").value.toString() == email) {
+                    return callback("Email Exists")
+                }
+            }
+            return callback("Email Does Not Exist")
+        }
+
+        override fun onCancelled(databaseError: DatabaseError) {
+            return callback("Database Error")
+        }
+    })
 }

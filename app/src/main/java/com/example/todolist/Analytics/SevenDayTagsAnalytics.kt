@@ -2,6 +2,7 @@ package com.example.todolist.Analytics
 
 import android.annotation.SuppressLint
 import android.os.Build
+import android.widget.Toast
 import androidx.annotation.RequiresApi
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Column
@@ -39,7 +40,6 @@ import androidx.lifecycle.viewmodel.compose.viewModel
 import com.example.todolist.ui.theme.IndoorsPink
 import com.example.todolist.ui.theme.OutdoorsGreen
 import com.example.todolist.ui.theme.Purple40
-
 import com.example.todolist.ui.theme.Purple80
 import com.example.todolist.ui.theme.SchoolPurple
 import com.example.todolist.ui.theme.SportsOrange
@@ -59,6 +59,15 @@ fun SevenDayTagsAnalytics(navController: NavHostController) {
     // Fetch tag distribution data from Firebase when ViewModel is first created/updated
     LaunchedEffect(key1 = viewModel) {
         viewModel.fetchTaskTagDistribution()
+    }
+
+    // Check if user logged in another device every 5 seconds
+    LaunchedEffect(Unit) {
+        DatabaseActivity().checkValidSession(context) { isValidSession ->
+            if (!isValidSession) {
+                navController.navigate(Routes.MainLogout.value)
+            }
+        }
     }
 
     // Define legend items

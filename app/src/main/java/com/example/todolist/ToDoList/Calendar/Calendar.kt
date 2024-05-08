@@ -30,7 +30,6 @@ import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.example.todolist.ui.theme.Purple60
-import com.example.todolist.ui.theme.Purple80
 import java.time.LocalDate
 import java.time.format.DateTimeFormatter
 import java.time.format.FormatStyle
@@ -47,6 +46,7 @@ fun CalendarHeader(
         horizontalArrangement = Arrangement.SpaceBetween,
         modifier = Modifier.fillMaxWidth()
     ) {
+        // Previous and text icons
         Row {
             IconButton(onClick = { onPrevClickListener(data.startDate.date) }) {
                 Icon(
@@ -61,6 +61,7 @@ fun CalendarHeader(
                 )
             }
         }
+        // Current text (date or "Today")
         Text(
             text = if (data.selectedDate.isToday) { "Today" }
             else {
@@ -101,6 +102,7 @@ fun CalendarItem(
                 .padding(4.dp),
             verticalArrangement = Arrangement.Center
         ) {
+            // date in month
             Text(
                 text = date.date.dayOfMonth.toString(),
                 modifier = Modifier.align(Alignment.CenterHorizontally),
@@ -108,6 +110,7 @@ fun CalendarItem(
                 color = if (date.isSelected || date.isToday) { Color.White }
                 else { Color.Black }
             )
+            // Day of week in text
             Text(
                 text = date.day,
                 modifier = Modifier.align(Alignment.CenterHorizontally),

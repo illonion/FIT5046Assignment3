@@ -1,6 +1,7 @@
 package com.example.todolist.ToDoList
 
 import android.os.Build
+import android.widget.Toast
 import androidx.annotation.RequiresApi
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
@@ -14,10 +15,12 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.focus.focusProperties
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.navigation.NavHostController
+import com.example.todolist.DatabaseActivity
 import com.example.todolist.Navigation.Routes
 import com.example.todolist.ToDoList.Calendar.Calendar
 import com.example.todolist.ToDoList.Calendar.CalendarDataSource
@@ -25,6 +28,7 @@ import com.example.todolist.ToDoList.Calendar.CalendarHeader
 import com.example.todolist.ToDoList.Calendar.CalendareDataClass
 import com.google.firebase.auth.ktx.auth
 import com.google.firebase.ktx.Firebase
+import kotlinx.coroutines.delay
 import java.time.LocalDate
 import java.time.format.DateTimeFormatter
 
@@ -58,8 +62,18 @@ private fun ToDoListContent(navController: NavHostController, viewModel: ToDoLis
     val dataSource = CalendarDataSource()
     var calendarUiModel by remember { mutableStateOf(dataSource.getData(lastSelectedDate = dataSource.today)) }
 
+    val context = LocalContext.current
     LaunchedEffect(Unit) {
         viewModel.syncDataFromFirebase()
+
+        while (true) {
+            DatabaseActivity().checkValidSession(context) { isValidSession ->
+                if (!isValidSession) {
+                    navController.navigate(Routes.MainLogout.value)
+                }
+            }
+            delay(5000)
+        }
     }
 
     Column(modifier = Modifier.padding(16.dp)) {
@@ -68,7 +82,7 @@ private fun ToDoListContent(navController: NavHostController, viewModel: ToDoLis
         CalendarHeader(
             data = calendarUiModel,
             onPrevClickListener = { calendarUiModel = dataSource.getData(startDate = it.minusDays(1), lastSelectedDate = calendarUiModel.selectedDate.date) },
-            onNextClickListener = { calendarUiModel = dataSource.getData(startDate = it.plusDays(3), lastSelectedDate = calendarUiModel.selectedDate.date) }
+            onNextClickListener = { calendarUiModel = dataSource.getData(startDate = it.plusDays(1), lastSelectedDate = calendarUiModel.selectedDate.date) }
         )
         Calendar(data = calendarUiModel, onDateClickListener = { calendarUiModel = calendarUiModel.copy(selectedDate = it, visibleDates = calendarUiModel.visibleDates.map { date -> date.copy(isSelected = date.date.isEqual(it.date)) }) })
 
@@ -250,7 +264,7 @@ private fun ToDoListItems(
     } else {
         LazyColumn(modifier = Modifier.padding(top = 8.dp)) {
             itemsIndexed(toDoListItems) { _, item ->
-                ListToDoListItem(item, true, viewModel)
+                ListToDoListItem(item, true, viewModel, null)
             }
         }
     }

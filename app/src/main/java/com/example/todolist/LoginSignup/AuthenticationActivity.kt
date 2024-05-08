@@ -3,11 +3,13 @@ package com.example.todolist.LoginSignup
 import android.accounts.AccountManager
 import android.app.Activity
 import android.content.Context
+import android.content.SharedPreferences
 import android.os.Bundle
 import android.util.Log
 import androidx.credentials.CredentialManager
 import androidx.credentials.GetCredentialRequest
 import com.example.todolist.DatabaseActivity
+import com.example.todolist.R
 import com.google.android.libraries.identity.googleid.GetSignInWithGoogleOption
 import com.google.android.libraries.identity.googleid.GoogleIdTokenCredential
 import com.google.firebase.Firebase
@@ -32,8 +34,6 @@ class AuthenticationActivity : Activity() {
 
     private var auth: FirebaseAuth = Firebase.auth
 
-    // google auth
-    private val WEB_CLIENT_ID = "594256886966-de46qrlc59o61nksda8g7ek4c4frmsfc.apps.googleusercontent.com"
 
     public override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -79,7 +79,8 @@ class AuthenticationActivity : Activity() {
             }
     }
 
-    public fun signIn(email: String, password: String, isSuccess:  (Boolean) -> Unit) {
+    public fun signIn(email: String, password: String, rememberLogin: Boolean, sharedPref: SharedPreferences, isSuccess:  (Boolean) -> Unit) {
+
         auth.signInWithEmailAndPassword(email, password)
             .addOnCompleteListener(this) { task ->
                 if (task.isSuccessful) {
@@ -87,6 +88,15 @@ class AuthenticationActivity : Activity() {
                     val user = auth.currentUser
                     getTokenCallback() { token ->
                         DatabaseActivity().setCurrentSessionId(user, token)
+                        with (sharedPref.edit()) {
+                            if (rememberLogin) {
+                                putString("email", email)
+                            } else {
+                                putString("email", "")
+                            }
+                            putBoolean("rememberLogin", rememberLogin)
+                            apply()
+                        }
                         isSuccess(true)
                     }
 
@@ -97,22 +107,16 @@ class AuthenticationActivity : Activity() {
             }
     }
     public fun signOut() {
-        auth.signOut()
-    }
-    public fun signOutCheckToken(isSuccess: (Boolean) -> Unit) {
-//        unused, for test purpose only
-        getTokenCallback {token ->
-            println("4321@@@@@@@@@@@###@@@@@@")
-            println(token)
-            println(token)
-            println("4321@@@@@@@@@@@###@@@@@@")
+        val currentUser = auth.currentUser
+        if (currentUser != null) {
             auth.signOut()
-            isSuccess(true)
         }
-
     }
+    public fun signInWithGoogle(context: Context, scope: CoroutineScope, rememberLogin: Boolean, sharedPref: SharedPreferences, isSuccess: (Boolean) -> Unit) {
 
-    public fun signInWithGoogle(context: Context, scope: CoroutineScope, isSuccess: (Boolean) -> Unit) {
+        // google auth
+        val WEB_CLIENT_ID = context.getString(R.string.WEB_CLIENT_ID)
+
         val credentialManager = CredentialManager.create(context)
 
         val googleIdOption = GetSignInWithGoogleOption.Builder(WEB_CLIENT_ID)
@@ -147,6 +151,11 @@ class AuthenticationActivity : Activity() {
                                 DatabaseActivity().addNewUser(user, email, "", "") { isSuccess ->
                                     if (isSuccess) {
                                         DatabaseActivity().setCurrentSessionId(user, token)
+                                        with (sharedPref.edit()) {
+                                            putString("email", "")
+                                            putBoolean("rememberLogin", rememberLogin)
+                                            apply()
+                                        }
                                         isSuccess(true)
                                     } else {
                                         isSuccess(false)
@@ -169,18 +178,6 @@ class AuthenticationActivity : Activity() {
         return user != null
     }
 
-    suspend fun getTokenSuspend(): String? {
-//    Use coroutine suspend to return token without using callback
-//        doesn't work (IDK WHY)
-        return suspendCoroutine { continuation ->
-            auth.getAccessToken(false).addOnCompleteListener { task ->
-                val result: GetTokenResult? = task.result
-                val token: String? = result?.getToken()
-                continuation.resume(token)
-            }
-        }
-    }
-
     public fun getTokenCallback(token: (String?) -> Unit) {
         try {
             auth.getAccessToken(false).addOnCompleteListener { task ->
@@ -192,21 +189,6 @@ class AuthenticationActivity : Activity() {
         }
     }
 
-    fun getTokenAndWait(): String? {
-//        does not work (seems like thread get blocked)
-
-        val latch = CountDownLatch(1)
-        var token: String? = null
-
-        auth.getAccessToken(false).addOnCompleteListener { task ->
-            val result: GetTokenResult? = task.result
-            token = result?.getToken()
-            latch.countDown() // Notify that the callback has finished
-        }
-
-        latch.await() // Block until the latch counts down to 0
-        return token
-    }
     public fun getUser(): FirebaseUser? {
         return auth.currentUser
     }

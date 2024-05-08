@@ -2,6 +2,7 @@ package com.example.todolist
 
 import android.annotation.SuppressLint
 import android.os.Build
+import android.widget.Toast
 import androidx.annotation.RequiresApi
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
@@ -35,6 +36,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
 import androidx.navigation.NavHostController
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.sp
@@ -51,6 +53,7 @@ import java.time.LocalDate
 import java.time.format.DateTimeFormatter
 import com.example.todolist.ui.theme.CompleteGreen
 import com.example.todolist.ui.theme.IncompleteGrey
+import kotlinx.coroutines.delay
 
 // Home screen
 @OptIn(ExperimentalMaterial3Api::class)
@@ -63,11 +66,20 @@ fun Home(navController: NavHostController, toDoListItemViewModel: ToDoListItemVi
     val incompleteTasks by analyticsViewModel.incompleteTasks.observeAsState(initial = 0)
     val tasksForTodayExist by analyticsViewModel.tasksForTodayExist.observeAsState(initial = false)
 
+    val context = LocalContext.current
     LaunchedEffect(Unit) {
         toDoListItemViewModel.syncDataFromFirebase()
         analyticsViewModel.fetchTaskCompletionData()
-    }
 
+        while (true) {
+            DatabaseActivity().checkValidSession(context) { isValidSession ->
+                if (!isValidSession) {
+                    navController.navigate(Routes.MainLogout.value)
+                }
+            }
+            delay(5000)
+        }
+    }
 
     Scaffold(
         topBar = {
@@ -218,7 +230,7 @@ fun Home(navController: NavHostController, toDoListItemViewModel: ToDoListItemVi
                 Column(modifier = Modifier.padding(16.dp)) {
                     LazyColumn {
                         itemsIndexed(toDoListItems) { _, item ->
-                            ListToDoListItem(item, false, toDoListItemViewModel)
+                            ListToDoListItem(item, false, toDoListItemViewModel, navController)
                         }
                     }
                 }
