@@ -147,7 +147,7 @@ fun CreateToDoListItem(navController: NavHostController, toDoListItemViewModel: 
         OutlinedTextField(
             value = toDoItem,
             onValueChange = {
-                toDoItem = it.trim()
+                toDoItem = it
             },
             label = { Text("Task Name *") },
             modifier = Modifier
@@ -310,7 +310,7 @@ fun CreateToDoListItem(navController: NavHostController, toDoListItemViewModel: 
                     val instant = Instant.ofEpochMilli(selectedDate)
                     val date = LocalDateTime.ofInstant(instant, ZoneId.systemDefault())
                     val format = DateTimeFormatter.ofPattern("dd/MM/yyyy")
-                    val item = currentUserUid?.let { ToDoListItem(itemId, it, toDoItem, selectedTag, date.format(format), selectedFriend.uid, false, System.currentTimeMillis()) }
+                    val item = currentUserUid?.let { ToDoListItem(itemId, it, toDoItem.trim(), selectedTag, date.format(format), selectedFriend.uid, false, System.currentTimeMillis()) }
 
                     // Append item to database
                     DatabaseActivity().checkValidSession(context) { isValidSession ->
