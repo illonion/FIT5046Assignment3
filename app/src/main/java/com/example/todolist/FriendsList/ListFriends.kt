@@ -1,5 +1,6 @@
 package com.example.todolist.FriendsList
 
+import android.widget.Toast
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxWidth
@@ -16,16 +17,22 @@ import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.navigation.NavHostController
+import com.example.todolist.DatabaseActivity
+import com.example.todolist.Navigation.Routes
 import com.example.todolist.User
 import com.example.todolist.ui.theme.Purple40
 
 // List of to do list items
 @Composable
 fun ListFriends(navController: NavHostController, friendsListViewModel : FriendsListViewModel, friend: User) {
+
+    val context = LocalContext.current
+
     Row(
         modifier = Modifier
             .fillMaxWidth()
@@ -57,8 +64,20 @@ fun ListFriends(navController: NavHostController, friendsListViewModel : Friends
                 // Button
                 IconButton(
                     onClick = {
-                        friendsListViewModel.removeFriend(friend)
-                        navController.navigate("FriendsList")
+                        // Delete item
+                        DatabaseActivity().checkValidSession { isValidSession ->
+                            if (isValidSession) {
+                                friendsListViewModel.removeFriend(friend)
+                                navController.navigate("FriendsList")
+                            } else {
+                                Toast.makeText(
+                                    context,
+                                    "Session Expired, please log in again",
+                                    Toast.LENGTH_SHORT
+                                ).show()
+                                navController.navigate(Routes.MainLogout.value)
+                            }
+                        }
                     }
                 ) {
                     Icon(

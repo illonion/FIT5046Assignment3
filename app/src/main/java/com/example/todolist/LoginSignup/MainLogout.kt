@@ -9,10 +9,6 @@ import com.example.todolist.Navigation.Routes
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun MainLogout(navController: NavHostController) {
-//    for testing purpose only
-//    AuthenticationActivity().signOutCheckToken() { isSuccess ->
-//        navController.navigate(Routes.MainLogin.value)
-//    }
     AuthenticationActivity().signOut()
     navController.navigate(Routes.MainLogin.value)
 }
