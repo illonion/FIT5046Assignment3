@@ -182,7 +182,7 @@ fun CreateToDoListItem(navController: NavHostController, toDoListItemViewModel: 
                 readOnly = true,
                 value = selectedTag,
                 onValueChange = {},
-                label = { Text("Tag *") },
+                label = { Text("Tag") },
                 trailingIcon = {
                     ExposedDropdownMenuDefaults.TrailingIcon(expanded = tagsIsExpanded)
                 }
@@ -275,7 +275,7 @@ fun CreateToDoListItem(navController: NavHostController, toDoListItemViewModel: 
                 readOnly = true,
                 value = selectedFriend.name,
                 onValueChange = {},
-                label = { Text("Friend *") },
+                label = { Text("Friend") },
                 trailingIcon = {
                     ExposedDropdownMenuDefaults.TrailingIcon(expanded = friendIsExpanded) // Use friendIsExpanded here
                 }

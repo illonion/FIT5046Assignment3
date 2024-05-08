@@ -59,7 +59,7 @@ fun SevenDayTagsAnalytics(navController: NavHostController) {
     val viewModel: SevenDayViewModel = viewModel()
 
     // Observe LiveData value for tasks for today existence from the ViewModel
-    val tasksForTodayExist by viewModel.tasksForTodayExist.observeAsState(initial = false)
+    val tasksForLastWeekExists by viewModel.tasksForLastWeekExists.observeAsState(initial = false)
 
     // Fetch tag distribution data from Firebase when ViewModel is first created/updated
     LaunchedEffect(key1 = viewModel) {
@@ -125,7 +125,7 @@ fun SevenDayTagsAnalytics(navController: NavHostController) {
                 Spacer(modifier = Modifier.height(30.dp))
                 // Display text based on tasks existence for today
                 Text(
-                    text = if (tasksForTodayExist) "Today's Task Distribution." else "Add some tasks to see distribution.",
+                    text = if (tasksForLastWeekExists) "Last Week's Task Distribution." else "Add some tasks to see distribution.",
                     textAlign = TextAlign.Center,
                     fontSize = 30.sp,
                     color = Purple40,
@@ -133,7 +133,7 @@ fun SevenDayTagsAnalytics(navController: NavHostController) {
                 Spacer(modifier = Modifier.height(16.dp))
 
                 // Calculate input data for the PieChart based on tag distribution
-                val pieChartInput = if (tasksForTodayExist) {
+                val pieChartInput = if (tasksForLastWeekExists) {
                     viewModel.tagDistributionPercentage.value?.map { (tag, percentage) ->
                         val color = when (tag) {
                             "Indoors" -> IndoorsPink
@@ -214,8 +214,10 @@ fun SevenPieChartLegend(legendItems: List<LegendItem>) {
 
         // Render legend items in two rows
         Row(
-            modifier = Modifier.fillMaxWidth(),
-            horizontalArrangement = Arrangement.Center,
+            modifier = Modifier
+                .fillMaxWidth()
+                .padding(start = 0.dp, end = 0.dp, bottom = 5.dp),
+            horizontalArrangement = Arrangement.SpaceBetween,
             verticalAlignment = Alignment.CenterVertically
         ) {
             // Render items for the first row
@@ -223,41 +225,47 @@ fun SevenPieChartLegend(legendItems: List<LegendItem>) {
                 if (index > 0) {
                     Spacer(modifier = Modifier.width(8.dp))
                 }
-                Box(
-                    modifier = Modifier
-                        .size(16.dp)
-                        .background(item.color)
-                )
-                Spacer(modifier = Modifier.width(4.dp))
-                Text(
-                    text = item.label,
-                    style = MaterialTheme.typography.bodyMedium,
-                    color = Color.Black
-                )
+                Row {
+                    Box(
+                        modifier = Modifier
+                            .size(16.dp)
+                            .background(item.color)
+                    )
+                    Spacer(modifier = Modifier.width(4.dp))
+                    Text(
+                        text = item.label,
+                        style = MaterialTheme.typography.bodyMedium,
+                        color = Color.Black
+                    )
+                }
             }
         }
 
         // Render items for the second row
         Row(
-            modifier = Modifier.fillMaxWidth(),
-            horizontalArrangement = Arrangement.Center,
+            modifier = Modifier
+                .fillMaxWidth()
+                .padding(start = 0.dp, end = 0.dp, bottom = 5.dp),
+            horizontalArrangement = Arrangement.SpaceBetween,
             verticalAlignment = Alignment.CenterVertically
         ) {
             secondRowItems.forEachIndexed { index, item ->
                 if (index > 0) {
                     Spacer(modifier = Modifier.width(8.dp))
                 }
-                Box(
-                    modifier = Modifier
-                        .size(16.dp)
-                        .background(item.color)
-                )
-                Spacer(modifier = Modifier.width(4.dp))
-                Text(
-                    text = item.label,
-                    style = MaterialTheme.typography.bodyMedium,
-                    color = Color.Black
-                )
+                Row {
+                    Box(
+                        modifier = Modifier
+                            .size(16.dp)
+                            .background(item.color)
+                    )
+                    Spacer(modifier = Modifier.width(4.dp))
+                    Text(
+                        text = item.label,
+                        style = MaterialTheme.typography.bodyMedium,
+                        color = Color.Black
+                    )
+                }
             }
         }
     }
