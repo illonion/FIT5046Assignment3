@@ -1,6 +1,7 @@
 package com.example.todolist.ToDoList
 
 import android.os.Build
+import android.util.Log
 import androidx.annotation.RequiresApi
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
@@ -25,6 +26,7 @@ import com.example.todolist.ToDoList.Calendar.CalendarHeader
 import com.example.todolist.ToDoList.Calendar.CalendareDataClass
 import com.google.firebase.auth.ktx.auth
 import com.google.firebase.ktx.Firebase
+import kotlinx.coroutines.delay
 import java.time.LocalDate
 import java.time.format.DateTimeFormatter
 
@@ -60,6 +62,10 @@ private fun ToDoListContent(navController: NavHostController, viewModel: ToDoLis
 
     LaunchedEffect(Unit) {
         viewModel.syncDataFromFirebase()
+        while (true) {
+            Log.i("timer", "trigger")
+            delay(5000)
+        }
     }
 
     Column(modifier = Modifier.padding(16.dp)) {

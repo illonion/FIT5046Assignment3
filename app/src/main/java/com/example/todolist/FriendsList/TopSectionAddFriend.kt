@@ -40,7 +40,7 @@ fun TopSectionAddFriend (navController : NavHostController, onAdd: (String) -> U
             // Enter in email
             OutlinedTextField(
                 value = emailValue,
-                onValueChange = { emailValue = it },
+                onValueChange = { emailValue = it.trim() },
                 label = { Text("Email") },
                 modifier = Modifier
                     .fillMaxWidth()

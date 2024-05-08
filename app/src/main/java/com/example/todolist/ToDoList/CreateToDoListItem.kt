@@ -34,6 +34,7 @@ import androidx.compose.material3.rememberDatePickerState
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableIntStateOf
 import androidx.compose.runtime.mutableLongStateOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
@@ -41,6 +42,7 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.alpha
 import androidx.compose.ui.focus.focusProperties
+import androidx.compose.ui.focus.onFocusChanged
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.unit.dp
@@ -80,7 +82,7 @@ fun CreateToDoListItem(navController: NavHostController, toDoListItemViewModel: 
 
     // Task
     var toDoItem by remember { mutableStateOf("") }
-    var isValidTaskName = true
+    var isTextFieldClicked by remember { mutableStateOf(false) }
 
     // Tag
     var tagsIsExpanded by remember { mutableStateOf(false) }
@@ -131,18 +133,25 @@ fun CreateToDoListItem(navController: NavHostController, toDoListItemViewModel: 
         OutlinedTextField(
             value = toDoItem,
             onValueChange = {
-                toDoItem = it
-                isValidTaskName = InputValidation().isValidTaskName(toDoItem)
+                toDoItem = it.trim()
             },
             label = { Text("Task Name *") },
             modifier = Modifier
                 .fillMaxWidth()
                 .padding(bottom = 8.dp)
+                .onFocusChanged {focusState ->
+                    if (focusState.isFocused) {
+                        isTextFieldClicked = true
+                    }
+                },
         )
 
         // Text for to do list item
-        if (!isValidTaskName) {
-            Text("Task name cannot be empty or more than 25 characters long", color = Color.Red)
+        if (isTextFieldClicked && !InputValidation().isValidTaskName(toDoItem)) {
+            Text(
+                "Task name cannot be empty or more than 25 characters long",
+                color = Color.Red
+            )
         }
 
         // Exposed drop down menu for tags
