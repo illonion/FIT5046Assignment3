@@ -1,8 +1,12 @@
 package com.example.todolist.ToDoList
 
+import android.widget.Toast
 import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.wrapContentHeight
@@ -15,7 +19,6 @@ import androidx.compose.material3.AlertDialog
 import androidx.compose.material3.Button
 import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
-import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.Text
@@ -27,19 +30,28 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.vector.ImageVector
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import com.example.todolist.InputValidation
+import androidx.navigation.NavController
+import androidx.navigation.NavHostController
+import com.example.todolist.DatabaseActivity
+import com.example.todolist.Navigation.Routes
 import com.example.todolist.ui.theme.Purple40
 import com.example.todolist.ui.theme.lightGreen
 
 // List of to do list items
 @Composable
-fun ListToDoListItem(toDoListItem: ToDoListItem, showIcon: Boolean, viewModel: ToDoListItemViewModel) {
+fun ListToDoListItem(toDoListItem: ToDoListItem, showIcon: Boolean, viewModel: ToDoListItemViewModel, navController: NavHostController?) {
 
     var isEditDialogVisible by remember { mutableStateOf(false) }
     var editedToDoListItem by remember { mutableStateOf(toDoListItem) }
+
+    val context = LocalContext.current
 
     Row(
         modifier = Modifier
@@ -62,27 +74,57 @@ fun ListToDoListItem(toDoListItem: ToDoListItem, showIcon: Boolean, viewModel: T
                 verticalAlignment = Alignment.CenterVertically,
                 horizontalArrangement = Arrangement.SpaceBetween
             ) {
+                // To do list item text
                 Text(
-                    text = toDoListItem.name,
+                    text = addEllipsis(toDoListItem.name,25),
                     style = TextStyle(
                         fontSize = 18.sp,
                         lineHeight = 36.sp
                     ),
                     modifier = Modifier.padding(start = 8.dp)
                 )
+                // Show completion icons on todolist page
                 if (showIcon) {
                     Row(
                         modifier = Modifier.fillMaxWidth(),
                         horizontalArrangement = Arrangement.End
                     ) {
                         if (!toDoListItem.completed) {
-                            ToDoListItemIcon(Icons.Default.Check) { viewModel.markItemAsCompleted(toDoListItem.taskId) }
+                            ToDoListItemIcon(Icons.Default.Check) {
+                                // Delete item
+                                DatabaseActivity().checkValidSession { isValidSession ->
+                                    if (isValidSession) {
+                                        viewModel.markItemAsCompleted(toDoListItem.taskId)
+                                    } else {
+                                        Toast.makeText(
+                                            context,
+                                            "Session Expired, please log in again",
+                                            Toast.LENGTH_SHORT
+                                        ).show()
+                                        navController?.navigate(Routes.MainLogout.value)
+                                    }
+                                }
+                            }
                         }
                         ToDoListItemIcon(Icons.Default.Edit) {
                             isEditDialogVisible = true
                             editedToDoListItem = toDoListItem
                         }
-                        ToDoListItemIcon(Icons.Default.Delete) { viewModel.deleteToDoListItem(toDoListItem) }
+                        ToDoListItemIcon(Icons.Default.Delete) {
+                            // Delete item
+                            DatabaseActivity().checkValidSession { isValidSession ->
+                                if (isValidSession) {
+                                    viewModel.deleteToDoListItem(toDoListItem)
+                                } else {
+                                    Toast.makeText(
+                                        context,
+                                        "Session Expired, please log in again",
+                                        Toast.LENGTH_SHORT
+                                    ).show()
+                                    navController?.navigate(Routes.MainLogout.value)
+                                }
+                            }
+                        }
                     }
                 }
             }
@@ -93,6 +135,7 @@ fun ListToDoListItem(toDoListItem: ToDoListItem, showIcon: Boolean, viewModel: T
     if (isEditDialogVisible) {
         EditTaskDialog(
             toDoListItem = editedToDoListItem,
+            navController = navController,
             onDismiss = { isEditDialogVisible = false },
             onSave = {
                 viewModel.updateToDoListItem(it)
@@ -102,6 +145,7 @@ fun ListToDoListItem(toDoListItem: ToDoListItem, showIcon: Boolean, viewModel: T
     }
 }
 
+// To Do List Item Icon
 @Composable
 fun ToDoListItemIcon(
     specificIcon: ImageVector,
@@ -121,9 +165,12 @@ fun ToDoListItemIcon(
     }
 }
 
-@OptIn(ExperimentalMaterial3Api::class)
+// Edit task dialog
 @Composable
-fun EditTaskDialog(toDoListItem: ToDoListItem, onDismiss: () -> Unit, onSave: (ToDoListItem) -> Unit) {
+fun EditTaskDialog(toDoListItem: ToDoListItem, navController: NavHostController?, onDismiss: () -> Unit, onSave: (ToDoListItem) -> Unit) {
+
+    val context = LocalContext.current
+
     var editedToDoListItem by remember { mutableStateOf(toDoListItem) }
     AlertDialog(
         onDismissRequest = onDismiss,
@@ -131,8 +178,26 @@ fun EditTaskDialog(toDoListItem: ToDoListItem, onDismiss: () -> Unit, onSave: (T
         confirmButton = {
             Button(
                 onClick = {
-                    onSave(editedToDoListItem)
-                    onDismiss()
+                    if (InputValidation().isValidTaskName(editedToDoListItem.name)) {
+                        onSave(editedToDoListItem)
+                        onDismiss()
+                        // Delete item
+                        DatabaseActivity().checkValidSession { isValidSession ->
+                            if (isValidSession) {
+                                if (InputValidation().isValidTaskName(editedToDoListItem.name)) {
+                                    onSave(editedToDoListItem)
+                                    onDismiss()
+                                }
+                            } else {
+                                Toast.makeText(
+                                    context,
+                                    "Session Expired, please log in again",
+                                    Toast.LENGTH_SHORT
+                                ).show()
+                                navController?.navigate(Routes.MainLogout.value)
+                            }
+                        }
+                    }
                 }
             ) {
                 Text("Save")
@@ -148,11 +213,24 @@ fun EditTaskDialog(toDoListItem: ToDoListItem, onDismiss: () -> Unit, onSave: (T
             }
         },
         text = {
-            TextField(
-                value = editedToDoListItem.name,
-                onValueChange = { editedToDoListItem = editedToDoListItem.copy(name = it) },
-                modifier = Modifier.fillMaxWidth()
-            )
+            Column() {
+                TextField(
+                    value = editedToDoListItem.name,
+                    onValueChange = { editedToDoListItem = editedToDoListItem.copy(name = it.trim()) },
+                    modifier = Modifier.fillMaxWidth()
+                )
+                Spacer(modifier = Modifier.height(16.dp))
+                if (!InputValidation().isValidTaskName(editedToDoListItem.name)) {
+                    Text(text = "Task name cannot be empty or more than 25 characters long", color = Color.Red)
+                }
+            }
         }
     )
+}
+
+fun addEllipsis(s:String, n: Int): String {
+    if (s.length < n) {
+        return s
+    }
+    return s.take(n-3) + "..."
 }

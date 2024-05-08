@@ -4,9 +4,7 @@ import android.annotation.SuppressLint
 import android.os.Build
 import android.widget.Toast
 import androidx.annotation.RequiresApi
-import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Column
-import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
@@ -44,17 +42,28 @@ import com.example.todolist.Navigation.Routes
 import com.example.todolist.ui.theme.Purple80
 import kotlinx.coroutines.delay
 
-// Composable function for displaying analytics
 @SuppressLint("UnusedMaterial3ScaffoldPaddingParameter")
 @RequiresApi(Build.VERSION_CODES.O)
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun Analytics(navController: NavHostController) {
+fun SevenDayTagsAnalytics(navController: NavHostController) {
     // Initialise AnalyticsViewModel
     val viewModel: AnalyticsViewModel = viewModel()
 
     // context
     val context = LocalContext.current
+
+    // Observe LiveData values for completed and incomplete tasks from the ViewModel
+    val completionPercentage by viewModel.completionPercentage.observeAsState(initial = 0)
+    val completedTasks by viewModel.completedTasks.observeAsState(initial = 0)
+    val incompleteTasks by viewModel.incompleteTasks.observeAsState(initial = 0)
+    val tasksForTodayExist by viewModel.tasksForTodayExist.observeAsState(initial = false)
+    val yesterdayCompletionPercentage by viewModel.yesterdayCompletionPercentage.observeAsState(initial = 0)
+
+    // Fetch task completion data from Firebase when ViewModel is first created/updated
+    LaunchedEffect(key1 = viewModel) {
+        viewModel.fetchTaskCompletionData()
+    }
 
     // Check if user logged in another device every 5 seconds
     LaunchedEffect(Unit) {
@@ -73,18 +82,6 @@ fun Analytics(navController: NavHostController) {
         }
     }
 
-    // Observe LiveData values for completed and incomplete tasks from the ViewModel
-    val completionPercentage by viewModel.completionPercentage.observeAsState(initial = 0)
-    val completedTasks by viewModel.completedTasks.observeAsState(initial = 0)
-    val incompleteTasks by viewModel.incompleteTasks.observeAsState(initial = 0)
-    val tasksForTodayExist by viewModel.tasksForTodayExist.observeAsState(initial = false)
-    val yesterdayCompletionPercentage by viewModel.yesterdayCompletionPercentage.observeAsState(initial = 0)
-
-    // Fetch task completion data from Firebase when ViewModel is first created/updated
-    LaunchedEffect(key1 = viewModel) {
-        viewModel.fetchTaskCompletionData()
-    }
-
     // Define legend items
     val legendItems = listOf(
         LegendItem(color = CompleteGreen, label = "Completed"),
@@ -96,9 +93,9 @@ fun Analytics(navController: NavHostController) {
         topBar = {
             TopAppBar(
                 title = { Text(text = "To Do List Analytics") },
-                // Back button to navigate back to home screen
+                // Back button to navigate back to previous analytics screen
                 navigationIcon = {
-                    IconButton(onClick = { navController.navigate("Home") }) {
+                    IconButton(onClick = { navController.navigate("Analytics") }) {
                         Icon(
                             imageVector = Icons.AutoMirrored.Filled.ArrowBack,
                             contentDescription = "Back",
@@ -141,7 +138,6 @@ fun Analytics(navController: NavHostController) {
                         color = Purple40,
                     )
                 }
-                Spacer(modifier = Modifier.height(16.dp))
 
                 // Calculate input data for the PieChart based on task completion
                 val pieChartInput = if (tasksForTodayExist) {
@@ -191,10 +187,9 @@ fun Analytics(navController: NavHostController) {
                         fontSize = 20.sp,
                         color = Color.Black
                     )
-                }
 
-                Spacer(modifier = Modifier.height(16.dp))
-                SevenDayTagsAnalyticsButton(navController)
+                    AnalyticsButton(navController)
+                }
             }
         }
     }
@@ -202,9 +197,9 @@ fun Analytics(navController: NavHostController) {
 
 
 @Composable
-fun SevenDayTagsAnalyticsButton(navController: NavHostController) {
+fun AnalyticsButton(navController: NavHostController) {
     Button(
-        onClick = { navController.navigate("SevenDayTagsAnalytics") },
+        onClick = { navController.navigate("Analytics") },
         modifier = Modifier
             .fillMaxWidth() // Button takes full width of its parent
             .padding(16.dp), // Add padding around the button
@@ -213,53 +208,9 @@ fun SevenDayTagsAnalyticsButton(navController: NavHostController) {
         )
     ) {
         Text(
-            text = "View 7 Day Category Analytics",
-            style = TextStyle(fontSize = 17.sp), // Set font size of the text
+            text = "View Today's Progress Analytics",
+            style = TextStyle(fontSize = 16.sp), // Set font size of the text
             color = Purple40 // Set text color of the button text
         )
     }
 }
-
-@Composable
-fun PieChartLegend(legendItems: List<LegendItem>) {
-    Row(
-        modifier = Modifier
-            .padding(vertical = 16.dp)
-            .fillMaxWidth()
-            .wrapContentHeight(), // Adjust height to wrap content
-        horizontalArrangement = Arrangement.Center, // Center items horizontally
-        verticalAlignment = Alignment.Top
-    ) {
-        legendItems.forEachIndexed { index, item ->
-            if (index > 0) {
-                Spacer(modifier = Modifier.width(16.dp)) // Add spacing between legend items
-            }
-
-            // Draw color indicator
-            Box(
-                modifier = Modifier
-                    .size(16.dp)
-                    .background(item.color)
-            )
-
-            // Display legend label
-            Spacer(modifier = Modifier.width(8.dp))
-            Text(
-                text = item.label,
-                style = MaterialTheme.typography.bodyMedium,
-                color = Color.Black
-            )
-        }
-    }
-}
-
-data class Task(
-    val name: String,
-    val completed: Boolean,
-    val completedAt: Long //Timestamp when task was completed
-)
-
-data class LegendItem(
-    val color: Color,
-    val label: String
-)

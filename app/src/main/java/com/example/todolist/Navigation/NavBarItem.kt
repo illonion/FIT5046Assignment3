@@ -36,7 +36,7 @@ data class NavBarItem (
             NavBarItem(
                 label = "Log Out",
                 icon = Icons.AutoMirrored.Filled.ExitToApp,
-                route = Routes.MainLogin.value
+                route = Routes.MainLogout.value
             ),
         )
     }

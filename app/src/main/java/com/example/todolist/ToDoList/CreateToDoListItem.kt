@@ -2,6 +2,7 @@ import android.annotation.SuppressLint
 import android.os.Build
 import android.widget.Toast
 import androidx.annotation.RequiresApi
+import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -13,6 +14,7 @@ import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.ArrowBack
 import androidx.compose.material.icons.outlined.DateRange
 import androidx.compose.material3.Button
+import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.DatePicker
 import androidx.compose.material3.DatePickerDialog
 import androidx.compose.material3.DropdownMenuItem
@@ -32,24 +34,30 @@ import androidx.compose.material3.rememberDatePickerState
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableIntStateOf
 import androidx.compose.runtime.mutableLongStateOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
+import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.alpha
 import androidx.compose.ui.focus.focusProperties
+import androidx.compose.ui.focus.onFocusChanged
+import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.unit.dp
 import androidx.navigation.NavHostController
+import com.example.todolist.DatabaseActivity
+import com.example.todolist.InputValidation
 import com.example.todolist.Navigation.Routes
 import com.example.todolist.ToDoList.ToDoListItem
+import com.example.todolist.ToDoList.ToDoListItemViewModel
 import com.google.firebase.Firebase
 import com.google.firebase.auth.auth
-import com.google.firebase.database.DataSnapshot
-import com.google.firebase.database.DatabaseError
 import com.google.firebase.database.FirebaseDatabase
-import com.google.firebase.database.ValueEventListener
+import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.delay
 import java.text.SimpleDateFormat
 import java.time.Instant
 import java.time.LocalDateTime
@@ -66,20 +74,22 @@ data class Friend(val name: String, val uid: String)
 @RequiresApi(Build.VERSION_CODES.O)
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun CreateToDoListItem(navController: NavHostController) {
+fun CreateToDoListItem(navController: NavHostController, toDoListItemViewModel: ToDoListItemViewModel) {
     // Current context
     val context = LocalContext.current
+
+    // Scope
+    val scope = rememberCoroutineScope()
 
     // Firebase
     val currentUser = Firebase.auth.currentUser
     val currentUserUid = currentUser?.uid
     val database = FirebaseDatabase.getInstance("https://fit5046-assignment-3-5083c-default-rtdb.asia-southeast1.firebasedatabase.app/")
     val mDatabase = database.reference
-    val friendsRef = mDatabase.child("friends")
-    val usersRef = mDatabase.child("users")
 
     // Task
     var toDoItem by remember { mutableStateOf("") }
+    var isTextFieldClicked by remember { mutableStateOf(false) }
 
     // Tag
     var tagsIsExpanded by remember { mutableStateOf(false) }
@@ -96,62 +106,47 @@ fun CreateToDoListItem(navController: NavHostController) {
     val formatter = SimpleDateFormat("dd/MM/yyyy", Locale.ROOT)
 
     // Friends
-    val friends by remember { mutableStateOf(mutableListOf(Friend("No One", ""))) }
-    val friendsUids = mutableListOf("")
     var friendIsExpanded by remember { mutableStateOf(false) }
+    val friends = toDoListItemViewModel.getFriendsList
     var selectedFriend by remember { mutableStateOf(friends[0]) }
-
-    fun fetchFriends() {
-        friendsRef.addListenerForSingleValueEvent(object : ValueEventListener {
-            override fun onDataChange(dataSnapshot: DataSnapshot) {
-                for (friendsSnapshot in dataSnapshot.children) {
-                    // Add friend uis
-                    val friendId1 = friendsSnapshot.child("friendId1").value.toString()
-                    val friendId2 = friendsSnapshot.child("friendId2").value.toString()
-                    if (friendId1 == currentUserUid) {
-                        friendsUids.add(friendId2)
-                    } else if (friendId2 == currentUserUid) {
-                        friendsUids.add(friendId1)
-                    }
-                }
-
-                var numberOfElementsPassed = 0
-                usersRef.addListenerForSingleValueEvent(object : ValueEventListener {
-                    override fun onDataChange(usersSnapshot: DataSnapshot) {
-                        for (friendUid in friendsUids) {
-                            // Skip first friendUid
-                            numberOfElementsPassed++
-                            if (numberOfElementsPassed == 1) continue
-
-                            val userSnapshot = usersSnapshot.child(friendUid)
-                            if (userSnapshot.exists()) {
-                                val friendName =
-                                    userSnapshot.child("firstName").value.toString() + " " + userSnapshot.child(
-                                        "lastName"
-                                    ).value.toString()
-                                val currentFriendUid = userSnapshot.key.toString()
-                                if (friendName.trim().isNotBlank()) {
-                                    friends.add(Friend(friendName, currentFriendUid))
-                                }
-                            }
-                        }
-                    }
-
-                    override fun onCancelled(error: DatabaseError) {
-                        TODO("Not yet implemented")
-                    }
-                })
-            }
-
-            override fun onCancelled(error: DatabaseError) {
-                TODO("Not yet implemented")
-            }
-        })
-    }
 
     // Learned LaunchedEffect from https://medium.com/@sujathamudadla1213/what-is-launchedeffect-coroutine-api-android-jetpack-compose-76d568b79e63
     LaunchedEffect(Unit) {
-        fetchFriends()
+        toDoListItemViewModel.fetchFriends()
+    }
+
+    // Check if user logged in another device every 5 seconds
+    LaunchedEffect(Unit) {
+        while (true) {
+            DatabaseActivity().checkValidSession { isValidSession ->
+                if (!isValidSession) {
+                    Toast.makeText(
+                        context,
+                        "New log in detected on another device. please login again",
+                        Toast.LENGTH_SHORT
+                    ).show()
+                    navController.navigate(Routes.MainLogout.value)
+                }
+            }
+            delay(5000)
+        }
+    }
+
+    // Check if user logged in another device every 5 seconds
+    LaunchedEffect(Unit) {
+        while (true) {
+            DatabaseActivity().checkValidSession { isValidSession ->
+                if (!isValidSession) {
+                    Toast.makeText(
+                        context,
+                        "Detected log in from another device, please try log in again",
+                        Toast.LENGTH_SHORT
+                    ).show()
+                    navController.navigate(Routes.MainLogout.value)
+                }
+            }
+            delay(5000)
+        }
     }
 
     // Top Bar
@@ -172,23 +167,41 @@ fun CreateToDoListItem(navController: NavHostController) {
            titleContentColor = MaterialTheme.colorScheme.primary,
         )
     )
+
     Column(modifier = Modifier.padding(16.dp)) {
-        Spacer(modifier = Modifier.height(60.dp))
         // Outlined Text Field for task
+        Spacer(modifier = Modifier.height(60.dp))
         OutlinedTextField(
             value = toDoItem,
-            onValueChange = {toDoItem = it},
-            label = { Text("Task Name") },
+            onValueChange = {
+                toDoItem = it.trim()
+            },
+            label = { Text("Task Name *") },
             modifier = Modifier
                 .fillMaxWidth()
                 .padding(bottom = 8.dp)
+                .onFocusChanged {focusState ->
+                    if (focusState.isFocused) {
+                        isTextFieldClicked = true
+                    }
+                },
         )
-        Spacer(modifier = Modifier.height(16.dp))
+
+        // Text for to do list item
+        if (isTextFieldClicked && !InputValidation().isValidTaskName(toDoItem)) {
+            Text(
+                "Task name cannot be empty or more than 25 characters long",
+                color = Color.Red
+            )
+        }
+
         // Exposed drop down menu for tags
+        Spacer(modifier = Modifier.height(16.dp))
         ExposedDropdownMenuBox(
             expanded = tagsIsExpanded,
             onExpandedChange = { tagsIsExpanded = it },
         ) {
+            // Exposed dropdown menu box text
             TextField(
                 modifier = Modifier
                     .menuAnchor()
@@ -198,30 +211,32 @@ fun CreateToDoListItem(navController: NavHostController) {
                 readOnly = true,
                 value = selectedTag,
                 onValueChange = {},
-                label = { Text("Tag") },
+                label = { Text("Tag *") },
                 trailingIcon = {
                     ExposedDropdownMenuDefaults.TrailingIcon(expanded = tagsIsExpanded)
                 }
             )
+            // Exposed dropdown menu
             ExposedDropdownMenu(
                 expanded = tagsIsExpanded,
                 onDismissRequest = { tagsIsExpanded = false }
             ) {
                 tags.forEach {
-                        selectedOption -> DropdownMenuItem(
-                    text = { Text(selectedOption) },
-                    onClick = {
-                        selectedTag = selectedOption
-                        tagsIsExpanded = false
-                    },
-                    contentPadding = ExposedDropdownMenuDefaults.ItemContentPadding
-                )
+                    selectedOption -> DropdownMenuItem(
+                        text = { Text(selectedOption) },
+                        onClick = {
+                            selectedTag = selectedOption
+                            tagsIsExpanded = false
+                        },
+                        contentPadding = ExposedDropdownMenuDefaults.ItemContentPadding
+                    )
                 }
             }
         }
 
-        Spacer(modifier = Modifier.height(16.dp))
+
         // Date Picker
+        Spacer(modifier = Modifier.height(16.dp))
         if (showDatePicker) {
             DatePickerDialog (
                 onDismissRequest = { showDatePicker = false },
@@ -253,7 +268,7 @@ fun CreateToDoListItem(navController: NavHostController) {
                 value = formatter.format(Date(selectedDate)),
                 onValueChange = {},
                 readOnly = true,
-                label = { Text("Due Date") },
+                label = { Text("Due Date *") },
                 modifier = Modifier
                     .fillMaxWidth()
                     .padding(bottom = 8.dp),
@@ -265,6 +280,7 @@ fun CreateToDoListItem(navController: NavHostController) {
                     )
                 }
             )
+            // Created this box to be able to show the date picker
             Box(
                 modifier = Modifier
                     .matchParentSize()
@@ -288,7 +304,7 @@ fun CreateToDoListItem(navController: NavHostController) {
                 readOnly = true,
                 value = selectedFriend.name,
                 onValueChange = {},
-                label = { Text("Friend") },
+                label = { Text("Friend *") },
                 trailingIcon = {
                     ExposedDropdownMenuDefaults.TrailingIcon(expanded = friendIsExpanded) // Use friendIsExpanded here
                 }
@@ -309,31 +325,76 @@ fun CreateToDoListItem(navController: NavHostController) {
                 }
             }
         }
-        Spacer(modifier = Modifier.height(16.dp))
+
         // Add item button
+        Spacer(modifier = Modifier.height(16.dp))
         Button(
             onClick = {
-                navController.navigate(Routes.ToDoList.value)
-                val itemId = "task_" + UUID.randomUUID().toString()
+                if (InputValidation().isValidTaskName(toDoItem)) {
+                    val itemId = "task_" + UUID.randomUUID().toString()
 
-                // Get date in readable format
-                val instant = Instant.ofEpochMilli(selectedDate)
-                val date = LocalDateTime.ofInstant(instant, ZoneId.systemDefault())
-                val format = DateTimeFormatter.ofPattern("dd/MM/yyyy")
-                val item = currentUserUid?.let { ToDoListItem(itemId, it, toDoItem, selectedTag, date.format(format), selectedFriend.uid, false, System.currentTimeMillis()) }
+                    // Get date in readable format
+                    val instant = Instant.ofEpochMilli(selectedDate)
+                    val date = LocalDateTime.ofInstant(instant, ZoneId.systemDefault())
+                    val format = DateTimeFormatter.ofPattern("dd/MM/yyyy")
+                    val item = currentUserUid?.let { ToDoListItem(itemId, it, toDoItem, selectedTag, date.format(format), selectedFriend.uid, false, System.currentTimeMillis()) }
 
-                mDatabase.child("tasks").child(itemId).setValue(item)
-                    .addOnSuccessListener {
-                        navController.navigate(Routes.ToDoList.value)
-                        Toast.makeText(context,"Successfully created Task!",Toast.LENGTH_LONG).show()
+                    // Append item to database
+                    DatabaseActivity().checkValidSession { isValidSession ->
+                        if (isValidSession) {
+                            mDatabase.child("tasks").child(itemId).setValue(item)
+                                .addOnSuccessListener {
+                                    navController.navigate(Routes.ToDoList.value)
+                                    Toast.makeText(
+                                        context,
+                                        "Successfully created Task!",
+                                        Toast.LENGTH_LONG
+                                    ).show()
+                                }
+                                .addOnFailureListener { e ->
+                                    Toast.makeText(
+                                        context,
+                                        "Error $e!",
+                                        Toast.LENGTH_LONG
+                                    ).show()
+                                }
+                        } else {
+                            Toast.makeText(
+                                context,
+                                "Session Expired, please log in again",
+                                Toast.LENGTH_SHORT
+                            ).show()
+                            navController.navigate(Routes.MainLogout.value)
+                        }
                     }
-                    .addOnFailureListener { e -> Toast.makeText(context,"Error $e!",Toast.LENGTH_LONG).show()}
+                } else {
+                        Toast.makeText(
+                            context,
+                            "INVALID INPUT: Task name cannot be empty or more than 25 characters long",
+                            Toast.LENGTH_SHORT
+                        ).show()
+                }
             },
             modifier = Modifier
                 .fillMaxWidth()
-                .padding(bottom = 8.dp),
+                .padding(bottom = 5.dp),
         ) {
             Text("Add Task")
+        }
+
+        // Cancel button
+        Button(
+            onClick = { navController.navigate("ToDoList") },
+            modifier = Modifier
+                .fillMaxWidth()
+                .padding(bottom = 5.dp),
+            colors = ButtonDefaults.buttonColors(
+                containerColor = Color.White,
+                contentColor = MaterialTheme.colorScheme.primary
+            ),
+            border = BorderStroke(2.dp, MaterialTheme.colorScheme.primary)
+        ) {
+            Text("Cancel")
         }
     }
 }

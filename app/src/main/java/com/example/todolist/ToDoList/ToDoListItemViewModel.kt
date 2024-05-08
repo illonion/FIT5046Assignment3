@@ -1,12 +1,14 @@
 package com.example.todolist.ToDoList
 
+import Friend
 import android.app.Application
-import android.util.Log
 import android.widget.Toast
 import androidx.lifecycle.AndroidViewModel
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.asLiveData
 import androidx.lifecycle.viewModelScope
+import com.google.firebase.Firebase
+import com.google.firebase.auth.auth
 import com.google.firebase.database.DataSnapshot
 import com.google.firebase.database.DatabaseError
 import com.google.firebase.database.FirebaseDatabase
@@ -15,12 +17,27 @@ import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 
 class ToDoListItemViewModel(application: Application) : AndroidViewModel(application) {
-    private val taskReference = FirebaseDatabase.getInstance("https://fit5046-assignment-3-5083c-default-rtdb.asia-southeast1.firebasedatabase.app/").getReference("tasks")
+    // Database
+    private val database = FirebaseDatabase.getInstance("https://fit5046-assignment-3-5083c-default-rtdb.asia-southeast1.firebasedatabase.app/")
+    private val taskReference = database.getReference("tasks")
+    private val friendsReference = database.getReference("friends")
+    private val usersReference = database.getReference("users")
     private val repository: ToDoListItemRepository
+
+    // Friends
+    var friends = mutableListOf(Friend("No One", ""))
+    val friendsUids = mutableListOf("")
+
+    // Current user
+    val currentUserUid = Firebase.auth.currentUser?.uid
+
     init{
         repository = ToDoListItemRepository(application)
     }
+
     val allToDoListItems: LiveData<List<ToDoListItem>> = repository.allToDoListItems.asLiveData()
+
+    // Update to do list item
     fun updateToDoListItem(toDoListItem: ToDoListItem) = viewModelScope.launch(Dispatchers.IO) {
         // Convert to do list item to a map (such that it can be updated by firebase)
         val toDoListItemMap = mapOf(
@@ -36,6 +53,8 @@ class ToDoListItemViewModel(application: Application) : AndroidViewModel(applica
         taskReference.child(toDoListItem.taskId).updateChildren(toDoListItemMap)
         repository.update(toDoListItem)
     }
+
+    // Delete to do list item
     fun deleteToDoListItem(toDoListItem: ToDoListItem) = viewModelScope.launch(Dispatchers.IO) {
         taskReference.child(toDoListItem.taskId).removeValue()
             .addOnSuccessListener {
@@ -43,10 +62,11 @@ class ToDoListItemViewModel(application: Application) : AndroidViewModel(applica
                 makeToast("Successfully deleted item!")
             }
             .addOnFailureListener {
-                // Handle the error, possibly notifying the user or logging the failure
                 makeToast("Failed to deleted item!")
             }
     }
+
+    // Sync firebase database with room database
     fun syncDataFromFirebase() {
         taskReference.addListenerForSingleValueEvent(object : ValueEventListener {
             override fun onDataChange(dataSnapshot: DataSnapshot) {
@@ -72,11 +92,12 @@ class ToDoListItemViewModel(application: Application) : AndroidViewModel(applica
             }
 
             override fun onCancelled(error: DatabaseError) {
-                Log.e("FirebaseError", error.message)
+                makeToast("An error happened with the database! Please try again later.")
             }
         })
     }
 
+    // mark to do list item as complete
     fun markItemAsCompleted(taskId: String) {
         taskReference.child(taskId).child("completed").setValue(true).addOnCompleteListener {
             if (it.isSuccessful) {
@@ -86,6 +107,63 @@ class ToDoListItemViewModel(application: Application) : AndroidViewModel(applica
                 makeToast("Failed to mark item as complete!")
             }
         }
+    }
+
+    // Get friends list
+    val getFriendsList: MutableList<Friend>
+        get() = friends
+
+    // Get all friends
+    fun fetchFriends() {
+        // Reset friends list
+        friends = mutableListOf(Friend("No One", ""))
+
+        friendsReference.addListenerForSingleValueEvent(object : ValueEventListener {
+            override fun onDataChange(dataSnapshot: DataSnapshot) {
+                for (friendsSnapshot in dataSnapshot.children) {
+                    // Add friend uis
+                    val friendId1 = friendsSnapshot.child("friendId1").value.toString()
+                    val friendId2 = friendsSnapshot.child("friendId2").value.toString()
+                    if (friendId1 == currentUserUid) {
+                        friendsUids.add(friendId2)
+                    } else if (friendId2 == currentUserUid) {
+                        friendsUids.add(friendId1)
+                    }
+                }
+
+                var numberOfElementsPassed = 0
+                usersReference.addListenerForSingleValueEvent(object : ValueEventListener {
+                    override fun onDataChange(usersSnapshot: DataSnapshot) {
+                        for (friendUid in friendsUids) {
+                            // Skip first friendUid
+                            numberOfElementsPassed++
+                            if (numberOfElementsPassed == 1) continue
+
+                            // Check if the user exists
+                            val userSnapshot = usersSnapshot.child(friendUid)
+                            if (userSnapshot.exists()) {
+                                val friendName =
+                                    userSnapshot.child("firstName").value.toString() + " " + userSnapshot.child(
+                                        "lastName"
+                                    ).value.toString()
+                                val currentFriendUid = userSnapshot.key.toString()
+                                if (friendName.trim().isNotBlank()) {
+                                    friends.add(Friend(friendName, currentFriendUid))
+                                }
+                            }
+                        }
+                    }
+
+                    override fun onCancelled(error: DatabaseError) {
+                        makeToast("An error happened with the database! Please try again later.")
+                    }
+                })
+            }
+
+            override fun onCancelled(error: DatabaseError) {
+                makeToast("An error happened with the database! Please try again later.")
+            }
+        })
     }
 
     // Make a toast

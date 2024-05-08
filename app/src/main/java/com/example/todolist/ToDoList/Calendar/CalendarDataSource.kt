@@ -14,14 +14,16 @@ class CalendarDataSource {
         @RequiresApi(Build.VERSION_CODES.O)
         get() { return LocalDate.now() }
 
+    // Used to find out which week is being displayed
     @RequiresApi(Build.VERSION_CODES.O)
-    fun getData(startDate: LocalDate = today, lastSelectedDate: LocalDate): CalendarUiModel {
+    fun getData(startDate: LocalDate = today, lastSelectedDate: LocalDate): CalendareDataClass {
         val firstDayOfWeek = startDate.with(DayOfWeek.MONDAY)
         val endDayOfWeek = firstDayOfWeek.plusDays(7)
         val visibleDates = getDatesBetween(firstDayOfWeek, endDayOfWeek)
         return toUiModel(visibleDates, lastSelectedDate)
     }
 
+    // Find out which dates should be visible
     @RequiresApi(Build.VERSION_CODES.O)
     private fun getDatesBetween(startDate: LocalDate, endDate: LocalDate): List<LocalDate> {
         val numOfDays = ChronoUnit.DAYS.between(startDate, endDate)
@@ -30,12 +32,13 @@ class CalendarDataSource {
             .collect(Collectors.toList())
     }
 
+    // Passes the data into the CalendarDataClass
     @RequiresApi(Build.VERSION_CODES.O)
     private fun toUiModel(
         dateList: List<LocalDate>,
         lastSelectedDate: LocalDate
-    ): CalendarUiModel {
-        return CalendarUiModel(
+    ): CalendareDataClass {
+        return CalendareDataClass(
             selectedDate = toItemUiModel(lastSelectedDate, true),
             visibleDates = dateList.map {
                 toItemUiModel(it, it.isEqual(lastSelectedDate))
@@ -43,8 +46,9 @@ class CalendarDataSource {
         )
     }
 
+    // Data for each of the dates in the UI model
     @RequiresApi(Build.VERSION_CODES.O)
-    private fun toItemUiModel(date: LocalDate, isSelectedDate: Boolean) = CalendarUiModel.Date(
+    private fun toItemUiModel(date: LocalDate, isSelectedDate: Boolean) = CalendareDataClass.CalendarDate(
         isSelected = isSelectedDate,
         isToday = date.isEqual(today),
         date = date,

@@ -1,5 +1,6 @@
 package com.example.todolist.LoginSignup
 
+import android.content.Context
 import android.widget.Toast
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
@@ -9,6 +10,7 @@ import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.material3.Button
 import androidx.compose.material3.Divider
+												
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.OutlinedTextField
@@ -26,24 +28,46 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.unit.dp
 import androidx.navigation.NavHostController
+																		
 
 import com.example.todolist.Navigation.Routes
+import android.util.Log
+import androidx.compose.foundation.text.KeyboardOptions
+import androidx.compose.material.IconButton
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.Visibility
+import androidx.compose.material.icons.filled.VisibilityOff
+import androidx.compose.material3.Checkbox
+import androidx.compose.material3.Icon
+import androidx.compose.runtime.rememberCoroutineScope
+import androidx.compose.ui.text.input.KeyboardType
+import androidx.compose.ui.text.input.PasswordVisualTransformation
+import androidx.compose.ui.text.input.VisualTransformation
 
 // Main login page
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun MainLogin(navController: NavHostController) {
-    var email by remember { mutableStateOf("") }
-    var password by remember { mutableStateOf("") }
     val context = LocalContext.current
+    val scope = rememberCoroutineScope()
+    val sharedPref = context.getSharedPreferences("rememberLoginRef", Context.MODE_PRIVATE)
+    val oldEmail = sharedPref.getString("email", "") ?: ""
+    val oldRememberLogin = sharedPref.getBoolean("rememberLogin", false)
 
+    var email by remember { mutableStateOf(oldEmail) }
+    var password by remember { mutableStateOf("") }
+    var hidePassword by remember { mutableStateOf(true) }
+
+    if (AuthenticationActivity().checkIsLoggedIn()) {
+        navController.navigate(Routes.Home.value)
+    }
 
     // variables for validation
     val mContext = LocalContext.current
-    var emailError by remember { mutableStateOf(false) }
-    var passwordError by remember { mutableStateOf(false) }
-
-    // AuthenticationActivity().signOut()
+    var emailError by remember { mutableStateOf(!isValidEmail(email)) }
+    var passwordError by remember { mutableStateOf(true) }
+    var isLoginButtonClicked by remember { mutableStateOf(false) }
+    var rememberLogin = remember { mutableStateOf(oldRememberLogin) }
 
     // Top bar
     TopAppBar(
@@ -70,7 +94,7 @@ fun MainLogin(navController: NavHostController) {
                 .padding(bottom = 8.dp)
         )
 
-        if (emailError) {
+        if (emailError and isLoginButtonClicked) {
             Text("Invalid email address", color = Color.Red)
         }
 
@@ -79,16 +103,54 @@ fun MainLogin(navController: NavHostController) {
             value = password,
             onValueChange = {
                 password = it
-                passwordError = it.isEmpty()
+                passwordError = password.isEmpty() or (password.length < 6)
                             },
             label = { Text("Password")},
             modifier = Modifier
                 .fillMaxWidth()
-                .padding(bottom = 8.dp)
+                .padding(bottom = 8.dp),
+            visualTransformation = if (hidePassword) {
+                PasswordVisualTransformation()
+            } else {
+                VisualTransformation.None
+            },
+            keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Password),
+            trailingIcon = {
+                if (hidePassword) {
+                    IconButton(
+                        onClick = { hidePassword = false }) {
+                        Icon(
+                            imageVector = Icons.Filled.Visibility,
+                            contentDescription = "hide_password"
+                        )
+                    }
+                } else {
+                    IconButton(onClick = { hidePassword = true }) {
+                        Icon(
+                            imageVector = Icons.Filled.VisibilityOff,
+                            contentDescription = "show_password"
+                        )
+                    }
+                }
+            }
         )
 
-        if (passwordError) {
-            Text("Password cannot be empty", color = Color.Red)
+        if (passwordError and isLoginButtonClicked) {
+            Text("Password cannot be less than 6 characters", color = Color.Red)
+        }
+
+        Row(modifier = Modifier.padding(0.dp)) {
+            Checkbox(
+                modifier = Modifier
+                    .padding(start = 0.dp, bottom = 0.dp),
+                checked = rememberLogin.value,
+                onCheckedChange = { rememberLogin.value = it }
+            )
+            Text(text = " Remember me",
+                modifier = Modifier
+                    .padding(bottom = 0.dp)
+                    .align(Alignment.CenterVertically)
+            )
         }
 
         // Buttons
@@ -96,22 +158,19 @@ fun MainLogin(navController: NavHostController) {
             // Login Button
             Button(
                 onClick = {
-                    if (email.isNotBlank() && password.isNotBlank()) {
-                        AuthenticationActivity().signIn(email, password) { isSuccess ->
-                            if (!emailError && !passwordError) {
-                                AuthenticationActivity().signIn(email, password)
-//                    AuthenticationActivity().signIn("test13@test.com", "123456")
-                                { isSuccess ->
-                                    if (isSuccess) {
-                                        navController.navigate(Routes.Home.value)
-                                    } else {
-                                        Toast.makeText(
-                                            mContext,
-                                            "Sign-in failed. Please check your credentials.",
-                                            Toast.LENGTH_SHORT
-                                        ).show()
-                                    }
-                                }
+                    isLoginButtonClicked = true
+                    if (!emailError && !passwordError) {
+                        AuthenticationActivity().signIn(email, password, rememberLogin.value, sharedPref)
+//                    AuthenticationActivity().signIn("test13@test.com", "123456", rememberLogin)
+                        { isSuccess ->
+                            if (isSuccess) {
+                                navController.navigate(Routes.Home.value)
+                            } else {
+                                Toast.makeText(
+                                    mContext,
+                                    "Sign-in failed. Please check your credentials.",
+                                    Toast.LENGTH_SHORT
+                                ).show()
                             }
                         }
                     }
@@ -140,11 +199,18 @@ fun MainLogin(navController: NavHostController) {
             // Google Login Button
             Button(
                 onClick = {
-                    Toast.makeText(
-                        context,
-                        "GoogleSignIn",
-                        Toast.LENGTH_SHORT
-                    ).show()
+                        AuthenticationActivity().signInWithGoogle(context, scope, rememberLogin.value, sharedPref) { isSuccess ->
+                            if (isSuccess) {
+                                navController.navigate(Routes.Home.value)
+                            } else {
+                                Toast.makeText(
+                                    mContext,
+                                    "Sign-in with google failed.",
+                                    Toast.LENGTH_SHORT
+                                ).show()
+                            }
+
+                    }
                 },
                 modifier = Modifier
                     .padding(bottom = 16.dp)
@@ -187,7 +253,3 @@ fun isValidPassword(password: String): Boolean {
     // Check the length of password
     return (trimmedPassword.length >= 6 && trimmedPassword.length == password.length)
 }
-
-
-
-

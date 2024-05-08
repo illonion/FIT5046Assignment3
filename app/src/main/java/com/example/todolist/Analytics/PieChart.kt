@@ -17,7 +17,10 @@ import androidx.compose.ui.unit.dp
 fun PieChart(
     modifier: Modifier = Modifier,
     input: List<PieChartInput>,
-    centerText: String = "Your Progress"
+    centerText: String = "Your Progress",
+    centerTextSize: Float = 60f,
+    centerLabelColor: Color,
+    centerTransparentColor: Color
 ) {
     Canvas(
         modifier = modifier
@@ -46,7 +49,7 @@ fun PieChart(
 
         // Draw center circle with a label
         drawCircle(
-            color = Color.White,
+            color = centerLabelColor,
             radius = radius * 0.6f,
             center = Offset(centerX, centerY)
         )
@@ -70,7 +73,7 @@ fun PieChart(
 
         // Draw transparent overlay circle
         drawCircle(
-            color = Color.White.copy(alpha = 0.2f), // Set transparent white color
+            color = centerTransparentColor,
             radius = innerRadius + transparentWidth / 2f, // Calculate radius for overlay circle
             center = Offset(centerX, centerY)
         )
@@ -78,7 +81,7 @@ fun PieChart(
         // Draw bold text at the center
         val textPaint = androidx.compose.ui.graphics.Paint().asFrameworkPaint().apply {
             color = Color.Black.toArgb()
-            textSize = 40f
+            textSize = centerTextSize
             isFakeBoldText = true // Make the text bold
             textAlign = android.graphics.Paint.Align.CENTER
         }

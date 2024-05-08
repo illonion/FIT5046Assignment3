@@ -38,7 +38,7 @@ import java.time.format.FormatStyle
 @RequiresApi(Build.VERSION_CODES.O)
 @Composable
 fun CalendarHeader(
-    data: CalendarUiModel,
+    data: CalendareDataClass,
     onPrevClickListener: (LocalDate) -> Unit,
     onNextClickListener: (LocalDate) -> Unit,
 ) {
@@ -46,6 +46,7 @@ fun CalendarHeader(
         horizontalArrangement = Arrangement.SpaceBetween,
         modifier = Modifier.fillMaxWidth()
     ) {
+        // Previous and text icons
         Row {
             IconButton(onClick = { onPrevClickListener(data.startDate.date) }) {
                 Icon(
@@ -60,6 +61,7 @@ fun CalendarHeader(
                 )
             }
         }
+        // Current text (date or "Today")
         Text(
             text = if (data.selectedDate.isToday) { "Today" }
             else {
@@ -80,15 +82,16 @@ fun CalendarHeader(
 @RequiresApi(Build.VERSION_CODES.O)
 @Composable
 fun CalendarItem(
-    date: CalendarUiModel.Date,
-    onClickListener: (CalendarUiModel.Date) -> Unit
+    date: CalendareDataClass.CalendarDate,
+    onClickListener: (CalendareDataClass.CalendarDate) -> Unit
 ) {
     Card(
         modifier = Modifier
             .padding(vertical = 4.dp, horizontal = 4.dp)
             .clickable { onClickListener(date) },
         colors = CardDefaults.cardColors(
-            containerColor = if (date.isSelected) { Purple60 }
+            containerColor = if (date.isSelected) { MaterialTheme.colorScheme.primary }
+            else if (date.isToday) { Purple60 }
             else { MaterialTheme.colorScheme.primaryContainer }
         ),
     ) {
@@ -99,18 +102,20 @@ fun CalendarItem(
                 .padding(4.dp),
             verticalArrangement = Arrangement.Center
         ) {
+            // date in month
             Text(
                 text = date.date.dayOfMonth.toString(),
                 modifier = Modifier.align(Alignment.CenterHorizontally),
                 style = MaterialTheme.typography.bodyMedium,
-                color = if (date.isSelected) { Color.White }
+                color = if (date.isSelected || date.isToday) { Color.White }
                 else { Color.Black }
             )
+            // Day of week in text
             Text(
                 text = date.day,
                 modifier = Modifier.align(Alignment.CenterHorizontally),
                 style = MaterialTheme.typography.bodySmall,
-                color = if (date.isSelected) { Color.White }
+                color = if (date.isSelected || date.isToday) { Color.White }
                 else { Color.Black }
             )
         }
@@ -121,8 +126,8 @@ fun CalendarItem(
 @RequiresApi(Build.VERSION_CODES.O)
 @Composable
 fun Calendar(
-    data: CalendarUiModel,
-    onDateClickListener: (CalendarUiModel.Date) -> Unit,
+    data: CalendareDataClass,
+    onDateClickListener: (CalendareDataClass.CalendarDate) -> Unit,
 ) {
     LazyRow {
         items(items = data.visibleDates) { date ->

@@ -1,7 +1,7 @@
 package com.example.todolist.LoginSignup
 
-import android.util.Log
 import android.widget.Toast
+import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
@@ -9,9 +9,13 @@ import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.ArrowBack
+import androidx.compose.material.icons.filled.Visibility
+import androidx.compose.material.icons.filled.VisibilityOff
 import androidx.compose.material3.Button
+import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
@@ -30,10 +34,14 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.text.input.KeyboardType
+import androidx.compose.ui.text.input.PasswordVisualTransformation
+import androidx.compose.ui.text.input.VisualTransformation
 import androidx.compose.ui.unit.dp
 import androidx.navigation.NavHostController
 import com.google.firebase.auth.FirebaseAuth
 import com.example.todolist.Navigation.Routes
+																		
 
 import com.google.firebase.database.DataSnapshot
 import com.google.firebase.database.DatabaseError
@@ -51,6 +59,7 @@ fun MainSignup(navController: NavHostController) {
     var emailAddress by remember { mutableStateOf("") }
     var message by remember { mutableStateOf("") }
     var loading by remember { mutableStateOf(false) }
+    var hidePassword by remember { mutableStateOf(true) }
 
     val context = LocalContext.current
     val auth = FirebaseAuth.getInstance()
@@ -90,10 +99,10 @@ fun MainSignup(navController: NavHostController) {
             OutlinedTextField(
                 value = firstName,
                 onValueChange = {
-                    firstName = it
+                    firstName = it.trim()
                     firstNameError = it.isEmpty()
                                 },
-                label = { Text("First Name") },
+                label = { Text("First Name *") },
                 modifier = Modifier
                     .fillMaxWidth(0.5f)
                     .padding(end = 8.dp)
@@ -102,7 +111,7 @@ fun MainSignup(navController: NavHostController) {
             OutlinedTextField(
                 value = lastName,
                 onValueChange = {
-                    lastName = it
+                    lastName = it.trim()
                     lastNameError = it.isEmpty()
                                 },
                 label = { Text("Last Name") },
@@ -115,10 +124,10 @@ fun MainSignup(navController: NavHostController) {
         OutlinedTextField(
             value = emailAddress,
             onValueChange = {
-                emailAddress = it
+                emailAddress = it.trim()
                 emailAddressError = !isValidEmail(it)
                             },
-            label = { Text("Email Address")},
+            label = { Text("Email Address *")},
             modifier = Modifier
                 .fillMaxWidth()
                 .padding(bottom = 8.dp)
@@ -131,13 +140,37 @@ fun MainSignup(navController: NavHostController) {
         OutlinedTextField(
             value = newPassword,
             onValueChange = {
-                newPassword = it
+                newPassword = it.trim()
                 newPasswordError = !isValidPassword(it)
                             },
             label = { Text("New Password")},
             modifier = Modifier
                 .fillMaxWidth()
-                .padding(bottom = 8.dp)
+                .padding(bottom = 8.dp),
+            visualTransformation = if (hidePassword) {
+                PasswordVisualTransformation()
+            } else {
+                VisualTransformation.None
+            },
+            keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Password),
+            trailingIcon = {
+                if (hidePassword) {
+                    androidx.compose.material.IconButton(
+                        onClick = { hidePassword = false }) {
+                        Icon(
+                            imageVector = Icons.Filled.Visibility,
+                            contentDescription = "hide_password"
+                        )
+                    }
+                } else {
+                    androidx.compose.material.IconButton(onClick = { hidePassword = true }) {
+                        Icon(
+                            imageVector = Icons.Filled.VisibilityOff,
+                            contentDescription = "show_password"
+                        )
+                    }
+                }
+            }
         )
         if (newPasswordError) {
             Text("Password must have a minimum length of 6 characters and cannot contain spaces", color = Color.Red)
@@ -189,8 +222,9 @@ fun MainSignup(navController: NavHostController) {
 
             },
             modifier = Modifier
-                .padding(bottom = 16.dp)
-                .align(Alignment.CenterHorizontally),
+                .padding(bottom = 5.dp)
+                .align(Alignment.CenterHorizontally)
+                .fillMaxWidth(),
             enabled = !loading
         ) {
             if (loading) {
@@ -198,6 +232,21 @@ fun MainSignup(navController: NavHostController) {
             } else {
                 Text("Create New Account")
             }
+        }
+
+        // Cancel button
+        Button(
+            onClick = { navController.navigate("MainLogin") },
+            modifier = Modifier
+                .fillMaxWidth()
+                .padding(bottom = 5.dp),
+            colors = ButtonDefaults.buttonColors(
+                containerColor = Color.White,
+                contentColor = MaterialTheme.colorScheme.primary
+            ),
+            border = BorderStroke(2.dp, MaterialTheme.colorScheme.primary)
+        ) {
+            Text("Cancel")
         }
     }
 }
@@ -217,10 +266,7 @@ fun checkEmailExists(email: String, callback: (Boolean) -> Unit) {
         }
 
         override fun onCancelled(databaseError: DatabaseError) {
-            Log.e("Firebase", "Error querying email existence: $databaseError")
             callback(false)
         }
     })
-
 }
-
