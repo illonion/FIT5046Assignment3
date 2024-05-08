@@ -62,6 +62,7 @@ fun MainLogin(navController: NavHostController) {
         navController.navigate(Routes.Home.value)
     }
 
+    // variables for validation
     val mContext = LocalContext.current
     var emailError by remember { mutableStateOf(!isValidEmail(email)) }
     var passwordError by remember { mutableStateOf(true) }
@@ -173,6 +174,13 @@ fun MainLogin(navController: NavHostController) {
                             }
                         }
                     }
+                    else {
+                        Toast.makeText(
+                            mContext,
+                            "Please enter your email and password.",
+                            Toast.LENGTH_SHORT
+                        ).show()
+                    }
                 },
                 modifier = Modifier
                     .padding(bottom = 16.dp)
@@ -236,4 +244,12 @@ fun MainLogin(navController: NavHostController) {
 
 fun isValidEmail(email: String): Boolean {
     return android.util.Patterns.EMAIL_ADDRESS.matcher(email).matches()
+}
+
+
+fun isValidPassword(password: String): Boolean {
+    // Remove all spaces from the password
+    val trimmedPassword = password.replace("\\s".toRegex(), "")
+    // Check the length of password
+    return (trimmedPassword.length >= 6 && trimmedPassword.length == password.length)
 }
