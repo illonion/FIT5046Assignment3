@@ -2,7 +2,6 @@ package com.example.todolist.Analytics
 
 import android.annotation.SuppressLint
 import android.os.Build
-import android.widget.Toast
 import androidx.annotation.RequiresApi
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Column
@@ -29,14 +28,16 @@ import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.*
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.ArrowBack
-import com.example.todolist.ui.theme.CompleteGreen
 import com.example.todolist.ui.theme.IncompleteGrey
 import androidx.compose.runtime.*
 import androidx.compose.ui.graphics.*
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.livedata.observeAsState
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.text.TextStyle
 import androidx.lifecycle.viewmodel.compose.viewModel
+import com.example.todolist.DatabaseActivity
+import com.example.todolist.Navigation.Routes
 import com.example.todolist.ui.theme.IndoorsPink
 import com.example.todolist.ui.theme.OutdoorsGreen
 import com.example.todolist.ui.theme.Purple40
@@ -44,12 +45,16 @@ import com.example.todolist.ui.theme.Purple80
 import com.example.todolist.ui.theme.SchoolPurple
 import com.example.todolist.ui.theme.SportsOrange
 import com.example.todolist.ui.theme.WorkBlue
+import kotlinx.coroutines.delay
 
 @SuppressLint("UnusedMaterial3ScaffoldPaddingParameter")
 @RequiresApi(Build.VERSION_CODES.O)
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun SevenDayTagsAnalytics(navController: NavHostController) {
+    // Context
+    val context = LocalContext.current
+
     // Initialise SevenDayViewModel
     val viewModel: SevenDayViewModel = viewModel()
 
@@ -59,14 +64,15 @@ fun SevenDayTagsAnalytics(navController: NavHostController) {
     // Fetch tag distribution data from Firebase when ViewModel is first created/updated
     LaunchedEffect(key1 = viewModel) {
         viewModel.fetchTaskTagDistribution()
-    }
 
-    // Check if user logged in another device every 5 seconds
-    LaunchedEffect(Unit) {
-        DatabaseActivity().checkValidSession(context) { isValidSession ->
-            if (!isValidSession) {
-                navController.navigate(Routes.MainLogout.value)
+        // Check if user logged in another device every 5 seconds
+        while(true) {
+            DatabaseActivity().checkValidSession(context) { isValidSession ->
+                if (!isValidSession) {
+                    navController.navigate(Routes.MainLogout.value)
+                }
             }
+            delay(5000)
         }
     }
 

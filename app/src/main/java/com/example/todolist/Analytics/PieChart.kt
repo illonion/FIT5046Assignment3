@@ -31,7 +31,7 @@ fun PieChart(
         val centerY = size.height / 2f
         val radius = size.minDimension / 2f
 
-        var currentAngle = 0f
+        var currentAngle = -90f
         val totalValue = input.sumOf { it.value }
 
         input.forEach { data ->
@@ -95,7 +95,6 @@ fun PieChart(
             textOffsetY,
             textPaint
         )
-
     }
 }
 

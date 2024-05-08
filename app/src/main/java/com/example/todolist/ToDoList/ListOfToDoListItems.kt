@@ -1,6 +1,5 @@
 package com.example.todolist.ToDoList
 
-import android.widget.Toast
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
@@ -37,7 +36,6 @@ import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.example.todolist.InputValidation
-import androidx.navigation.NavController
 import androidx.navigation.NavHostController
 import com.example.todolist.DatabaseActivity
 import com.example.todolist.Navigation.Routes

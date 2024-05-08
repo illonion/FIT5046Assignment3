@@ -34,11 +34,9 @@ import androidx.compose.material3.rememberDatePickerState
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
-import androidx.compose.runtime.mutableIntStateOf
 import androidx.compose.runtime.mutableLongStateOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
-import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.alpha
@@ -56,7 +54,6 @@ import com.example.todolist.ToDoList.ToDoListItemViewModel
 import com.google.firebase.Firebase
 import com.google.firebase.auth.auth
 import com.google.firebase.database.FirebaseDatabase
-import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.delay
 import java.text.SimpleDateFormat
 import java.time.Instant
@@ -77,9 +74,6 @@ data class Friend(val name: String, val uid: String)
 fun CreateToDoListItem(navController: NavHostController, toDoListItemViewModel: ToDoListItemViewModel) {
     // Current context
     val context = LocalContext.current
-
-    // Scope
-    val scope = rememberCoroutineScope()
 
     // Firebase
     val currentUser = Firebase.auth.currentUser
@@ -114,10 +108,14 @@ fun CreateToDoListItem(navController: NavHostController, toDoListItemViewModel: 
     LaunchedEffect(Unit) {
         toDoListItemViewModel.fetchFriends()
 
-        DatabaseActivity().checkValidSession(context) { isValidSession ->
-            if (!isValidSession) {
-                navController.navigate(Routes.MainLogout.value)
+        // Check if user logged in another device every 5 seconds
+        while(true) {
+            DatabaseActivity().checkValidSession(context) { isValidSession ->
+                if (!isValidSession) {
+                    navController.navigate(Routes.MainLogout.value)
+                }
             }
+            delay(5000)
         }
     }
 

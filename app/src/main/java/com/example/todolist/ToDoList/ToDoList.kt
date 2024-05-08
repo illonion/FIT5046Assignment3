@@ -1,7 +1,6 @@
 package com.example.todolist.ToDoList
 
 import android.os.Build
-import android.widget.Toast
 import androidx.annotation.RequiresApi
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
@@ -66,7 +65,8 @@ private fun ToDoListContent(navController: NavHostController, viewModel: ToDoLis
     LaunchedEffect(Unit) {
         viewModel.syncDataFromFirebase()
 
-        while (true) {
+        // Check if user logged in another device every 5 seconds
+        while(true) {
             DatabaseActivity().checkValidSession(context) { isValidSession ->
                 if (!isValidSession) {
                     navController.navigate(Routes.MainLogout.value)
