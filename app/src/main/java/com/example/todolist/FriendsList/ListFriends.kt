@@ -39,6 +39,7 @@ fun ListFriends(navController: NavHostController, friendsListViewModel : Friends
             .padding(3.dp),
         verticalAlignment = Alignment.CenterVertically,
     ) {
+        // Card for friend
         Card(
             modifier = Modifier
                 .fillMaxWidth()
@@ -75,6 +76,7 @@ fun ListFriends(navController: NavHostController, friendsListViewModel : Friends
                         }
                     }
                 ) {
+                    // Delete icon
                     Icon(
                         imageVector = Icons.Default.Delete,
                         contentDescription = null,

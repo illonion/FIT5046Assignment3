@@ -88,6 +88,7 @@ class FriendsListViewModel(application: Application): AndroidViewModel(applicati
         })
     }
 
+    // Add friend to friends list
     fun addToFriendsList(email: String) {
         // Step 1: Check if they put anything
         if (email == "") {
