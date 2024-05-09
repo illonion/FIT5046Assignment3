@@ -44,7 +44,8 @@ import com.example.todolist.ui.theme.lightGreen
 
 // List of to do list items
 @Composable
-fun ListToDoListItem(toDoListItem: ToDoListItem, showIcon: Boolean, viewModel: ToDoListItemViewModel, navController: NavHostController?) {
+fun ListToDoListItem(toDoListItem: ToDoListItem, showIcon: Boolean,
+                     viewModel: ToDoListItemViewModel, navController: NavHostController?) {
 
     var isEditDialogVisible by remember { mutableStateOf(false) }
     var editedToDoListItem by remember { mutableStateOf(toDoListItem) }
@@ -81,6 +82,7 @@ fun ListToDoListItem(toDoListItem: ToDoListItem, showIcon: Boolean, viewModel: T
                     ),
                     modifier = Modifier.padding(start = 8.dp)
                 )
+
                 // Show completion icons on todolist page
                 if (showIcon) {
                     Row(
@@ -155,7 +157,8 @@ fun ToDoListItemIcon(
 
 // Edit task dialog
 @Composable
-fun EditTaskDialog(toDoListItem: ToDoListItem, navController: NavHostController?, onDismiss: () -> Unit, onSave: (ToDoListItem) -> Unit) {
+fun EditTaskDialog(toDoListItem: ToDoListItem, navController: NavHostController?,
+                   onDismiss: () -> Unit, onSave: (ToDoListItem) -> Unit) {
 
     val context = LocalContext.current
 
