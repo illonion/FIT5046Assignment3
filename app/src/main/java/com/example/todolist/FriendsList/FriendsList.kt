@@ -2,7 +2,6 @@ package com.example.todolist.FriendsList
 
 import android.annotation.SuppressLint
 import android.util.Log
-import android.widget.Toast
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxWidth
@@ -41,10 +40,13 @@ fun FriendsList(navController: NavHostController, friendsListViewModel: FriendsL
     LaunchedEffect(Unit) {
         friendsListViewModel.loadAllFriends()
 
-        DatabaseActivity().checkValidSession(context) { isValidSession ->
-            if (!isValidSession) {
-                navController.navigate(Routes.MainLogout.value)
+        while(true) {
+            DatabaseActivity().checkValidSession(context) { isValidSession ->
+                if (!isValidSession) {
+                    navController.navigate(Routes.MainLogout.value)
+                }
             }
+            delay(5000)
         }
     }
 

@@ -63,7 +63,6 @@ fun MainLogin(navController: NavHostController) {
     }
 
     // variables for validation
-    val mContext = LocalContext.current
     var emailError by remember { mutableStateOf(!isValidEmail(email)) }
     var passwordError by remember { mutableStateOf(true) }
     var isLoginButtonClicked by remember { mutableStateOf(false) }
@@ -161,25 +160,16 @@ fun MainLogin(navController: NavHostController) {
                     isLoginButtonClicked = true
                     if (!emailError && !passwordError) {
                         AuthenticationActivity().signIn(email, password, rememberLogin.value, sharedPref)
-//                    AuthenticationActivity().signIn("test13@test.com", "123456", rememberLogin)
                         { isSuccess ->
                             if (isSuccess) {
                                 navController.navigate(Routes.Home.value)
                             } else {
-                                Toast.makeText(
-                                    mContext,
-                                    "Sign-in failed. Please check your credentials.",
-                                    Toast.LENGTH_SHORT
-                                ).show()
+                                signInFailedToast(context)
                             }
                         }
                     }
                     else {
-                        Toast.makeText(
-                            mContext,
-                            "Please enter your email and password.",
-                            Toast.LENGTH_SHORT
-                        ).show()
+                        signInFailedToast(context)
                     }
                 },
                 modifier = Modifier
@@ -204,12 +194,11 @@ fun MainLogin(navController: NavHostController) {
                                 navController.navigate(Routes.Home.value)
                             } else {
                                 Toast.makeText(
-                                    mContext,
-                                    "Sign-in with google failed.",
-                                    Toast.LENGTH_SHORT
+                                    context,
+                                    "Sign-in with google failed. Please make sure you are logged into the Google Play Store / Service!",
+                                    Toast.LENGTH_LONG
                                 ).show()
                             }
-
                     }
                 },
                 modifier = Modifier
@@ -240,16 +229,21 @@ fun MainLogin(navController: NavHostController) {
     }
 }
 
-
-
 fun isValidEmail(email: String): Boolean {
     return android.util.Patterns.EMAIL_ADDRESS.matcher(email).matches()
 }
-
 
 fun isValidPassword(password: String): Boolean {
     // Remove all spaces from the password
     val trimmedPassword = password.replace("\\s".toRegex(), "")
     // Check the length of password
     return (trimmedPassword.length >= 6 && trimmedPassword.length == password.length)
+}
+
+fun signInFailedToast(context: Context) {
+    Toast.makeText(
+        context,
+        "Sign-in failed. Please check your credentials.",
+        Toast.LENGTH_LONG
+    ).show()
 }

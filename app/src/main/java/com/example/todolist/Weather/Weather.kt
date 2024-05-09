@@ -1,21 +1,14 @@
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
-import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
-import androidx.compose.foundation.text.BasicTextField
-import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.focus.FocusRequester
 import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.painterResource
-import androidx.compose.ui.text.input.TextFieldValue
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
-import com.example.todolist.Navigation.Routes
 import com.example.todolist.R
 import com.example.todolist.Weather.ItemsRepository
 import com.example.todolist.Weather.data.models.CurrentWeather
@@ -45,12 +38,10 @@ fun WeatherScreen() {
         }
     }
 
-
     currentWeather?.let { weather ->
         Box(
             modifier = Modifier
                 .size(width = 185.dp, height = 185.dp)
-//                .background(MaterialTheme.colorScheme.primary),
             .background(Color.LightGray),
         )
         {
@@ -123,7 +114,7 @@ fun WeatherScreen() {
             Text(
                 weather.weather[0].main,
                 modifier = Modifier.align(Alignment.TopCenter)
-                    .padding(top = 10.dp),
+                    .padding(top = 20.dp),
                 color = Color.White,
                 fontSize = 30.sp,
             )
@@ -135,5 +126,4 @@ fun WeatherScreen() {
             )
         }
     }
-
 }

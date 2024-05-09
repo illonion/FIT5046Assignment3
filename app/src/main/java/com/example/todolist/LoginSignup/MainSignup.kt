@@ -113,7 +113,7 @@ fun MainSignup(navController: NavHostController) {
                     lastName = it.trim()
                     lastNameError = it.isEmpty()
                                 },
-                label = { Text("Last Name") },
+                label = { Text("Last Name *") },
                 modifier = Modifier
                     .fillMaxWidth()
                     .padding(bottom = 8.dp)
@@ -142,7 +142,7 @@ fun MainSignup(navController: NavHostController) {
                 newPassword = it.trim()
                 newPasswordError = !isValidPassword(it)
                             },
-            label = { Text("New Password")},
+            label = { Text("New Password *")},
             modifier = Modifier
                 .fillMaxWidth()
                 .padding(bottom = 8.dp),

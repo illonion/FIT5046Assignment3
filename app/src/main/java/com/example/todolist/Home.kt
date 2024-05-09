@@ -16,7 +16,6 @@ import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.itemsIndexed
-import androidx.compose.material3.Button
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Scaffold
@@ -99,7 +98,7 @@ fun Home(navController: NavHostController, toDoListItemViewModel: ToDoListItemVi
             // Welcome to do list text
             Spacer(modifier = Modifier.size(30.dp))
             Text(
-                "Welcome to To Do List!",
+                "Welcome to your task list!",
                 style = MaterialTheme.typography.headlineMedium
             )
 
@@ -107,7 +106,6 @@ fun Home(navController: NavHostController, toDoListItemViewModel: ToDoListItemVi
             Row {
                 // Weather API
                 WeatherScreen()
-
                 Spacer(modifier = Modifier.width(20.dp))
 
                 // Analytics box
@@ -173,15 +171,6 @@ fun Home(navController: NavHostController, toDoListItemViewModel: ToDoListItemVi
                         )
                     }
                 }
-            }
-
-            Spacer(modifier = Modifier.size(30.dp))
-
-            // Show full to-do list button
-            Button(
-                onClick = { navController.navigate(Routes.ToDoList.value) }
-            ) {
-                Text(text = "Show full task list")
             }
 
             Spacer(modifier = Modifier.size(30.dp))

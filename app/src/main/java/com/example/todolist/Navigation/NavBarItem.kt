@@ -5,6 +5,7 @@ import androidx.compose.material.icons.automirrored.filled.ExitToApp
 import androidx.compose.material.icons.filled.CheckCircle
 import androidx.compose.material.icons.filled.Home
 import androidx.compose.material.icons.filled.Person
+import androidx.compose.material.icons.filled.Poll
 import androidx.compose.ui.graphics.vector.ImageVector
 
 data class NavBarItem (
@@ -12,7 +13,7 @@ data class NavBarItem (
     val icon : ImageVector = Icons.Filled.Home,
     val route : String = ""
 ) {
-    fun NavBarItems(): List<NavBarItem> {
+    fun navBarItems(): List<NavBarItem> {
         return listOf(
             // Home
             NavBarItem(
@@ -22,15 +23,21 @@ data class NavBarItem (
             ),
             // Friends List
             NavBarItem(
-                label = "Friends List",
+                label = "Friends",
                 icon = Icons.Filled.Person,
                 route = Routes.FriendsList.value
             ),
             // To Do List
             NavBarItem(
-                label = "To Do List",
+                label = "Task List",
                 icon = Icons.Filled.CheckCircle,
                 route = Routes.ToDoList.value
+            ),
+            // To Do List
+            NavBarItem(
+                label = "Analytics",
+                icon = Icons.Filled.Poll,
+                route = Routes.Analytics.value
             ),
             // Log out
             NavBarItem(

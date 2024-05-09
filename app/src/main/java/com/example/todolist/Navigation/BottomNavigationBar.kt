@@ -15,6 +15,7 @@ import androidx.compose.runtime.getValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.unit.sp
 import androidx.navigation.NavDestination.Companion.hierarchy
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
@@ -48,8 +49,6 @@ fun BottomNavigationBar(toDoListViewModel: ToDoListItemViewModel, analyticsViewM
         AuthenticationActivity().signOut()
     }
 
-
-
     // Navigation controller
     val navController = rememberNavController()
     Scaffold(
@@ -60,10 +59,13 @@ fun BottomNavigationBar(toDoListViewModel: ToDoListItemViewModel, analyticsViewM
             val currentDestination = navBackStackEntry?.destination
             if (currentDestination?.route !in listOf(Routes.MainLogin.value, Routes.MainSignup.value)) {
                 BottomNavigation (backgroundColor= Color.LightGray ){
-                    NavBarItem().NavBarItems().forEach { navItem ->
+                    NavBarItem().navBarItems().forEach { navItem ->
                         BottomNavigationItem(
                             icon = { Icon(navItem.icon, contentDescription = null) },
-                            label = { Text(navItem.label) },
+                            label = { Text(
+                                text = navItem.label,
+                                fontSize = 13.sp
+                            ) },
                             selected = currentDestination?.hierarchy?.any {
                                 it.route == navItem.route
                             } == true,
