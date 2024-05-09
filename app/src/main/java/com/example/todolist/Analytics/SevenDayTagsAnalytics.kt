@@ -40,7 +40,7 @@ import com.example.todolist.ui.theme.IndoorsPink
 import com.example.todolist.ui.theme.OutdoorsGreen
 import com.example.todolist.ui.theme.Purple40
 import com.example.todolist.ui.theme.SchoolPurple
-import com.example.todolist.ui.theme.SportsOrange
+import com.example.todolist.ui.theme.SportsYellow
 import com.example.todolist.ui.theme.WorkBlue
 import kotlinx.coroutines.delay
 
@@ -76,7 +76,7 @@ fun SevenDayTagsAnalytics(navController: NavHostController, sevenDaysViewModel: 
         LegendItem(color = OutdoorsGreen, label = "Outdoors"),
         LegendItem(color = WorkBlue, label = "Work"),
         LegendItem(color = SchoolPurple, label = "School"),
-        LegendItem(color = SportsOrange, label = "Sports"),
+        LegendItem(color = SportsYellow, label = "Sports"),
         LegendItem(color = IncompleteGrey, label = "None")
     )
 
@@ -134,7 +134,7 @@ fun SevenDayTagsAnalytics(navController: NavHostController, sevenDaysViewModel: 
                             "Outdoors" -> OutdoorsGreen
                             "Work" -> WorkBlue
                             "School" -> SchoolPurple
-                            "Sports" -> SportsOrange
+                            "Sports" -> SportsYellow
                             else -> IncompleteGrey // Default color for unknown tag
                         }
                         PieChartInput(

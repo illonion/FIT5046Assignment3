@@ -121,7 +121,7 @@ fun MainSignup(navController: NavHostController) {
                 emailAddress = it.trim()
                 emailAddressError = !isValidEmail(it)
                             },
-            label = { Text("Email Address *")},
+            label = { Text("Email *")},
             modifier = Modifier
                 .fillMaxWidth()
                 .padding(bottom = 8.dp)
