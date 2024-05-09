@@ -83,7 +83,7 @@ fun MainLogin(navController: NavHostController) {
                 email = it
                 emailError = !isValidEmail(it)
                             },
-            label = { Text("Email") },
+            label = { Text("Email *") },
             modifier = Modifier
                 .fillMaxWidth()
                 .padding(bottom = 8.dp)
@@ -100,7 +100,7 @@ fun MainLogin(navController: NavHostController) {
                 password = it
                 passwordError = password.isEmpty() or (password.length < 6)
                             },
-            label = { Text("Password")},
+            label = { Text("Password *")},
             modifier = Modifier
                 .fillMaxWidth()
                 .padding(bottom = 8.dp),
