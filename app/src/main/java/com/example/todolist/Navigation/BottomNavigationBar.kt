@@ -24,6 +24,7 @@ import com.example.todolist.LoginSignup.MainSignup
 import com.example.todolist.Analytics.Analytics
 import com.example.todolist.Analytics.AnalyticsViewModel
 import com.example.todolist.Analytics.SevenDayTagsAnalytics
+import com.example.todolist.Analytics.SevenDayViewModel
 import com.example.todolist.FriendsList.FriendsList
 import com.example.todolist.FriendsList.FriendsListViewModel
 import com.example.todolist.Home
@@ -36,7 +37,8 @@ import com.example.todolist.ToDoList.ToDoListItemViewModel
 @RequiresApi(Build.VERSION_CODES.O)
 @Composable
 // Bottom navigation and the navigation controller
-fun BottomNavigationBar(toDoListViewModel: ToDoListItemViewModel, analyticsViewModel: AnalyticsViewModel, friendsListViewModel: FriendsListViewModel) {
+fun BottomNavigationBar(toDoListViewModel: ToDoListItemViewModel, analyticsViewModel: AnalyticsViewModel,
+                        friendsListViewModel: FriendsListViewModel, sevenDaysViewModel: SevenDayViewModel) {
 
 //  Check remember login
     val context = LocalContext.current
@@ -84,7 +86,7 @@ fun BottomNavigationBar(toDoListViewModel: ToDoListItemViewModel, analyticsViewM
             Modifier.padding(paddingValues)
         ) {
             composable(Routes.Analytics.value) {
-                Analytics(navController)
+                Analytics(navController, analyticsViewModel)
             }
             composable(Routes.CreateToDoListItem.value) {
                 CreateToDoListItem(navController, toDoListViewModel)
@@ -105,7 +107,7 @@ fun BottomNavigationBar(toDoListViewModel: ToDoListItemViewModel, analyticsViewM
                 FriendsList(navController, friendsListViewModel)
             }
             composable(Routes.SevenDayTagsAnalytics.value) {
-                SevenDayTagsAnalytics(navController)
+                SevenDayTagsAnalytics(navController, sevenDaysViewModel)
             }
             composable(Routes.ToDoList.value) {
                 ToDoList(navController, toDoListViewModel)

@@ -25,7 +25,7 @@ fun PieChart(
     Canvas(
         modifier = modifier
             .fillMaxSize()
-            .padding(8.dp) // Add padding to avoid edge clipping
+            .padding(8.dp)
     ) {
         val centerX = size.width / 2f
         val centerY = size.height / 2f
@@ -85,7 +85,6 @@ fun PieChart(
             isFakeBoldText = true // Make the text bold
             textAlign = android.graphics.Paint.Align.CENTER
         }
-        val textWidth = textPaint.measureText(centerText)
         val textHeight = textPaint.descent() - textPaint.ascent()
         val textOffsetY = centerY + (textHeight / 2)
 

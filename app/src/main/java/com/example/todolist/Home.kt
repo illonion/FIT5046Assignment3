@@ -3,9 +3,7 @@ package com.example.todolist
 import WeatherScreen
 import android.annotation.SuppressLint
 import android.os.Build
-import android.widget.Toast
 import androidx.annotation.RequiresApi
-import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Box
@@ -38,7 +36,6 @@ import androidx.compose.ui.unit.dp
 import androidx.navigation.NavHostController
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalContext
-import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.sp
 import com.example.todolist.Analytics.AnalyticsViewModel
@@ -109,27 +106,6 @@ fun Home(navController: NavHostController, toDoListItemViewModel: ToDoListItemVi
             Spacer(modifier = Modifier.size(30.dp))
             Row {
                 // Weather API
-//                Box {
-//                    Image(
-//                        painter = painterResource(R.drawable.sunny),
-//                        contentDescription = null,
-//                        modifier = Modifier
-//                            .size(width = 185.dp, height = 185.dp)
-//                    )
-//                    Text(
-//                        "Sunny",
-//                        modifier = Modifier.align(Alignment.TopCenter)
-//                            .padding(top = 10.dp),
-//                        color = Color.White,
-//                        fontSize = 30.sp,
-//                    )
-//                    Text(
-//                        "25C",
-//                        modifier = Modifier.align(Alignment.Center),
-//                        color = Color.White,
-//                        fontSize = 80.sp
-//                    )
-//                }
                 WeatherScreen()
 
                 Spacer(modifier = Modifier.width(20.dp))

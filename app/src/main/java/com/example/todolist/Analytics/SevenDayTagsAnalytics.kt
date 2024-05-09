@@ -34,14 +34,11 @@ import androidx.compose.ui.graphics.*
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.livedata.observeAsState
 import androidx.compose.ui.platform.LocalContext
-import androidx.compose.ui.text.TextStyle
-import androidx.lifecycle.viewmodel.compose.viewModel
 import com.example.todolist.DatabaseActivity
 import com.example.todolist.Navigation.Routes
 import com.example.todolist.ui.theme.IndoorsPink
 import com.example.todolist.ui.theme.OutdoorsGreen
 import com.example.todolist.ui.theme.Purple40
-import com.example.todolist.ui.theme.Purple80
 import com.example.todolist.ui.theme.SchoolPurple
 import com.example.todolist.ui.theme.SportsOrange
 import com.example.todolist.ui.theme.WorkBlue
@@ -51,19 +48,16 @@ import kotlinx.coroutines.delay
 @RequiresApi(Build.VERSION_CODES.O)
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun SevenDayTagsAnalytics(navController: NavHostController) {
+fun SevenDayTagsAnalytics(navController: NavHostController, sevenDaysViewModel: SevenDayViewModel) {
     // Context
     val context = LocalContext.current
 
-    // Initialise SevenDayViewModel
-    val viewModel: SevenDayViewModel = viewModel()
-
     // Observe LiveData value for tasks for today existence from the ViewModel
-    val tasksForLastWeekExists by viewModel.tasksForLastWeekExists.observeAsState(initial = false)
+    val tasksForLastWeekExists by sevenDaysViewModel.tasksForLastWeekExists.observeAsState(initial = false)
 
     // Fetch tag distribution data from Firebase when ViewModel is first created/updated
-    LaunchedEffect(key1 = viewModel) {
-        viewModel.fetchTaskTagDistribution()
+    LaunchedEffect(Unit) {
+        sevenDaysViewModel.fetchTaskTagDistribution()
 
         // Check if user logged in another device every 5 seconds
         while(true) {
@@ -134,7 +128,7 @@ fun SevenDayTagsAnalytics(navController: NavHostController) {
 
                 // Calculate input data for the PieChart based on tag distribution
                 val pieChartInput = if (tasksForLastWeekExists) {
-                    viewModel.tagDistributionPercentage.value?.map { (tag, percentage) ->
+                    sevenDaysViewModel.tagDistributionPercentage.value?.map { (tag, percentage) ->
                         val color = when (tag) {
                             "Indoors" -> IndoorsPink
                             "Outdoors" -> OutdoorsGreen
@@ -172,31 +166,11 @@ fun SevenDayTagsAnalytics(navController: NavHostController) {
 
                 // Display legend for the pie chart
                 SevenPieChartLegend(legendItems = legendItems)
-
                 Spacer(modifier = Modifier.height(14.dp))
-
-                AnalyticsButton(navController)
+                // Analytics Button
+                AnalyticsButton(navController, "Analytics", "Back to Daily Progress Analytics")
             }
         }
-    }
-}
-
-@Composable
-fun AnalyticsButton(navController: NavHostController) {
-    Button(
-        onClick = { navController.navigate("Analytics") },
-        modifier = Modifier
-            .fillMaxWidth()
-            .padding(16.dp),
-        colors = ButtonDefaults.buttonColors(
-            backgroundColor = Purple80
-        )
-    ) {
-        Text(
-            text = "Back to Daily Progress Analytics",
-            style = TextStyle(fontSize = 17.sp),
-            color = Purple40
-        )
     }
 }
 
@@ -213,59 +187,38 @@ fun SevenPieChartLegend(legendItems: List<LegendItem>) {
         val secondRowItems = legendItems.drop(3)
 
         // Render legend items in two rows
-        Row(
-            modifier = Modifier
-                .fillMaxWidth()
-                .padding(start = 0.dp, end = 0.dp, bottom = 5.dp),
-            horizontalArrangement = Arrangement.SpaceBetween,
-            verticalAlignment = Alignment.CenterVertically
-        ) {
-            // Render items for the first row
-            firstRowItems.forEachIndexed { index, item ->
-                if (index > 0) {
-                    Spacer(modifier = Modifier.width(8.dp))
-                }
-                Row {
-                    Box(
-                        modifier = Modifier
-                            .size(16.dp)
-                            .background(item.color)
-                    )
-                    Spacer(modifier = Modifier.width(4.dp))
-                    Text(
-                        text = item.label,
-                        style = MaterialTheme.typography.bodyMedium,
-                        color = Color.Black
-                    )
-                }
-            }
-        }
+        SevenPieChartLegendRow(firstRowItems)
+        SevenPieChartLegendRow(secondRowItems)
+    }
+}
 
-        // Render items for the second row
-        Row(
-            modifier = Modifier
-                .fillMaxWidth()
-                .padding(start = 0.dp, end = 0.dp, bottom = 5.dp),
-            horizontalArrangement = Arrangement.SpaceBetween,
-            verticalAlignment = Alignment.CenterVertically
-        ) {
-            secondRowItems.forEachIndexed { index, item ->
-                if (index > 0) {
-                    Spacer(modifier = Modifier.width(8.dp))
-                }
-                Row {
-                    Box(
-                        modifier = Modifier
-                            .size(16.dp)
-                            .background(item.color)
-                    )
-                    Spacer(modifier = Modifier.width(4.dp))
-                    Text(
-                        text = item.label,
-                        style = MaterialTheme.typography.bodyMedium,
-                        color = Color.Black
-                    )
-                }
+@Composable
+fun SevenPieChartLegendRow(legendItems: List<LegendItem>) {
+    Row(
+        modifier = Modifier
+            .fillMaxWidth()
+            .padding(start = 0.dp, end = 0.dp, bottom = 5.dp),
+        horizontalArrangement = Arrangement.SpaceBetween,
+        verticalAlignment = Alignment.CenterVertically
+    ) {
+        // Render items for the first row
+        legendItems.forEachIndexed { index, item ->
+            if (index > 0) {
+                Spacer(modifier = Modifier.width(8.dp))
+            }
+            Row {
+                // Each item has a box with a colour, and the label
+                Box(
+                    modifier = Modifier
+                        .size(16.dp)
+                        .background(item.color)
+                )
+                Spacer(modifier = Modifier.width(4.dp))
+                Text(
+                    text = item.label,
+                    style = MaterialTheme.typography.bodyMedium,
+                    color = Color.Black
+                )
             }
         }
     }

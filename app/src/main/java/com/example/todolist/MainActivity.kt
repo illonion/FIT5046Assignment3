@@ -8,6 +8,7 @@ import androidx.activity.compose.setContent
 import androidx.activity.viewModels
 import androidx.annotation.RequiresApi
 import com.example.todolist.Analytics.AnalyticsViewModel
+import com.example.todolist.Analytics.SevenDayViewModel
 import com.example.todolist.FriendsList.FriendsListViewModel
 import com.example.todolist.ToDoList.ToDoListItemViewModel
 
@@ -15,11 +16,12 @@ class MainActivity : ComponentActivity() {
     private val toDoListViewModel: ToDoListItemViewModel by viewModels()
     private val analyticsViewModel: AnalyticsViewModel by viewModels()
     private val friendsListViewModel: FriendsListViewModel by viewModels()
+    private val sevenDaysViewModel: SevenDayViewModel by viewModels()
     @RequiresApi(Build.VERSION_CODES.O)
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContent {
-            BottomNavigationBar(toDoListViewModel, analyticsViewModel, friendsListViewModel)
+            BottomNavigationBar(toDoListViewModel, analyticsViewModel, friendsListViewModel, sevenDaysViewModel)
         }
     }
 }
