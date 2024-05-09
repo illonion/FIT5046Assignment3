@@ -49,7 +49,7 @@ fun ToDoList(navController: NavHostController, viewModel: ToDoListItemViewModel)
 @Composable
 private fun ToDoListContent(navController: NavHostController, viewModel: ToDoListItemViewModel) {
     val completeOptions = listOf("All", "Not Completed", "Completed")
-    val tagOptions = listOf("All", "No Tag", "Indoors", "Outdoors", "School", "Work", "Sports")
+    val tagOptions = listOf("All", "None", "Indoors", "Outdoors", "School", "Work", "Sports")
 
     var completeIsExpanded by remember { mutableStateOf(false) }
     var selectedComplete by remember { mutableStateOf(completeOptions[0]) }
@@ -159,7 +159,7 @@ private fun ToDoListContent(navController: NavHostController, viewModel: ToDoLis
         // Tag filtering
         Row {
             Text(
-                text = "Tags: ",
+                text = "Category: ",
                 style = TextStyle(
                     fontSize = 18.sp,
                     lineHeight = 32.sp

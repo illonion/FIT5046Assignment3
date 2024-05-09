@@ -180,7 +180,7 @@ fun CreateToDoListItem(navController: NavHostController, toDoListItemViewModel: 
                 readOnly = true,
                 value = selectedTag,
                 onValueChange = {},
-                label = { Text("Tag") },
+                label = { Text("Category") },
                 trailingIcon = {
                     ExposedDropdownMenuDefaults.TrailingIcon(expanded = tagsIsExpanded)
                 }
