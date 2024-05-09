@@ -16,7 +16,7 @@ class SevenDayViewModel : ViewModel() {
     // variables for retrieving data from database
     private val database = FirebaseDatabase.getInstance()
     private val tasksRef = database.getReference("tasks")
-    private val currentUser = AuthenticationActivity().getUser()
+    private var currentUser = AuthenticationActivity().getUser()
 
     private val _tasksForLastWeekExist = MutableLiveData(false)
     private val _tagDistributionPercentage = MutableLiveData<Map<String, Double>>()
@@ -29,6 +29,7 @@ class SevenDayViewModel : ViewModel() {
 
     @RequiresApi(Build.VERSION_CODES.O)
     fun fetchTaskTagDistribution() {
+        currentUser = AuthenticationActivity().getUser()
         val userId = currentUser?.uid ?: return
 
         // Get the date of a week ago

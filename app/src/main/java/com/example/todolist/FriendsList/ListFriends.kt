@@ -68,7 +68,7 @@ fun ListFriends(navController: NavHostController,
                         // Delete item
                         DatabaseActivity().checkValidSession(context) { isValidSession ->
                             if (isValidSession) {
-                                friendsListViewModel.removeFriend(friend)
+                                friendsListViewModel.removeFriend(friend, navController)
                             } else {
                                 navController.navigate(Routes.MainLogout.value)
                             }
