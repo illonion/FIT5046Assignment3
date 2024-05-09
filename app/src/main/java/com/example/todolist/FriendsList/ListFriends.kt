@@ -26,9 +26,10 @@ import com.example.todolist.Navigation.Routes
 import com.example.todolist.User
 import com.example.todolist.ui.theme.Purple40
 
-// List of to do list items
+// List of friend items
 @Composable
-fun ListFriends(navController: NavHostController, friendsListViewModel : FriendsListViewModel, friend: User) {
+fun ListFriends(navController: NavHostController,
+                friendsListViewModel : FriendsListViewModel, friend: User) {
 
     val context = LocalContext.current
 
