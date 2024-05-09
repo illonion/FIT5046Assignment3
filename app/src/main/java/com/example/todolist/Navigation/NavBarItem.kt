@@ -33,7 +33,7 @@ data class NavBarItem (
                 icon = Icons.Filled.CheckCircle,
                 route = Routes.ToDoList.value
             ),
-            // To Do List
+            // Analytics
             NavBarItem(
                 label = "Analytics",
                 icon = Icons.Filled.Poll,

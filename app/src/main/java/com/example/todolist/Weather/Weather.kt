@@ -6,6 +6,7 @@ import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.graphics.painter.Painter
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
@@ -38,6 +39,7 @@ fun WeatherScreen() {
         }
     }
 
+    var painterResource: Painter
     currentWeather?.let { weather ->
         Box(
             modifier = Modifier
@@ -45,71 +47,22 @@ fun WeatherScreen() {
             .background(Color.LightGray),
         )
         {
-            when (weather.weather[0].main) {
-
-                "Thunderstorm" -> {
-                    Image(
-                        painter = painterResource(R.drawable.thunderstorm),
-                        contentDescription = null,
-                        modifier = Modifier
-                            .size(width = 185.dp, height = 185.dp)
-                    )
-                }
-
-                "Drizzle" -> {
-                    Image(
-                        painter = painterResource(R.drawable.drizzle),
-                        contentDescription = null,
-                        modifier = Modifier
-                            .size(width = 185.dp, height = 185.dp)
-                    )
-                }
-
-                "Rain" -> {
-                    Image(
-                        painter = painterResource(R.drawable.rain),
-                        contentDescription = null,
-                        modifier = Modifier
-                            .size(width = 185.dp, height = 185.dp)
-                    )
-                }
-
-                "Snow" -> {
-                    Image(
-                        painter = painterResource(R.drawable.snow),
-                        contentDescription = null,
-                        modifier = Modifier
-                            .size(width = 185.dp, height = 185.dp)
-                    )
-                }
-
-                "Clear" -> {
-                    Image(
-                        painter = painterResource(R.drawable.clear),
-                        contentDescription = null,
-                        modifier = Modifier
-                            .size(width = 185.dp, height = 185.dp)
-                    )
-                }
-
-                "Clouds" -> {
-                    Image(
-                        painter = painterResource(R.drawable.clouds),
-                        contentDescription = null,
-                        modifier = Modifier
-                            .size(width = 185.dp, height = 185.dp)
-                    )
-                }
-
-                else -> {
-                    Image(
-                        painter = painterResource(R.drawable.mist),
-                        contentDescription = null,
-                        modifier = Modifier
-                            .size(width = 185.dp, height = 185.dp)
-                    )
-                }
+            // Set painter resource
+            painterResource = when (weather.weather[0].main) {
+                "Thunderstorm" -> { painterResource(R.drawable.thunderstorm) }
+                "Drizzle" -> { painterResource(R.drawable.drizzle) }
+                "Rain" -> { painterResource(R.drawable.rain) }
+                "Snow" -> { painterResource(R.drawable.snow) }
+                "Clear" -> { painterResource(R.drawable.clear) }
+                "Clouds" -> { painterResource(R.drawable.clear) }
+                else -> { painterResource(R.drawable.mist) }
             }
+            Image(
+                painter = painterResource,
+                contentDescription = null,
+                modifier = Modifier
+                    .size(width = 185.dp, height = 185.dp)
+            )
 
             Text(
                 weather.weather[0].main,

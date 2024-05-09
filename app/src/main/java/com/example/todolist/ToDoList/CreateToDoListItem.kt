@@ -120,7 +120,6 @@ fun CreateToDoListItem(navController: NavHostController, toDoListItemViewModel: 
         }
     }
 
-
     // Top Bar
     TopAppBar(
         title = { Text(text = "Add Task") },
