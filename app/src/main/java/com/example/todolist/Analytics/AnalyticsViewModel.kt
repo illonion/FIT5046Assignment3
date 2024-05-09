@@ -42,10 +42,8 @@ class AnalyticsViewModel : ViewModel() {
         val todayDateString = getCurrentDateString()
         val yesterdayDateString = getYesterdayDateString()
 
-        val tasksQuery = tasksRef.orderByChild("createdAt")
-
         // Listen for changes in the data
-        tasksQuery.addValueEventListener(object : ValueEventListener {
+        tasksRef.addListenerForSingleValueEvent(object : ValueEventListener {
             override fun onDataChange(snapshot: DataSnapshot) {
                 var completedCount = 0
                 var totalTasksToday = 0

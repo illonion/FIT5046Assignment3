@@ -120,7 +120,7 @@ fun SevenDayTagsAnalytics(navController: NavHostController, sevenDaysViewModel: 
                 Spacer(modifier = Modifier.height(30.dp))
                 // Display text based on tasks existence for today
                 Text(
-                    text = if (tasksForLastWeekExists) "Last Week's Task Distribution." else "Add some tasks to see distribution.",
+                    text = if (tasksForLastWeekExists) "Past Week's Task Distribution." else "Add some tasks to see distribution.",
                     textAlign = TextAlign.Center,
                     fontSize = 30.sp,
                     color = Purple40,

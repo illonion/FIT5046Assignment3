@@ -39,6 +39,7 @@ import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.text.input.PasswordVisualTransformation
 import androidx.compose.ui.text.input.VisualTransformation
+import com.example.todolist.Analytics.AnalyticsViewModel
 
 // Main login page
 @OptIn(ExperimentalMaterial3Api::class)
@@ -189,6 +190,7 @@ fun MainLogin(navController: NavHostController) {
                 onClick = {
                         AuthenticationActivity().signInWithGoogle(context, scope, rememberLogin.value, sharedPref) { isSuccess ->
                             if (isSuccess) {
+                                AnalyticsViewModel().fetchTaskCompletionData()
                                 navController.navigate(Routes.Home.value)
                             } else {
                                 Toast.makeText(
@@ -211,7 +213,7 @@ fun MainLogin(navController: NavHostController) {
         Divider(
             modifier = Modifier.padding(bottom = 16.dp),
             thickness = 2.dp,
-            color = Color.Red)
+            color = MaterialTheme.colorScheme.primary)
 
         // Signup button
         Button(

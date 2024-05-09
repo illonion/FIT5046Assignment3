@@ -3,7 +3,10 @@ package com.example.todolist.FriendsList
 import android.app.Application
 import android.widget.Toast
 import androidx.lifecycle.AndroidViewModel
+import androidx.navigation.NavController
+import androidx.navigation.NavHostController
 import com.example.todolist.LoginSignup.AuthenticationActivity
+import com.example.todolist.Navigation.Routes
 import com.example.todolist.User
 import com.google.firebase.database.DataSnapshot
 import com.google.firebase.database.DatabaseError
@@ -90,7 +93,7 @@ class FriendsListViewModel(application: Application): AndroidViewModel(applicati
     }
 
     // Add friend to friends list
-    fun addToFriendsList(email: String) {
+    fun addToFriendsList(email: String, navController: NavHostController) {
         // Step 1: Check if they put anything
         if (email == "") {
             _validationMessage = "Please enter an email."
@@ -168,6 +171,7 @@ class FriendsListViewModel(application: Application): AndroidViewModel(applicati
                                 _validationMessage = ""
                                 displayToast("Successfully added friend!")
                                 loadAllFriends()
+                                navController.navigate(Routes.FriendsList.value)
                             }
                             .addOnFailureListener {
                                 _validationMessage = "Sorry! Something went wrong. " +
@@ -188,7 +192,7 @@ class FriendsListViewModel(application: Application): AndroidViewModel(applicati
     }
 
     // Remove Friend
-    fun removeFriend(friend: User) {
+    fun removeFriend(friend: User, navController: NavHostController) {
         friendsReference.addListenerForSingleValueEvent(object : ValueEventListener {
             override fun onDataChange(friendsSnapshot: DataSnapshot) {
                 var friendListId = ""
@@ -214,6 +218,7 @@ class FriendsListViewModel(application: Application): AndroidViewModel(applicati
                         .addOnSuccessListener {
                             displayToast("Successfully removed friend!")
                             loadAllFriends()
+                            navController.navigate("FriendsList")
                         }
                         .addOnFailureListener {e -> displayToast("Error: $e") }
                 }

@@ -50,6 +50,7 @@ fun FriendsList(navController: NavHostController, friendsListViewModel: FriendsL
         }
     }
 
+    println(friendsListViewModel.getValidationMessage)
     // Top Bar
     TopAppBar(
         title = { Text(text = "Friends List") },
@@ -66,7 +67,7 @@ fun FriendsList(navController: NavHostController, friendsListViewModel: FriendsL
                 onAdd = { email ->
                     DatabaseActivity().checkValidSession(context) { isValidSession ->
                         if (isValidSession) {
-                            friendsListViewModel.addToFriendsList(email)
+                            friendsListViewModel.addToFriendsList(email, navController)
                         } else {
                             navController.navigate(Routes.MainLogout.value)
                         }

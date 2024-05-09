@@ -64,8 +64,9 @@ fun Home(navController: NavHostController, toDoListItemViewModel: ToDoListItemVi
 
     val context = LocalContext.current
     LaunchedEffect(Unit) {
-        toDoListItemViewModel.syncDataFromFirebase()
         analyticsViewModel.fetchTaskCompletionData()
+        toDoListItemViewModel.syncDataFromFirebase()
+        println("Data analysis")
 
         while (true) {
             DatabaseActivity().checkValidSession(context) { isValidSession ->
@@ -128,6 +129,7 @@ fun Home(navController: NavHostController, toDoListItemViewModel: ToDoListItemVi
                         color = Color.White
                     )
                     // Calculate input data for the PieChart based on task completion
+                    println("Data analysis 2")
                     val pieChartInput = if (tasksForTodayExist) {
                         // Tasks exist for today, show completed and incomplete tasks
                         listOf(
@@ -154,7 +156,6 @@ fun Home(navController: NavHostController, toDoListItemViewModel: ToDoListItemVi
                     }
 
                     // PieChart composable displaying completed and incomplete tasks as a pie chart
-
                     Box(
                         contentAlignment = Alignment.BottomCenter,
                         modifier = Modifier.fillMaxSize()

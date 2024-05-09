@@ -40,6 +40,7 @@ import androidx.compose.ui.text.input.PasswordVisualTransformation
 import androidx.compose.ui.text.input.VisualTransformation
 import androidx.compose.ui.unit.dp
 import androidx.navigation.NavHostController
+import com.example.todolist.Analytics.AnalyticsViewModel
 import com.example.todolist.Navigation.Routes
 																		
 
@@ -192,6 +193,7 @@ fun MainSignup(navController: NavHostController) {
                                     AuthenticationActivity().createAccount(emailAddress, newPassword, firstName, lastName) { isSuccess ->
                                         loading = false
                                         if (isSuccess) {
+                                            AnalyticsViewModel().fetchTaskCompletionData()
                                             navController.navigate(Routes.Home.value)
                                         }
                                     }
