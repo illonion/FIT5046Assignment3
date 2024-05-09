@@ -334,7 +334,7 @@ fun CreateToDoListItem(navController: NavHostController, toDoListItemViewModel: 
                 } else {
                     Toast.makeText(
                         context,
-                        "INVALID INPUT: Task name cannot be empty or more than 25 characters long",
+                        "INVALID INPUT: Task name cannot be empty or have more than 25 characters long",
                         Toast.LENGTH_SHORT
                     ).show()
                 }
