@@ -36,6 +36,7 @@ class AnalyticsViewModel : ViewModel() {
     val yesterdayCompletionPercentage: LiveData<Int>
         get() = _yesterdayCompletionPercentage
 
+    // Fetch task completion data from database
     fun fetchTaskCompletionData() {
         val userId = currentUser?.uid ?: return
         val todayDateString = getCurrentDateString()
@@ -43,6 +44,7 @@ class AnalyticsViewModel : ViewModel() {
 
         val tasksQuery = tasksRef.orderByChild("createdAt")
 
+        // Listen for changes in the data
         tasksQuery.addValueEventListener(object : ValueEventListener {
             override fun onDataChange(snapshot: DataSnapshot) {
                 var completedCount = 0
@@ -50,6 +52,7 @@ class AnalyticsViewModel : ViewModel() {
                 var completedCountYesterday = 0
                 var totalTasksYesterday = 0
 
+                // Iterate over each child snapshot
                 snapshot.children.forEach { taskSnapshot ->
                     val taskData = taskSnapshot.value as? Map<*, *>
                     if (taskData != null) {

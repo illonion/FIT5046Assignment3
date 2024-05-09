@@ -183,7 +183,8 @@ fun Analytics(navController: NavHostController, analyticsViewModel: AnalyticsVie
                     )
                 }
 
-                AnalyticsButton(navController, "SevenDayTagsAnalytics", "View 7 Day Category Analytics")
+                AnalyticsButton(navController, "SevenDayTagsAnalytics",
+                    "View 7 Day Category Analytics")
             }
         }
     }
