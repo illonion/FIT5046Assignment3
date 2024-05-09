@@ -41,7 +41,7 @@ fun TopSectionAddFriend (navController : NavHostController, onAdd: (String) -> U
             OutlinedTextField(
                 value = emailValue,
                 onValueChange = { emailValue = it.trim() },
-                label = { Text("Email") },
+                label = { Text("Email *") },
                 modifier = Modifier
                     .fillMaxWidth()
                     .padding(bottom = 8.dp)

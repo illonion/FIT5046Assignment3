@@ -91,7 +91,7 @@ class FriendsListViewModel(application: Application): AndroidViewModel(applicati
     fun addToFriendsList(email: String) {
         // Step 1: Check if they put anything
         if (email == "") {
-            _validationMessage = "Please enter something!"
+            _validationMessage = "Please enter an email."
             return
         }
 
