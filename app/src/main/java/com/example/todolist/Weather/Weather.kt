@@ -120,7 +120,8 @@ fun WeatherScreen() {
             )
             Text(
                 "${weather.main.temp.roundToInt()}°C",
-                modifier = Modifier.align(Alignment.Center),
+                modifier = Modifier.align(Alignment.TopCenter)
+                    .padding(top = 50.dp),
                 color = Color.White,
                 fontSize = 80.sp
             )
