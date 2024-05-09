@@ -33,7 +33,10 @@ class AuthenticationActivity : Activity() {
     public override fun onStart() {
         super.onStart()
     }
-    fun createAccount(email: String, password: String, firstName: String, lastName: String, isSuccess:  (Boolean) -> Unit) {
+
+    // Create account with email, password, firstname, lastname
+    fun createAccount(email: String, password: String, firstName: String,
+                      lastName: String, isSuccess:  (Boolean) -> Unit) {
         auth.createUserWithEmailAndPassword(email, password)
             .addOnCompleteListener(this) { task ->
                 if (task.isSuccessful) {
@@ -63,7 +66,9 @@ class AuthenticationActivity : Activity() {
             }
     }
 
-    fun signIn(email: String, password: String, rememberLogin: Boolean, sharedPref: SharedPreferences, isSuccess:  (Boolean) -> Unit) {
+    // Sign in with email and password
+    fun signIn(email: String, password: String, rememberLogin: Boolean,
+               sharedPref: SharedPreferences, isSuccess:  (Boolean) -> Unit) {
 
         auth.signInWithEmailAndPassword(email, password)
             .addOnCompleteListener(this) { task ->
@@ -90,13 +95,19 @@ class AuthenticationActivity : Activity() {
                 }
             }
     }
+
+    // Sign out the current user
     fun signOut() {
         val currentUser = auth.currentUser
         if (currentUser != null) {
             auth.signOut()
         }
     }
-    fun signInWithGoogle(context: Context, scope: CoroutineScope, rememberLogin: Boolean, sharedPref: SharedPreferences, isSuccess: (Boolean) -> Unit) {
+
+    // Sign in by using google account
+    fun signInWithGoogle(context: Context, scope: CoroutineScope,
+                         rememberLogin: Boolean, sharedPref: SharedPreferences,
+                         isSuccess: (Boolean) -> Unit) {
 
         // google auth
         val WEB_CLIENT_ID = context.getString(R.string.WEB_CLIENT_ID)
@@ -157,11 +168,13 @@ class AuthenticationActivity : Activity() {
         }
     }
 
+    // Check whether a user is currently logged in
     fun checkIsLoggedIn(): Boolean {
         val user = Firebase.auth.currentUser
         return user != null
     }
 
+    // Retrieve an access token from database
     fun getTokenCallback(token: (String?) -> Unit) {
         try {
             auth.getAccessToken(false).addOnCompleteListener { task ->
@@ -173,6 +186,7 @@ class AuthenticationActivity : Activity() {
         }
     }
 
+    // Retrieve the current user
     fun getUser(): FirebaseUser? {
         return auth.currentUser
     }

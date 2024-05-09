@@ -19,6 +19,8 @@ import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
 import kotlin.math.roundToInt
 
+
+// Encapsulation of the weather api screen
 @Composable
 fun WeatherScreen() {
     val repository = remember { ItemsRepository() }
@@ -26,7 +28,7 @@ fun WeatherScreen() {
 
     val coroutineScope = rememberCoroutineScope()
 
-
+    // LaunchedEffect: run suspend functions getCurrentWeather()
     LaunchedEffect(Unit) {
         coroutineScope.launch {
             val weather = withContext(Dispatchers.IO) {

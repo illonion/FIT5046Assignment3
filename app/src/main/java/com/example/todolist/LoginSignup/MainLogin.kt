@@ -54,6 +54,7 @@ fun MainLogin(navController: NavHostController) {
     var password by remember { mutableStateOf("") }
     var hidePassword by remember { mutableStateOf(true) }
 
+    // Check if the user is logged in
     if (AuthenticationActivity().checkIsLoggedIn()) {
         navController.navigate(Routes.Home.value)
     }
@@ -76,6 +77,7 @@ fun MainLogin(navController: NavHostController) {
         modifier = Modifier.padding(16.dp)
     ) {
         Spacer(modifier = Modifier.height(65.dp))
+
         // Username
         OutlinedTextField(
             value = email,

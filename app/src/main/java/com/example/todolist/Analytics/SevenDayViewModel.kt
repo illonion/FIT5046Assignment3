@@ -10,7 +10,10 @@ import com.google.firebase.database.*
 import java.time.LocalDate
 import java.time.format.DateTimeFormatter
 import java.util.*
+
+
 class SevenDayViewModel : ViewModel() {
+    // variables for retrieving data from database
     private val database = FirebaseDatabase.getInstance()
     private val tasksRef = database.getReference("tasks")
     private val currentUser = AuthenticationActivity().getUser()

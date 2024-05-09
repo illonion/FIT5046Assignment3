@@ -44,6 +44,7 @@ import com.example.todolist.ui.theme.SportsOrange
 import com.example.todolist.ui.theme.WorkBlue
 import kotlinx.coroutines.delay
 
+// Display analytics related to tag distribution over the last seven days
 @SuppressLint("UnusedMaterial3ScaffoldPaddingParameter")
 @RequiresApi(Build.VERSION_CODES.O)
 @OptIn(ExperimentalMaterial3Api::class)

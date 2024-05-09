@@ -6,7 +6,7 @@ import com.example.todolist.Weather.util.RetrofitInstance
 
 
 class ItemsRepository {
-
+    // Fetch current weather data using Retrofit.
     private val apiService = RetrofitInstance.api
 
     suspend fun getCurrentWeather(lat: Double, lon: Double,

@@ -7,6 +7,7 @@ import androidx.room.Query
 import androidx.room.Update
 import kotlinx.coroutines.flow.Flow
 
+// Define the basic operations needed to interact with the to-do list item database table
 @Dao
 interface ToDoListItemDAO {
     @Query("SELECT * FROM ToDoListItem")

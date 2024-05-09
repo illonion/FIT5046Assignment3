@@ -255,7 +255,7 @@ fun MainSignup(navController: NavHostController) {
     }
 }
 
-
+// Check if the inputted email already exists in the database
 fun checkEmailExists(email: String, callback: (String) -> Unit) {
     val database = FirebaseDatabase.getInstance("https://fit5046-assignment-3-5083c-default-rtdb.asia-southeast1.firebasedatabase.app/")
     val mDatabase = database.reference

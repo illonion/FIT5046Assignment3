@@ -76,13 +76,15 @@ class FriendsListViewModel(application: Application): AndroidViewModel(applicati
                     }
 
                     override fun onCancelled(error: DatabaseError) {
-                        _validationMessage = "Something went wrong with loading your friends! Please try again later."
+                        _validationMessage = "Something went wrong with loading your friends! " +
+                                "Please try again later."
                     }
                 })
             }
 
             override fun onCancelled(error: DatabaseError) {
-                _validationMessage = "Something went wrong with loading your friends! Please try again later."
+                _validationMessage = "Something went wrong with loading your friends! " +
+                        "Please try again later."
             }
         })
     }
@@ -168,7 +170,8 @@ class FriendsListViewModel(application: Application): AndroidViewModel(applicati
                                 loadAllFriends()
                             }
                             .addOnFailureListener {
-                                _validationMessage = "Sorry! Something went wrong. Please try again later."
+                                _validationMessage = "Sorry! Something went wrong. " +
+                                        "Please try again later."
                             }
                     }
 

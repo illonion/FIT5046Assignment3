@@ -34,6 +34,7 @@ fun PieChart(
         var currentAngle = -90f
         val totalValue = input.sumOf { it.value }
 
+        // Draw a pie chart with segments proportional to the values
         input.forEach { data ->
             val sliceAngle = (data.value.toFloat() / totalValue.toFloat()) * 360f
             drawArc(

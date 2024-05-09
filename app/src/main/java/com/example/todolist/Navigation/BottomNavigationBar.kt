@@ -41,7 +41,7 @@ import com.example.todolist.ToDoList.ToDoListItemViewModel
 fun BottomNavigationBar(toDoListViewModel: ToDoListItemViewModel, analyticsViewModel: AnalyticsViewModel,
                         friendsListViewModel: FriendsListViewModel, sevenDaysViewModel: SevenDayViewModel) {
 
-//  Check remember login
+    // Check remember login
     val context = LocalContext.current
     val sharedPref = context.getSharedPreferences("rememberLoginRef", Context.MODE_PRIVATE)
     val rememberLogin = sharedPref.getBoolean("rememberLogin", false)

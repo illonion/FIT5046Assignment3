@@ -8,6 +8,7 @@ import retrofit2.http.Query
 
 interface ApiInterface {
 
+    // Using latitude, longitude, and apikey to make the api call
     @GET("weather")
     suspend fun getCurrentWeather(
         @Query("lat") lat: Double,
