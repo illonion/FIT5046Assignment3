@@ -20,6 +20,7 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.navigation.NavHostController
 import com.example.todolist.DatabaseActivity
+import com.example.todolist.LoginSignup.AuthenticationActivity
 import com.example.todolist.Navigation.Routes
 import com.example.todolist.ToDoList.Calendar.Calendar
 import com.example.todolist.ToDoList.Calendar.CalendarDataSource
@@ -232,7 +233,7 @@ private fun ToDoListItems(
     selectedTag: String
 ) {
     var toDoListItems by remember { mutableStateOf(emptyList<ToDoListItem>()) }
-    val currentUserUid = Firebase.auth.currentUser?.uid
+    val currentUserUid = AuthenticationActivity().getUser()?.uid
 
     // In order:
     // Filter by tasks where the user is involved

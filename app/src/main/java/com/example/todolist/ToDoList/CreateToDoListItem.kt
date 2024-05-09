@@ -48,6 +48,7 @@ import androidx.compose.ui.unit.dp
 import androidx.navigation.NavHostController
 import com.example.todolist.DatabaseActivity
 import com.example.todolist.InputValidation
+import com.example.todolist.LoginSignup.AuthenticationActivity
 import com.example.todolist.Navigation.Routes
 import com.example.todolist.ToDoList.ToDoListItem
 import com.example.todolist.ToDoList.ToDoListItemViewModel
@@ -76,7 +77,7 @@ fun CreateToDoListItem(navController: NavHostController, toDoListItemViewModel: 
     val context = LocalContext.current
 
     // Firebase
-    val currentUser = Firebase.auth.currentUser
+    val currentUser = AuthenticationActivity().getUser()
     val currentUserUid = currentUser?.uid
     val database = FirebaseDatabase.getInstance("https://fit5046-assignment-3-5083c-default-rtdb.asia-southeast1.firebasedatabase.app/")
     val mDatabase = database.reference

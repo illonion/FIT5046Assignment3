@@ -3,17 +3,19 @@ package com.example.todolist.Analytics
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
+import com.example.todolist.LoginSignup.AuthenticationActivity
 import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.database.*
 import java.text.SimpleDateFormat
 import java.util.*
 
 class AnalyticsViewModel : ViewModel() {
+    // Database
     private val database = FirebaseDatabase.getInstance()
     private val tasksRef = database.getReference("tasks")
-    private val auth = FirebaseAuth.getInstance()
-    private val currentUser = auth.currentUser
+    private val currentUser = AuthenticationActivity().getUser()
 
+    // Task values
     private val _completedTasks = MutableLiveData(0)
     private val _incompleteTasks = MutableLiveData(0)
     private val _completionPercentage = MutableLiveData(0)

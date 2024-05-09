@@ -5,6 +5,7 @@ import androidx.annotation.RequiresApi
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
+import com.example.todolist.LoginSignup.AuthenticationActivity
 import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.database.*
 import java.time.LocalDate
@@ -13,8 +14,7 @@ import java.util.*
 class SevenDayViewModel : ViewModel() {
     private val database = FirebaseDatabase.getInstance()
     private val tasksRef = database.getReference("tasks")
-    private val auth = FirebaseAuth.getInstance()
-    private val currentUser = auth.currentUser
+    private val currentUser = AuthenticationActivity().getUser()
 
     private val _tasksForLastWeekExist = MutableLiveData(false)
     private val _tagDistributionPercentage = MutableLiveData<Map<String, Double>>()

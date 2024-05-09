@@ -40,6 +40,7 @@ import androidx.compose.ui.unit.sp
 import com.example.todolist.Analytics.AnalyticsViewModel
 import com.example.todolist.Analytics.PieChart
 import com.example.todolist.Analytics.PieChartInput
+import com.example.todolist.LoginSignup.AuthenticationActivity
 import com.example.todolist.Navigation.Routes
 import com.example.todolist.ToDoList.ListToDoListItem
 import com.example.todolist.ToDoList.ToDoListItem
@@ -183,7 +184,7 @@ fun Home(navController: NavHostController, toDoListItemViewModel: ToDoListItemVi
             )
 
             var toDoListItems by remember { mutableStateOf(emptyList<ToDoListItem>()) }
-            val currentUserUid = Firebase.auth.currentUser?.uid
+            val currentUserUid = AuthenticationActivity().getUser()?.uid
             toDoListItemViewModel.allToDoListItems.observeAsState(emptyList()).apply {
                 toDoListItems = this.value
                     .filter { it.userId == currentUserUid || it.friend == currentUserUid } // Remove items where the user is not the user OR a friend

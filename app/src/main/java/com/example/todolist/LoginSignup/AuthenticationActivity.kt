@@ -34,7 +34,6 @@ class AuthenticationActivity : Activity() {
 
     private var auth: FirebaseAuth = Firebase.auth
 
-
     public override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
     }
@@ -47,8 +46,7 @@ class AuthenticationActivity : Activity() {
 
         }
     }
-
-    public fun createAccount(email: String, password: String, firstName: String, lastName: String, isSuccess:  (Boolean) -> Unit) {
+    fun createAccount(email: String, password: String, firstName: String, lastName: String, isSuccess:  (Boolean) -> Unit) {
         auth.createUserWithEmailAndPassword(email, password)
             .addOnCompleteListener(this) { task ->
                 if (task.isSuccessful) {
@@ -79,7 +77,7 @@ class AuthenticationActivity : Activity() {
             }
     }
 
-    public fun signIn(email: String, password: String, rememberLogin: Boolean, sharedPref: SharedPreferences, isSuccess:  (Boolean) -> Unit) {
+    fun signIn(email: String, password: String, rememberLogin: Boolean, sharedPref: SharedPreferences, isSuccess:  (Boolean) -> Unit) {
 
         auth.signInWithEmailAndPassword(email, password)
             .addOnCompleteListener(this) { task ->
@@ -106,13 +104,13 @@ class AuthenticationActivity : Activity() {
                 }
             }
     }
-    public fun signOut() {
+    fun signOut() {
         val currentUser = auth.currentUser
         if (currentUser != null) {
             auth.signOut()
         }
     }
-    public fun signInWithGoogle(context: Context, scope: CoroutineScope, rememberLogin: Boolean, sharedPref: SharedPreferences, isSuccess: (Boolean) -> Unit) {
+    fun signInWithGoogle(context: Context, scope: CoroutineScope, rememberLogin: Boolean, sharedPref: SharedPreferences, isSuccess: (Boolean) -> Unit) {
 
         // google auth
         val WEB_CLIENT_ID = context.getString(R.string.WEB_CLIENT_ID)
@@ -173,12 +171,12 @@ class AuthenticationActivity : Activity() {
         }
     }
 
-    public fun checkIsLoggedIn(): Boolean {
+    fun checkIsLoggedIn(): Boolean {
         val user = Firebase.auth.currentUser
         return user != null
     }
 
-    public fun getTokenCallback(token: (String?) -> Unit) {
+    fun getTokenCallback(token: (String?) -> Unit) {
         try {
             auth.getAccessToken(false).addOnCompleteListener { task ->
                 val result: GetTokenResult? = task.result
@@ -189,7 +187,7 @@ class AuthenticationActivity : Activity() {
         }
     }
 
-    public fun getUser(): FirebaseUser? {
+    fun getUser(): FirebaseUser? {
         return auth.currentUser
     }
 

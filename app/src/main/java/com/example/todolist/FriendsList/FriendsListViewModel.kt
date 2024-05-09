@@ -3,6 +3,7 @@ package com.example.todolist.FriendsList
 import android.app.Application
 import android.widget.Toast
 import androidx.lifecycle.AndroidViewModel
+import com.example.todolist.LoginSignup.AuthenticationActivity
 import com.example.todolist.User
 import com.google.firebase.Firebase
 import com.google.firebase.auth.auth
@@ -14,7 +15,7 @@ import java.util.UUID
 
 class FriendsListViewModel(application: Application): AndroidViewModel(application) {
     // Database
-    private val currentUserUid = Firebase.auth.currentUser?.uid
+    private val currentUserUid = AuthenticationActivity().getUser()?.uid
     private val databaseReference = FirebaseDatabase.getInstance("https://fit5046-assignment-3-5083c-default-rtdb.asia-southeast1.firebasedatabase.app/").reference
     private val friendsReference = databaseReference.child("friends")
     private val usersReference = databaseReference.child("users")
