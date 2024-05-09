@@ -40,7 +40,6 @@ import androidx.compose.ui.text.input.PasswordVisualTransformation
 import androidx.compose.ui.text.input.VisualTransformation
 import androidx.compose.ui.unit.dp
 import androidx.navigation.NavHostController
-import com.google.firebase.auth.FirebaseAuth
 import com.example.todolist.Navigation.Routes
 																		
 
@@ -58,13 +57,9 @@ fun MainSignup(navController: NavHostController) {
     var firstName by remember { mutableStateOf("") }
     var lastName by remember { mutableStateOf("") }
     var emailAddress by remember { mutableStateOf("") }
-    var message by remember { mutableStateOf("") }
+    val message by remember { mutableStateOf("") }
     var loading by remember { mutableStateOf(false) }
     var hidePassword by remember { mutableStateOf(true) }
-
-    val context = LocalContext.current
-    val auth = FirebaseAuth.getInstance()
-
 
     // variables for validation
     val mContext = LocalContext.current
@@ -190,28 +185,32 @@ fun MainSignup(navController: NavHostController) {
                     {
                         checkEmailExists(emailAddress) { emailExists ->
                             Log.i("Email Exists", emailExists)
-                            if (emailExists == "Email Does Not Exist") {
-                                // If email does not exist, proceed with account creation
-                                loading = true
-                                AuthenticationActivity().createAccount(emailAddress, newPassword, firstName, lastName) { isSuccess ->
-                                    loading = false
-                                    if (isSuccess) {
-                                        navController.navigate(Routes.Home.value)
+                            when (emailExists) {
+                                "Email Does Not Exist" -> {
+                                    // If email does not exist, proceed with account creation
+                                    loading = true
+                                    AuthenticationActivity().createAccount(emailAddress, newPassword, firstName, lastName) { isSuccess ->
+                                        loading = false
+                                        if (isSuccess) {
+                                            navController.navigate(Routes.Home.value)
+                                        }
                                     }
                                 }
-                            } else if (emailExists == "Email Exists") {
-                                // If email already exists, display an error message
-                                Toast.makeText(
-                                    mContext,
-                                    "An account already exists with this email.",
-                                    Toast.LENGTH_LONG
-                                ).show()
-                            } else {
-                                Toast.makeText(
-                                    mContext,
-                                    "There was an error with the database. Please try again later.",
-                                    Toast.LENGTH_LONG
-                                ).show()
+                                "Email Exists" -> {
+                                    // If email already exists, display an error message
+                                    Toast.makeText(
+                                        mContext,
+                                        "An account already exists with this email.",
+                                        Toast.LENGTH_LONG
+                                    ).show()
+                                }
+                                else -> {
+                                    Toast.makeText(
+                                        mContext,
+                                        "There was an error with the database. Please try again later.",
+                                        Toast.LENGTH_LONG
+                                    ).show()
+                                }
                             }
                         }
                     }

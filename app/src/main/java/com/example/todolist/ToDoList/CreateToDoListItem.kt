@@ -52,8 +52,6 @@ import com.example.todolist.LoginSignup.AuthenticationActivity
 import com.example.todolist.Navigation.Routes
 import com.example.todolist.ToDoList.ToDoListItem
 import com.example.todolist.ToDoList.ToDoListItemViewModel
-import com.google.firebase.Firebase
-import com.google.firebase.auth.auth
 import com.google.firebase.database.FirebaseDatabase
 import kotlinx.coroutines.delay
 import java.text.SimpleDateFormat
@@ -88,7 +86,7 @@ fun CreateToDoListItem(navController: NavHostController, toDoListItemViewModel: 
 
     // Tag
     var tagsIsExpanded by remember { mutableStateOf(false) }
-    val tags = listOf("No Tag", "Indoors", "Outdoors", "School", "Work", "Sports")
+    val tags = listOf("None", "Indoors", "Outdoors", "School", "Work", "Sports")
     var selectedTag by remember { mutableStateOf(tags[0]) }
 
     // Calendar

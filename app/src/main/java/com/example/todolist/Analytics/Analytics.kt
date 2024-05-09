@@ -173,7 +173,7 @@ fun Analytics(navController: NavHostController, analyticsViewModel: AnalyticsVie
                 Spacer(modifier = Modifier.height(14.dp))
 
                 // Display yesterday's completion percentage
-                if (yesterdayCompletionPercentage > 0) {
+                if (yesterdayCompletionPercentage > completionPercentage) {
                     val difference = yesterdayCompletionPercentage - completionPercentage
                     Text(
                         text = "Yesterday was $difference% more productive.",

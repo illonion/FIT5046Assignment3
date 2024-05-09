@@ -10,7 +10,6 @@ import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.material3.Button
 import androidx.compose.material3.Divider
-												
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.OutlinedTextField
@@ -28,10 +27,7 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.unit.dp
 import androidx.navigation.NavHostController
-																		
-
 import com.example.todolist.Navigation.Routes
-import android.util.Log
 import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.material.IconButton
 import androidx.compose.material.icons.Icons
@@ -66,7 +62,7 @@ fun MainLogin(navController: NavHostController) {
     var emailError by remember { mutableStateOf(!isValidEmail(email)) }
     var passwordError by remember { mutableStateOf(true) }
     var isLoginButtonClicked by remember { mutableStateOf(false) }
-    var rememberLogin = remember { mutableStateOf(oldRememberLogin) }
+    val rememberLogin = remember { mutableStateOf(oldRememberLogin) }
 
     // Top bar
     TopAppBar(

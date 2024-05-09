@@ -20,14 +20,6 @@ import com.google.firebase.auth.GoogleAuthProvider
 import com.google.firebase.auth.auth
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.launch
-import kotlinx.coroutines.runBlocking
-import java.time.LocalDateTime
-import java.time.ZoneId
-import java.util.Date
-import java.util.UUID
-import java.util.concurrent.CountDownLatch
-import kotlin.coroutines.resume
-import kotlin.coroutines.suspendCoroutine
 
 
 class AuthenticationActivity : Activity() {
@@ -40,11 +32,6 @@ class AuthenticationActivity : Activity() {
 
     public override fun onStart() {
         super.onStart()
-        // Check if user is signed in (non-null) and update UI accordingly.
-        val currentUser = auth.currentUser
-        if (currentUser != null) {
-
-        }
     }
     fun createAccount(email: String, password: String, firstName: String, lastName: String, isSuccess:  (Boolean) -> Unit) {
         auth.createUserWithEmailAndPassword(email, password)
@@ -53,10 +40,9 @@ class AuthenticationActivity : Activity() {
                     // Sign in success, update UI with the signed-in user's information
                     Log.d(TAG, "createUserWithEmail:success")
                     val user = auth.currentUser!!
-                    val token = auth.toString()
                     DatabaseActivity().addNewUser(user, email, firstName, lastName) { isSuccess ->
                         if (isSuccess) {
-                            getTokenCallback() { token ->
+                            getTokenCallback { token ->
                                 DatabaseActivity().setCurrentSessionId(user, token)
                                 isSuccess(true)
                             }
@@ -84,7 +70,7 @@ class AuthenticationActivity : Activity() {
                 if (task.isSuccessful) {
                     Log.d(TAG, "signInWithEmail:success")
                     val user = auth.currentUser
-                    getTokenCallback() { token ->
+                    getTokenCallback { token ->
                         DatabaseActivity().setCurrentSessionId(user, token)
                         with (sharedPref.edit()) {
                             if (rememberLogin) {
@@ -138,14 +124,14 @@ class AuthenticationActivity : Activity() {
                 val firebaseCredential = GoogleAuthProvider
                     .getCredential(googleIdToken, null)
 
-                val accounts = AccountManager.get(context).getAccounts()
+                val accounts = AccountManager.get(context).accounts
                 val email = accounts[0].name
 
                 auth.signInWithCredential(firebaseCredential)
                     .addOnCompleteListener { task ->
                         if (task.isSuccessful) {
                             val user = auth.currentUser
-                            getTokenCallback() { token ->
+                            getTokenCallback { token ->
                                 DatabaseActivity().addNewUser(user, email, "", "") { isSuccess ->
                                     if (isSuccess) {
                                         DatabaseActivity().setCurrentSessionId(user, token)
@@ -180,7 +166,7 @@ class AuthenticationActivity : Activity() {
         try {
             auth.getAccessToken(false).addOnCompleteListener { task ->
                 val result: GetTokenResult? = task.result
-                token(result?.getToken())
+                token(result?.token)
             }
         } catch(e: Exception) {
             token(null)

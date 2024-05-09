@@ -26,8 +26,6 @@ import com.example.todolist.ToDoList.Calendar.Calendar
 import com.example.todolist.ToDoList.Calendar.CalendarDataSource
 import com.example.todolist.ToDoList.Calendar.CalendarHeader
 import com.example.todolist.ToDoList.Calendar.CalendareDataClass
-import com.google.firebase.auth.ktx.auth
-import com.google.firebase.ktx.Firebase
 import kotlinx.coroutines.delay
 import java.time.LocalDate
 import java.time.format.DateTimeFormatter

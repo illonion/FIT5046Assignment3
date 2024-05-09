@@ -5,8 +5,6 @@ import android.widget.Toast
 import androidx.lifecycle.AndroidViewModel
 import com.example.todolist.LoginSignup.AuthenticationActivity
 import com.example.todolist.User
-import com.google.firebase.Firebase
-import com.google.firebase.auth.auth
 import com.google.firebase.database.DataSnapshot
 import com.google.firebase.database.DatabaseError
 import com.google.firebase.database.FirebaseDatabase

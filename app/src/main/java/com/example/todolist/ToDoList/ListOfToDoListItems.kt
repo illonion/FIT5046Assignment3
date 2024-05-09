@@ -196,7 +196,7 @@ fun EditTaskDialog(toDoListItem: ToDoListItem, navController: NavHostController?
             }
         },
         text = {
-            Column() {
+            Column {
                 TextField(
                     value = editedToDoListItem.name,
                     onValueChange = { editedToDoListItem = editedToDoListItem.copy(name = it.trim()) },

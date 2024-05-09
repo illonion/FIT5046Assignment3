@@ -1,6 +1,5 @@
 package com.example.todolist
 
-import WeatherScreen
 import android.annotation.SuppressLint
 import android.os.Build
 import androidx.annotation.RequiresApi
@@ -45,12 +44,11 @@ import com.example.todolist.Navigation.Routes
 import com.example.todolist.ToDoList.ListToDoListItem
 import com.example.todolist.ToDoList.ToDoListItem
 import com.example.todolist.ToDoList.ToDoListItemViewModel
-import com.google.firebase.auth.ktx.auth
-import com.google.firebase.ktx.Firebase
 import java.time.LocalDate
 import java.time.format.DateTimeFormatter
 import com.example.todolist.ui.theme.CompleteGreen
 import com.example.todolist.ui.theme.IncompleteGrey
+import com.example.todolist.Weather.WeatherScreen
 import kotlinx.coroutines.delay
 
 // Home screen

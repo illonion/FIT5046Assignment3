@@ -1,3 +1,5 @@
+package com.example.todolist.Weather
+
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.*
@@ -11,7 +13,6 @@ import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.example.todolist.R
-import com.example.todolist.Weather.ItemsRepository
 import com.example.todolist.Weather.data.models.CurrentWeather
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
