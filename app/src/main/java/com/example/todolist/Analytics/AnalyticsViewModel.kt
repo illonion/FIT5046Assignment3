@@ -12,7 +12,7 @@ class AnalyticsViewModel : ViewModel() {
     // Database
     private val database = FirebaseDatabase.getInstance()
     private val tasksRef = database.getReference("tasks")
-    private val currentUser = AuthenticationActivity().getUser()
+    private var currentUser = AuthenticationActivity().getUser()
 
     // Task values
     private val _completedTasks = MutableLiveData(0)
@@ -38,6 +38,7 @@ class AnalyticsViewModel : ViewModel() {
 
     // Fetch task completion data from database
     fun fetchTaskCompletionData() {
+        currentUser = AuthenticationActivity().getUser()
         val userId = currentUser?.uid ?: return
         val todayDateString = getCurrentDateString()
         val yesterdayDateString = getYesterdayDateString()

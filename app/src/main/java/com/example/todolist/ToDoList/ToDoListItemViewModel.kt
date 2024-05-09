@@ -29,7 +29,7 @@ class ToDoListItemViewModel(application: Application) : AndroidViewModel(applica
     var friendsUids = mutableListOf("")
 
     // Current user
-    val currentUserUid = Firebase.auth.currentUser?.uid
+    var currentUserUid = Firebase.auth.currentUser?.uid
 
     init{
         repository = ToDoListItemRepository(application)
@@ -117,6 +117,7 @@ class ToDoListItemViewModel(application: Application) : AndroidViewModel(applica
     fun fetchFriends() {
         // Reset friends list
         friends = mutableListOf(Friend("No One", ""))
+        currentUserUid = Firebase.auth.currentUser?.uid
         friendsUids = mutableListOf("")
 
         friendsReference.addListenerForSingleValueEvent(object : ValueEventListener {

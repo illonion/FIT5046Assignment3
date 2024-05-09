@@ -67,7 +67,7 @@ fun FriendsList(navController: NavHostController, friendsListViewModel: FriendsL
                 onAdd = { email ->
                     DatabaseActivity().checkValidSession(context) { isValidSession ->
                         if (isValidSession) {
-                            friendsListViewModel.addToFriendsList(email, navController)
+                            friendsListViewModel.addToFriendsList(email)
                         } else {
                             navController.navigate(Routes.MainLogout.value)
                         }

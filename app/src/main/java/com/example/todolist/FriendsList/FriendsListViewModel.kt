@@ -3,10 +3,7 @@ package com.example.todolist.FriendsList
 import android.app.Application
 import android.widget.Toast
 import androidx.lifecycle.AndroidViewModel
-import androidx.navigation.NavController
-import androidx.navigation.NavHostController
 import com.example.todolist.LoginSignup.AuthenticationActivity
-import com.example.todolist.Navigation.Routes
 import com.example.todolist.User
 import com.google.firebase.database.DataSnapshot
 import com.google.firebase.database.DatabaseError
@@ -16,7 +13,7 @@ import java.util.UUID
 
 class FriendsListViewModel(application: Application): AndroidViewModel(application) {
     // Database
-    private val currentUserUid = AuthenticationActivity().getUser()?.uid
+    private var currentUserUid = AuthenticationActivity().getUser()?.uid
     private val databaseReference = FirebaseDatabase.getInstance("https://fit5046-assignment-3-5083c-default-rtdb.asia-southeast1.firebasedatabase.app/").reference
     private val friendsReference = databaseReference.child("friends")
     private val usersReference = databaseReference.child("users")
@@ -38,6 +35,7 @@ class FriendsListViewModel(application: Application): AndroidViewModel(applicati
 
     // Load all friends
     fun loadAllFriends() {
+        currentUserUid = AuthenticationActivity().getUser()?.uid
         friendsReference.addListenerForSingleValueEvent(object : ValueEventListener {
             override fun onDataChange(friendsSnapshot: DataSnapshot) {
                 val newFriendListUserIds = mutableListOf<String>() // Temporary list to hold updated friends ids
@@ -93,7 +91,7 @@ class FriendsListViewModel(application: Application): AndroidViewModel(applicati
     }
 
     // Add friend to friends list
-    fun addToFriendsList(email: String, navController: NavHostController) {
+    fun addToFriendsList(email: String) {
         // Step 1: Check if they put anything
         if (email == "") {
             _validationMessage = "Please enter an email."
@@ -171,7 +169,6 @@ class FriendsListViewModel(application: Application): AndroidViewModel(applicati
                                 _validationMessage = ""
                                 displayToast("Successfully added friend!")
                                 loadAllFriends()
-                                navController.navigate(Routes.FriendsList.value)
                             }
                             .addOnFailureListener {
                                 _validationMessage = "Sorry! Something went wrong. " +
@@ -192,7 +189,7 @@ class FriendsListViewModel(application: Application): AndroidViewModel(applicati
     }
 
     // Remove Friend
-    fun removeFriend(friend: User, navController: NavHostController) {
+    fun removeFriend(friend: User) {
         friendsReference.addListenerForSingleValueEvent(object : ValueEventListener {
             override fun onDataChange(friendsSnapshot: DataSnapshot) {
                 var friendListId = ""
@@ -218,7 +215,6 @@ class FriendsListViewModel(application: Application): AndroidViewModel(applicati
                         .addOnSuccessListener {
                             displayToast("Successfully removed friend!")
                             loadAllFriends()
-                            navController.navigate("FriendsList")
                         }
                         .addOnFailureListener {e -> displayToast("Error: $e") }
                 }
