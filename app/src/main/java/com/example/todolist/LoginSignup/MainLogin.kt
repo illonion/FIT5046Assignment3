@@ -195,7 +195,7 @@ fun MainLogin(navController: NavHostController) {
                             } else {
                                 Toast.makeText(
                                     context,
-                                    "Sign-in with google failed. Please make sure you are logged into the Google Play Store / Service!",
+                                    "Sign-in with google failed. Please make sure your Google Play Services is updated!",
                                     Toast.LENGTH_LONG
                                 ).show()
                             }
