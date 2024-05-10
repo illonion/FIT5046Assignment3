@@ -12,6 +12,9 @@ import androidx.compose.ui.graphics.nativeCanvas
 import androidx.compose.ui.graphics.toArgb
 import androidx.compose.ui.unit.dp
 
+// Code adapted from
+// https://github.com/MatthiasKerat/PieChartYT/blob/main/app/src/main/java/com/kapps/piechartyt/MainActivity.kt
+
 // Composable function for drawing a pie chart
 @Composable
 fun PieChart(
